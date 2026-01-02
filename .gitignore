@@ -11,6 +11,9 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+.packages
+.flutter-plugins-dependencies
+
 
 # IntelliJ related
 *.iml
@@ -43,3 +46,24 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+/android/local.properties
+/android/.gradle/
+
+#IOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Generated.xcconfig
+ios/Flutter/Flutter.framework
+ios/Flutter/App.framework
+ios/Flutter/ephemeral/
+
+# ───────── Web ─────────
+web/.dart_tool/
+web/build/
+
+# ───────── Secrets / Env ─────────
+.env
+.env.*
+google-services.json
+GoogleService-Info.plist
+firebase_options.dart
