@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/utils/responsive.dart';
 import 'package:pos_app/widgets/footer.dart';
+import 'package:pos_app/services/auth_service.dart';
+import 'package:pos_app/db/database.dart';
+
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -10,7 +13,35 @@ class Home extends StatefulWidget {
   State<Home> createState() => _MyWidgetState();
 }
 
+
+
 class _MyWidgetState extends State<Home>  {
+
+   void initState() {
+    super.initState();
+    _verifyToken(); // prints tokens to console when Home opens
+  }
+
+Future<void> _verifyToken() async {
+  final userId = await AuthService.getUserId();
+  final rawToken = await AuthService.getToken() ?? 'No token found';
+
+  String dbToken = 'No DB token';
+  if (userId != null) {
+    final db = await AppDatabase.database;
+    final result = await db.query('users', where: 'id = ?', whereArgs: [userId]);
+    if (result.isNotEmpty) {
+      dbToken = (result.first['token'] as String ?)?? 'No DB token found';
+    } else {
+      dbToken = 'User not found in DB';
+    }
+  }
+
+  print('Raw token in secure storage: $rawToken');
+  print('Hashed token in database: $dbToken');
+}
+
+
 
 int _currentIndex = 0;
 
