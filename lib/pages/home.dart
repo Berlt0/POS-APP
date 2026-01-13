@@ -4,6 +4,7 @@ import 'package:pos_app/utils/responsive.dart';
 import 'package:pos_app/widgets/footer.dart';
 import 'package:pos_app/services/auth_service.dart';
 import 'package:pos_app/db/database.dart';
+import 'package:pos_app/services/session_service.dart';
 
 
 class Home extends StatefulWidget {
@@ -17,29 +18,54 @@ class Home extends StatefulWidget {
 
 class _MyWidgetState extends State<Home>  {
 
+  int? userId;
+  String? username;
+  String? role;
+
    void initState() {
     super.initState();
-    _verifyToken(); // prints tokens to console when Home opens
+    _loadSession();
+    // _verifyToken(); // prints tokens to console when Home opens
   }
 
-Future<void> _verifyToken() async {
-  final userId = await AuthService.getUserId();
-  final rawToken = await AuthService.getToken() ?? 'No token found';
+// Future<void> _verifyToken() async {
+//   final userId = await AuthService.getUserId();
+//   final rawToken = await AuthService.getToken() ?? 'No token found';
 
-  String dbToken = 'No DB token';
-  if (userId != null) {
-    final db = await AppDatabase.database;
-    final result = await db.query('users', where: 'id = ?', whereArgs: [userId]);
-    if (result.isNotEmpty) {
-      dbToken = (result.first['token'] as String ?)?? 'No DB token found';
-    } else {
-      dbToken = 'User not found in DB';
-    }
+//   String dbToken = 'No DB token';
+//   if (userId != null) {
+//     final db = await AppDatabase.database;
+//     final result = await db.query('users', where: 'id = ?', whereArgs: [userId]);
+//     if (result.isNotEmpty) {
+//       dbToken = (result.first['token'] as String ?)?? 'No DB token found';
+//     } else {
+//       dbToken = 'User not found in DB';
+//     }
+//   }
+
+//   print('Raw token in secure storage: $rawToken');
+//   print('Hashed token in database: $dbToken');
+
+Future<void> _loadSession() async {
+  final session = await SessionService.getSession();
+
+  if (session != null) {
+    print('SESSION FOUND');
+    print('userId: ${session['user_id']}');
+    print('username: ${session['username']}');
+    print('role: ${session['role']}');
+
+    setState(() {
+      userId = session['user_id'];
+      username = session['username'];
+      role = session['role'];
+    });
+  } else {
+    print('NO SESSION FOUND');
   }
-
-  print('Raw token in secure storage: $rawToken');
-  print('Hashed token in database: $dbToken');
 }
+
+
 
 
 
@@ -47,6 +73,7 @@ int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       bottomNavigationBar: AppFooter(
@@ -54,11 +81,24 @@ int _currentIndex = 0;
       onTap: (index) {
         setState(() => _currentIndex = index);
 
-        // Optional navigation logic
-        // if (index == 1) Navigator.push(...);
+        switch(index){
+          case 0: 
+            Navigator.pushNamed(context, '/home');
+            break;
+          case 1:
+            Navigator.pushNamed(context, '/inventory');
+            break;
+          case 2:
+            Navigator.pushNamed(context, '/products');
+            break;
+          case 3:
+            Navigator.pushNamed(context, '/reports');
+            break;
+          
+        }
       },
       onCenterTap: () {
-        print("POS tapped");
+         Navigator.pushReplacementNamed(context, '/pos');
       },
     ),
 
@@ -96,10 +136,20 @@ int _currentIndex = 0;
                         ),
                       ),
                     ),
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundImage: NetworkImage(
-                        'https://picsum.photos/200',
+                    GestureDetector(
+                      onTap: () async {
+                        // Temporary logout logic
+                        await SessionService.clearSession(); // clears the session
+                        print("User logged out");
+
+                        // Optional: navigate to login page if you have one
+                        Navigator.pushReplacementNamed(context, '/');
+                      },
+                      child: CircleAvatar(
+                        radius: 20,
+                        backgroundImage: NetworkImage(
+                          'https://picsum.photos/200',
+                        ),
                       ),
                     ),
                   ],

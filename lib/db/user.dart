@@ -37,8 +37,12 @@ class UserDB {
     );
 
     return {
+     
       'userId': userId,
-      'token': rawToken, // give raw token to the app
+      'username': user['username'],
+      'role': user['role'],
+      'token': rawToken,
     };
+    
   }
 }

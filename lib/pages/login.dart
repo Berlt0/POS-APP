@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/db/user.dart';
 import 'package:pos_app/services/auth_service.dart'; // use underscore
+import 'package:pos_app/services/session_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -35,7 +36,15 @@ class _LoginPageState extends State<LoginPage> {
 
     if (result != null) {
       // Save session (AuthService writes to secure storage)
-      await AuthService.saveSession(result['userId'], result['token']);
+      await AuthService.saveSession(
+        result['userId'], 
+        result['token']);
+
+      await SessionService.saveSession(
+        userId: result['userId'],
+        username: result['username'],
+        role: result['role'],
+      );
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

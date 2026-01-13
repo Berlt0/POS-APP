@@ -16,8 +16,22 @@ class AppDatabase {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _createTables,
+      onUpgrade: (db, oldVersion, newVersion) async {
+      if (oldVersion < 3) {
+      await db.execute("ALTER TABLE products ADD COLUMN stock_unit TEXT DEFAULT 'pcs'");
+      await db.execute("ALTER TABLE products ADD COLUMN cost REAL");
+      await db.execute("ALTER TABLE products ADD COLUMN barcode TEXT UNIQUE");
+      await db.execute("ALTER TABLE products ADD COLUMN low_stock_alert INTEGER DEFAULT 10");
+      await db.execute("ALTER TABLE products ADD COLUMN description TEXT");
+      await db.execute("ALTER TABLE products ADD COLUMN image_path TEXT");
+      await db.execute("ALTER TABLE products ADD COLUMN createdAt TEXT");
+      await db.execute("ALTER TABLE products ADD COLUMN lastUpdate TEXT");
+      
+      print("Session table altered on upgrade");
+      }
+    },
       
     );
   }
@@ -39,10 +53,19 @@ class AppDatabase {
     await db.execute('''
       CREATE TABLE products (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        price REAL,
-        stock INTEGER,
-        category TEXT
+        name TEXT NOT NULL,
+        price REAL NOT NULL,
+        stock INTEGER NOT NULL,
+        stock_unit TEXT DEFAULT 'pcs',
+        cost REAL,
+        category TEXT,
+        barcode TEXT UNIQUE,
+        low_stock_alert INTEGER DEFAULT 10,
+        description TEXT,
+        image_path TEXT,
+        createdAt TEXT,
+        lastUpdate TEXT
+
       )
     ''');
 
@@ -63,6 +86,17 @@ class AppDatabase {
         product_id INTEGER,
         quantity INTEGER,
         price REAL
+      )
+    ''');
+
+    // SESSION (who is logged in)
+    await db.execute('''
+      CREATE TABLE session (
+        id INTEGER PRIMARY KEY,
+        user_id INTEGER,
+        username TEXT,
+        role TEXT,
+        login_at TEXT
       )
     ''');
 
