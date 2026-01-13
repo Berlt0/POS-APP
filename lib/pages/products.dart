@@ -18,7 +18,10 @@ class _ProductsState extends State<Products> {
   TextEditingController _searchController = TextEditingController();
   String _searchText = '';
 
+  List<String> _categories = ['All']; 
   String _selectedCategory = 'All';
+
+
 
   late Future<List<Product>> _productsFuture;
 
@@ -27,16 +30,46 @@ class _ProductsState extends State<Products> {
   void initState() {
     super.initState();
     _loadProducts();
+
+    _searchController.addListener(() {
+      setState(() {
+        _searchText = _searchController.text.trim().toLowerCase();
+      });
+    });   
+
   }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  String toTitleCase(String text) {
+  if (text.isEmpty) return text;
+  return text
+      .split(' ')
+      .map((word) => word.isNotEmpty
+          ? word[0].toUpperCase() + word.substring(1).toLowerCase()
+          : '')
+      .join(' ');
+}
+
   
 void _loadProducts() {
-  _productsFuture = ProductDB.getAll();
+   _productsFuture = ProductDB.getAll();
   _productsFuture.then((list) {
     print("Products loaded: ${list.length}");
-    for (var p in list) {
-      print("Product: ${p.name}, ${p.imagePath}");
-    }
-  }); // returns List<Product> from DB
+    
+    
+    final Set<String> uniqueCategories = list
+        .map((p) => p.category ?? 'Others')
+        .toSet(); 
+        final List<String> sortedCategories = uniqueCategories.toList()..sort();
+    setState(() {
+      _categories = ['All', ...uniqueCategories];
+    });
+  });
 }
 
 
@@ -108,7 +141,7 @@ Widget productCard(Product product) {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  product.name,
+                  toTitleCase(product.name),
                   style: GoogleFonts.kameron(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -213,12 +246,12 @@ Widget productCard(Product product) {
                         filled: true,
                         fillColor: Colors.grey[100]
                       ),
-                      items: const [
-                        DropdownMenuItem(value: 'All', child: Text('All')),
-                        DropdownMenuItem(value: 'Food', child: Text('Food')),
-                        DropdownMenuItem(value: 'Drinks', child: Text('Drinks')),
-                        DropdownMenuItem(value: 'Others', child: Text('Others')),
-                      ],
+                      items:_categories.map((category) {
+                        return DropdownMenuItem(
+                          value: category,
+                          child: Text(category),
+                        );
+                      }).toList(),
                       onChanged: (value) {
                         setState(() => _selectedCategory = value!);
                       },
@@ -244,30 +277,60 @@ Widget productCard(Product product) {
                   // This is the key line:
                   final products = snapshot.data ?? [];
 
-                  // Group products by category
-                  final Map<String, List<Product>> grouped = {};
-                  for (var product in products) {
-                    if (_selectedCategory != 'All' &&
-                        product.category != _selectedCategory) continue;
+                  List<Widget> productWidgets = [];
 
-                    grouped.putIfAbsent(product.category ?? 'Others', () => []);
-                    grouped[product.category ?? 'Others']!.add(product);
-                }
+                  final filtered = products.where((product) {
+                  final matchesCategory = _selectedCategory == 'All' ||
+                      product.category == _selectedCategory;
+                  final matchesSearch = product.name.toLowerCase().contains(_searchText);
+                  return matchesCategory && matchesSearch;
+                }).toList();
 
-                 return ListView(
-                  children: grouped.entries.map((entry) {
-                    final category = entry.key;
-                    final productsInCategory = entry.value;
 
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        categoryHeader(category),
-                        ...productsInCategory.map((product) => productCard(product)),
-                      ],
-                    );
-                  }).toList(),
-                );
+                  if (_searchText.isEmpty) {
+                    // No search: group by category
+                    final Map<String, List<Product>> grouped = {};
+                    for (var product in products) {
+                      if (_selectedCategory != 'All' &&
+                          product.category != _selectedCategory) continue;
+
+                      final category = product.category ?? 'Others';
+                      grouped.putIfAbsent(category, () => []);
+                      grouped[category]!.add(product);
+                    }
+
+                    productWidgets = grouped.entries.map((entry) {
+                      final category = entry.key;
+                      final productsInCategory = entry.value;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          categoryHeader(category),
+                          ...productsInCategory.map((product) => productCard(product)),
+                        ],
+                      );
+                    }).toList();
+                  } else {
+                    // Search active: ignore category grouping
+                    productWidgets = filtered.map((product) => productCard(product)).toList();
+                    if (productWidgets.isEmpty) {
+                      productWidgets = [
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Text(
+                              "No products found",
+                              style: GoogleFonts.kameron(fontSize: 16, color: Colors.grey[700]),
+                            ),
+                          ),
+                        ),
+                      ];
+                    }
+                  }
+
+                  return ListView(children: productWidgets);
+
                 },
               ),
             ),

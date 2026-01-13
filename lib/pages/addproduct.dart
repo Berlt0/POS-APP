@@ -14,31 +14,56 @@ class Addproduct extends StatefulWidget {
   State<Addproduct> createState() => _POSState();
 }
 
+class ProductFormState {
+
+    TextEditingController productName = TextEditingController();
+    TextEditingController productCategory = TextEditingController();
+    TextEditingController barcode = TextEditingController();
+    TextEditingController price = TextEditingController();
+    TextEditingController cost = TextEditingController();
+    TextEditingController quantity = TextEditingController();
+    TextEditingController stockAlert = TextEditingController();
+    TextEditingController description = TextEditingController();
+
+    File? selectedImage;
+    String stockUnit = 'pcs'; // default value
+}
+
+
+
 class _POSState extends State<Addproduct> {
 
-  TextEditingController _productName = TextEditingController();
-  TextEditingController _productCategory = TextEditingController();
-  TextEditingController _barcode = TextEditingController();
-  TextEditingController _price = TextEditingController();
-  TextEditingController _cost = TextEditingController();
-  TextEditingController _quantity = TextEditingController();
-  TextEditingController _stockAlert = TextEditingController();
-  TextEditingController _description = TextEditingController();
 
-  String _productNameValue = '';
-  String _productCategoryValue = '';
-  String _barcodeValue = '';
-  int _priceValue = 0;
-  int _costValue = 0;
-  int _quantityValue = 0;
-  int _stockValue = 0;
-  String _descripValue = '';
-
-  String _stockUnit = 'pcs'; // default value
   final List<String> _units = ['pcs', 'liter', 'kg', 'meter'];
+  
+  List<String> _categories = [];
 
-  File? _selectedImage;
+
+  Future<void> loadCategoriesFromProducts() async {
+    final allProducts = await ProductDB.getAll(); 
+    final categorySet = <String>{};
+
+    for (var product in allProducts) {
+      if (product.category != null && product.category!.isNotEmpty) {
+        categorySet.add(product.category!); 
+      }
+    }
+
+    setState(() {
+      _categories = categorySet.toList(); 
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadCategoriesFromProducts();
+  }
+
+
+  List<ProductFormState> forms = [ProductFormState()];
   final ImagePicker _picker = ImagePicker();
+  final int maxProductsPerSave = 5;
 
 
   Future<String> saveImageLocally(File image) async {
@@ -48,7 +73,7 @@ class _POSState extends State<Addproduct> {
   return newImage.path;
 }
 
-  Future<void> _pickImage() async {
+  Future<void> _pickImage(int index) async {
   final ImagePicker picker = ImagePicker();
 
       showModalBottomSheet(
@@ -64,7 +89,7 @@ class _POSState extends State<Addproduct> {
                   final XFile? image = await picker.pickImage(source: ImageSource.gallery);
                   if (image != null) {
                     setState(() {
-                      _selectedImage = File(image.path);
+                      forms[index].selectedImage = File(image.path);
                     });
                   }
                   Navigator.pop(context);
@@ -77,7 +102,7 @@ class _POSState extends State<Addproduct> {
                   final XFile? image = await picker.pickImage(source: ImageSource.camera);
                   if (image != null) {
                     setState(() {
-                      _selectedImage = File(image.path);
+                      forms[index].selectedImage = File(image.path);
                     });
                   }
                   Navigator.pop(context);
@@ -89,107 +114,142 @@ class _POSState extends State<Addproduct> {
       );
   }
 
+void addNewForm() {
 
-Future<void> _saveProduct() async {
-  // Validate required fields
-  if (_productName.text.isEmpty || _price.text.isEmpty || _quantity.text.isEmpty) {
+   if (forms.length >= maxProductsPerSave) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Please fill all required fields"))
+      SnackBar(
+        content: Text("You can only add $maxProductsPerSave products before saving!"),
+        duration: Duration(seconds: 2),
+      ),
     );
-    return;
+    return; 
   }
 
-  // Parse numeric values
-  double price = double.tryParse(_price.text) ?? 0;
-  double? cost = _cost.text.isNotEmpty ? double.tryParse(_cost.text) : null;
-  int stock = int.tryParse(_quantity.text) ?? 0;
-  int? lowStock = _stockAlert.text.isNotEmpty ? int.tryParse(_stockAlert.text) : 10;
+  setState(() {
+    forms.add(ProductFormState());
+  });
+}
 
-  // Save image locally
-  String? imagePath;
-  if (_selectedImage != null) {
-    imagePath = await saveImageLocally(_selectedImage!);
+Future<void> _saveProducts() async {
+
+  for (var form in forms){
+    
+      if (form.productName.text.isEmpty || form.price.text.isEmpty || form.quantity.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please fill all required fields"))
+      );
+      return;
+    }
+
+    
+    double price = double.tryParse(form.price.text) ?? 0;
+    double? cost = form.cost.text.isNotEmpty ? double.tryParse(form.cost.text) : null;
+    int stock = int.tryParse(form.quantity.text) ?? 0;
+    int? lowStock = form.stockAlert.text.isNotEmpty ? int.tryParse(form.stockAlert.text) : 10;
+
+    // Save image locally
+    String? imagePath;
+    if (form.selectedImage != null) {
+      imagePath = await saveImageLocally(form.selectedImage!);
+    }
+
+    final productName = form.productName.text.trim().toLowerCase();
+    final productCategory = form.productCategory.text.trim().toLowerCase();
+    final barcode = form.barcode.text.trim();
+    final description = form.description.text.trim().toLowerCase();
+
+    final formattedCategory = productCategory.isNotEmpty
+    ? productCategory[0].toUpperCase() + productCategory.substring(1).toLowerCase()
+    : null;
+
+    // Create Product object
+    final product = Product(
+      name: productName,
+      price: price,
+      stock: stock,
+      cost: cost,
+      category: formattedCategory,
+      barcode: barcode.isNotEmpty ? barcode: null,
+      lowStockAlert: lowStock,
+      description: description.isNotEmpty ? description : null,
+      imagePath: imagePath,
+      createdAt: DateTime.now().toIso8601String(),
+      lastUpdate: DateTime.now().toIso8601String(),
+    );
+
+
+    await ProductDB.insert(product);
   }
 
-  // Create Product object
-  final product = Product(
-    name: _productName.text,
-    price: price,
-    stock: stock,
-    cost: cost,
-    category: _productCategory.text.isNotEmpty ? _productCategory.text : null,
-    barcode: _barcode.text.isNotEmpty ? _barcode.text : null,
-    lowStockAlert: lowStock,
-    description: _description.text.isNotEmpty ? _description.text : null,
-    imagePath: imagePath,
-    createdAt: DateTime.now().toIso8601String(),
-    lastUpdate: DateTime.now().toIso8601String(),
-  );
-
-  // Save to database
-  await ProductDB.insert(product);
-
-  // Show success message
   ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text("${product.name} added successfully!"))
+    SnackBar(content: Text("Products added successfully!"))
   );
 
 
   // Clear form
-  _productName.clear();
-  _price.clear();
-  _quantity.clear();
-  _cost.clear();
-  _productCategory.clear();
-  _barcode.clear();
-  _stockAlert.clear();
-  _description.clear();
   setState(() {
-    _selectedImage = null;
-    _stockUnit = 'pcs';
+    forms = [ProductFormState()]; // reset to one form
   });
+  
 }
 
+Widget productFormWidget(int index) {
+  final form = forms[index];
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        backgroundColor: Colors.grey[100],
-        shadowColor: Colors.grey.withOpacity(0.5),
-        elevation: 5,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title:Padding(
-          padding: const EdgeInsets.fromLTRB(1,0,0,0),
-          child: Text(
-            "Add product",
-            style: GoogleFonts.kameron(
-              fontSize: 22,
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Product ${index + 1}", 
+              style: GoogleFonts.kameron(
+              fontSize: 20,
               fontWeight: FontWeight.bold,
               color: Colors.black
-            ),
-            ),
-        ),
-        
-      ),
-      body: 
-       SingleChildScrollView(
-        padding:EdgeInsets.all(16),
-          child:Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+            )),
+              forms.length > 1
+              ? IconButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: Text("Remove product?"),
+                        content: Text("Are you sure you want to remove this product?"),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text("Cancel"),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                forms.removeAt(index);
+                              });
+                              Navigator.pop(context);
+                            },
+                            child: Text("Remove"),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  icon: Icon(Icons.close, color: Colors.red),
+                )
+              : SizedBox(),
+
+            ],
+          ),
+            
+            SizedBox(height: 10),
             Row(
               children: [
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      SizedBox(height: 5,),
                       Text(
                         "Product Name",
                         style: GoogleFonts.kameron(
@@ -198,7 +258,7 @@ Future<void> _saveProduct() async {
                       ),
                       SizedBox(height: 5,),
                       TextField(
-                        controller: _productName,
+                        controller: form.productName,
                         decoration: InputDecoration(
                           hintText: '(ex. Nova)',
                           hintStyle: TextStyle(fontSize: 15,color: Colors.grey[600],fontStyle: FontStyle.italic),
@@ -219,19 +279,41 @@ Future<void> _saveProduct() async {
                         ),
                       ),
                       SizedBox(height: 5,),
-                      TextField(
-                        controller: _productCategory,
-                        decoration: InputDecoration(
-                          hintText: '(ex. Snacks)',
-                          hintStyle: TextStyle(fontSize: 15,color: Colors.grey[600],fontStyle: FontStyle.italic),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
+                      Autocomplete<String>(
+                        optionsBuilder: (TextEditingValue textEditingValue) {
+                          if (textEditingValue.text.isEmpty) {
+                            return const Iterable<String>.empty();
+                          }
+
+                          return _categories.where((category) =>
+                            category.toLowerCase().contains(textEditingValue.text.toLowerCase())
+                          );
+                        },
+                        displayStringForOption: (option) => option,
+                        fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
+                          form.productCategory = controller;
+                          return TextField(
+                            controller: controller,
+                            focusNode: focusNode,
+                            onEditingComplete: onEditingComplete,
+                            decoration: InputDecoration(
+                              hintText: '(ex. Snacks)',
+                              hintStyle: TextStyle(fontSize: 15, color: Colors.grey[600], fontStyle: FontStyle.italic),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              fillColor: Colors.grey[100],
+                              filled: true,
+                              contentPadding: EdgeInsets.symmetric(vertical: 1, horizontal: 10),
                             ),
-                            fillColor: Colors.grey[100],
-                            filled: true,
-                            contentPadding: EdgeInsets.symmetric(vertical: 1, horizontal: 10)
-                        ),
+                          );
+                        },
+                        onSelected: (selection) {
+                          form.productCategory.text = selection;
+                        },
                       ),
+
+
                       SizedBox(height: 5,),
                       Text(
                         "Barcode (optional)",
@@ -241,7 +323,7 @@ Future<void> _saveProduct() async {
                       ),
                       SizedBox(height: 5,),
                       TextField(
-                        controller: _barcode,
+                        controller: form.barcode,
                         decoration: InputDecoration(
                           hintStyle: GoogleFonts.kameron(fontSize: 16),
                             border: OutlineInputBorder(
@@ -288,7 +370,7 @@ Future<void> _saveProduct() async {
                       ),
                       const SizedBox(height: 5),
                       GestureDetector(
-                        onTap: _pickImage, // open gallery when tapped
+                        onTap: () => _pickImage(index), // open gallery when tapped
                         child: Container(
                           width: 150,
                           height: 150,
@@ -297,11 +379,11 @@ Future<void> _saveProduct() async {
                             borderRadius: BorderRadius.circular(15),
                             border: Border.all(color: Colors.grey),
                           ),
-                          child: _selectedImage != null
+                          child: form.selectedImage != null
                               ? ClipRRect(
                                   borderRadius: BorderRadius.circular(15),
                                   child: Image.file(
-                                    _selectedImage!,
+                                    form.selectedImage!,
                                     fit: BoxFit.cover,
                                   ),
                                 )
@@ -340,7 +422,7 @@ Future<void> _saveProduct() async {
                         ),
                         SizedBox(height: 5,),
                         TextField(
-                          controller: _price,
+                          controller: form.price,
                           decoration: InputDecoration(
                             hintText: '(ex. 20)',
                             hintStyle: TextStyle(fontSize: 15,color: Colors.grey[600],fontStyle: FontStyle.italic), 
@@ -368,7 +450,7 @@ Future<void> _saveProduct() async {
                         ),
                         SizedBox(height: 5,),
                         TextField(
-                          controller: _cost,
+                          controller: form.cost,
                           decoration: InputDecoration(
                               hintText: '(ex. 15)',
                               hintStyle: TextStyle(fontSize: 15,color: Colors.grey[600],fontStyle: FontStyle.italic),
@@ -405,7 +487,7 @@ Future<void> _saveProduct() async {
                         ),
                         SizedBox(height: 5,),
                         TextField(
-                          controller: _quantity,
+                          controller: form.quantity,
                           decoration: InputDecoration(
                             hintText: '(ex. 12)',
                             hintStyle: TextStyle(fontSize: 15,color: Colors.grey[600],fontStyle: FontStyle.italic),
@@ -429,7 +511,7 @@ Future<void> _saveProduct() async {
                                 ),
                               ),
                               child: DropdownButton<String>(
-                                value: _stockUnit,
+                                value: form.stockUnit,
                                 underline: SizedBox(), 
                                 icon: Icon(Icons.arrow_drop_down, color: Colors.black),
                                 dropdownColor: Colors.white,
@@ -447,7 +529,7 @@ Future<void> _saveProduct() async {
                                 }).toList(), 
                                 onChanged: (value) {
                                   setState(() {
-                                    _stockUnit = value!;
+                                    form.stockUnit = value!;
                                   });
                                 },
                                 ),
@@ -470,7 +552,7 @@ Future<void> _saveProduct() async {
                         ),
                         SizedBox(height: 5,),
                         TextField(
-                          controller: _stockAlert,
+                          controller: form.stockAlert,
                           decoration: InputDecoration(
                             hintText: '(ex. 5)',
                             hintStyle: TextStyle(fontSize: 15,color: Colors.grey[600],fontStyle: FontStyle.italic),
@@ -501,7 +583,7 @@ Future<void> _saveProduct() async {
                   ),
                   SizedBox(height: 5,),
                   TextField(
-                    controller: _description,
+                    controller: form.description,
                     keyboardType: TextInputType.multiline, 
                     minLines: 2, 
                     maxLines: null,
@@ -519,11 +601,57 @@ Future<void> _saveProduct() async {
               ],
             ),
             SizedBox(height: 10,),
-            Divider(thickness: 1,color:Colors.black,indent: 10,endIndent: 10,height: 40,),
+            Divider(thickness: 3,color:Colors.black,indent: 5,endIndent: 10,height: 40,),
             SizedBox(height: 5,),
+    
+    ],
+    
+    
+    );
+} 
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[100],
+      appBar: AppBar(
+        backgroundColor: Colors.grey[100],
+        shadowColor: Colors.grey.withOpacity(0.5),
+        elevation: 5,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title:Padding(
+          padding: const EdgeInsets.fromLTRB(1,0,0,0),
+          child: Text(
+            "Add product",
+            style: GoogleFonts.kameron(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.black
+            ),
+            ),
+        ),
+        
+      ),
+      body: 
+       SingleChildScrollView(
+        padding:EdgeInsets.all(16),
+          child:Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ListView.builder(
+              physics: ScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: forms.length,
+              itemBuilder: (context,index) => productFormWidget(index),
+            ),
             Center(
               child: ElevatedButton(
-                onPressed:(){} ,
+                onPressed: forms.length >= maxProductsPerSave ? null : addNewForm ,
                 style: ElevatedButton.styleFrom(
                    minimumSize: Size(200, 50), 
                   backgroundColor: Color(0xFF25FFA0), 
@@ -560,7 +688,7 @@ Future<void> _saveProduct() async {
                     borderRadius: BorderRadius.circular(12), 
                   ),
                 ),
-                onPressed: _saveProduct,
+                onPressed: _saveProducts,
                 child: Text("Save Product",
                 style: GoogleFonts.kameron(
                   color: Colors.black,
