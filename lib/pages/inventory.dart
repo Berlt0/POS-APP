@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:pos_app/utils/responsive.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/widgets/footer.dart';
+import 'package:pos_app/models/products.dart';
+import 'package:pos_app/db/product.dart';
 
 class Inventory extends StatefulWidget {
   const Inventory({super.key});
@@ -25,15 +27,23 @@ class _InventoryState extends State<Inventory> {
   String _searchText = '';
 
   String _selectedCategory = 'All';
-  
-  List<Product> _products = [
-  Product(name: 'Coke', category: 'Drinks', stock: 20),
-  Product(name: 'Pepsi', category: 'Drinks', stock: 15),
-  Product(name: 'Burger', category: 'Food', stock: 30),
-  Product(name: 'Chips', category: 'Food', stock: 50),
-  Product(name: 'Water', category: 'Drinks', stock: 100),
-];
 
+  late Future<List<SomeProductData>> _futureProductDatas;
+  
+//   List<Product> _products = [
+//   Product(name: 'Coke', category: 'Drinks', stock: 20),
+//   Product(name: 'Pepsi', category: 'Drinks', stock: 15),
+//   Product(name: 'Burger', category: 'Food', stock: 30),
+//   Product(name: 'Chips', category: 'Food', stock: 50),
+//   Product(name: 'Water', category: 'Drinks', stock: 100),
+// ];
+
+
+  @override
+  void initState(){
+    super.initState();
+    _futureProductDatas = ProductDB.getFewProductsData();
+  }
 
   @override
   void dispose(){
@@ -150,53 +160,97 @@ class _InventoryState extends State<Inventory> {
                 ), 
               ),
               SizedBox(height: 20),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: DataTable(
-                    columnSpacing: 25,
-                    headingRowColor: MaterialStateProperty.all(const Color(0xFF6FE5F2)),
-                    
-                    columns: [
-                      DataColumn(label: Center(child: Text('Product',style: tableTextStyle(fontSize: 15,fontWeight: FontWeight.bold),))),
-                      DataColumn(label: Center(child: Text('Category',style: tableTextStyle(fontSize: 15,fontWeight: FontWeight.bold)))),
-                      DataColumn(label: Center(child: Text('Stock',style: tableTextStyle(fontSize: 15,fontWeight: FontWeight.bold)))),
-                      DataColumn(label: Center(child: Text('Status',style: tableTextStyle(fontSize: 15,fontWeight: FontWeight.bold)))),
-                      DataColumn(label: Center(child: Text('Update',style: tableTextStyle(fontSize: 15,fontWeight: FontWeight.bold)))),
-                    ],rows: _products.map((product){
-                      return DataRow(cells: [
-                      DataCell(Center(child: Text(product.name,style: tableTextStyle(fontSize: 14, fontWeight: FontWeight.normal)))),
-                      DataCell(Center(child: Text(product.category,style: tableTextStyle(fontSize: 14,fontWeight: FontWeight.normal)))),
-                      DataCell(Center(child: Text(product.stock.toString(),style: tableTextStyle(fontSize: 14,fontWeight: FontWeight.normal)))),
-                      DataCell(
-                        Center(
-                          child: Text(
-                          product.stock > 0 ? 'Available' : 'Out of stock',
-                          style: tableTextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                            color: product.stock > 0 ? const Color.fromARGB(255, 34, 141, 38) : Colors.red,
+              FutureBuilder(
+                future: _futureProductDatas,
+                builder: (context, snapshot) {
+
+                  if(snapshot.connectionState == ConnectionState.waiting){
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if(snapshot.hasError){
+                    return Center(
+                      child: Text('Error loading inventory',
+                      style: GoogleFonts.kameron(
+                        color: Colors.black,
+                      ),),
+                    );
+                  }
+
+                  final products = snapshot.data ?? [];
+
+                  final filteredProducts = products.where((product){
+                  final matchesSearch = product.name.toLowerCase().contains(_searchText.toLowerCase());
+
+                  final matchesCategory = _selectedCategory == 'All' ||
+                  product.category == _selectedCategory;
+
+                  return matchesSearch && matchesCategory;
+        
+                  }).toList();
+
+                  if(filteredProducts.isEmpty){
+                    return Center(
+                      child: Text(
+                        'No products found',
+                        style: GoogleFonts.kameron(
+                          color: Colors.black
+                        ),
+                      ),
+                    );
+                  }
+
+                  
+
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: DataTable(
+                        columnSpacing: 25,
+                        headingRowColor: MaterialStateProperty.all(const Color(0xFF6FE5F2)),
+                        
+                        columns: [
+                          DataColumn(label: Center(child: Text('Product',style: tableTextStyle(fontSize: 15,fontWeight: FontWeight.bold),))),
+                          DataColumn(label: Center(child: Text('Category',style: tableTextStyle(fontSize: 15,fontWeight: FontWeight.bold)))),
+                          DataColumn(label: Center(child: Text('Stock',style: tableTextStyle(fontSize: 15,fontWeight: FontWeight.bold)))),
+                          DataColumn(label: Center(child: Text('Status',style: tableTextStyle(fontSize: 15,fontWeight: FontWeight.bold)))),
+                          DataColumn(label: Center(child: Text('Update',style: tableTextStyle(fontSize: 15,fontWeight: FontWeight.bold)))),
+                        ],rows: filteredProducts.map((product){
+                          return DataRow(cells: [
+                          DataCell(Center(child: Text(product.name,style: tableTextStyle(fontSize: 14, fontWeight: FontWeight.normal)))),
+                          DataCell(Center(child: Text(product.category,style: tableTextStyle(fontSize: 14,fontWeight: FontWeight.normal)))),
+                          DataCell(Center(child: Text(product.stock.toString(),style: tableTextStyle(fontSize: 14,fontWeight: FontWeight.normal)))),
+                          DataCell(
+                            Center(
+                              child: Text(
+                              product.stock > 0 ? 'Available' : 'Out of stock',
+                              style: tableTextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.normal,
+                                color: product.stock > 0 ? const Color.fromARGB(255, 34, 141, 38) : Colors.red,
+                              ),
+                            ),
+                            ),
                           ),
+                          DataCell(
+                            Center(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min, // make row wrap tightly
+                              children: [
+                                Icon(Icons.edit, size: 18,color: const Color.fromARGB(255, 1, 68, 122),),
+                                SizedBox(width: 5),
+                                Text("Update", style: tableTextStyle(fontSize: 14,color: Color.fromARGB(255, 1, 68, 122)),),
+                              ],
+                            ),
+                          ),
+                          ),
+                        ]);
+                        }).toList()
                         ),
-                        ),
-                      ),
-                      DataCell(
-                        Center(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min, // make row wrap tightly
-                          children: [
-                            Icon(Icons.edit, size: 18,color: const Color.fromARGB(255, 1, 68, 122),),
-                            SizedBox(width: 5),
-                            Text("Update", style: tableTextStyle(fontSize: 14,color: Color.fromARGB(255, 1, 68, 122)),),
-                          ],
-                        ),
-                      ),
-                      ),
-                    ]);
-                    }).toList()
                     ),
-                ),
+                  );
+                }
               )
 
             ],

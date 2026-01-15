@@ -66,3 +66,56 @@ class Product {
     );
   }
 }
+
+class SomeProductData{
+final int? id;
+final String name;
+final String category;
+final int stock;
+final int? low_stock_alert;
+final double? price;
+final double? cost;
+final String? image_path;
+
+SomeProductData({
+  this.id,
+  required this.name,
+  required this.category,
+  required this.stock,
+  this.low_stock_alert,
+  this.price,
+  this.cost,
+  this.image_path
+});
+
+factory SomeProductData.fromMap(Map<String,dynamic>map){
+  return SomeProductData(
+    id: map['id'] as int?,
+    name: map['name'] as String,
+    category: map['category'] as String,
+    stock: map['stock'] as int,
+    low_stock_alert: map['low_stock_alert'] as int?,
+    price: map['price'] as double?,
+    cost: map['cost'] as double?,
+    image_path: map['image_path'] as String?
+  );
+}
+
+}
+
+class ProductUpdateStock{
+  final int id;
+  final int stock;
+
+  ProductUpdateStock({
+    required this.id,
+    required this.stock,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'stock': stock,
+    };
+
+  }
+}
