@@ -52,10 +52,10 @@ class Product {
     return Product(
       id: map['id'] as int?,
       name: map['name'] as String,
-      price: map['price'] as double,
+      price: (map['price'] as num).toDouble(),
       stock: map['stock'] as int,
       stockUnit: map['stock_unit'] as String? ?? 'pcs',
-      cost: map['cost'] != null ? map['cost'] as double : null,
+      cost: map['cost'] != null ? (map['cost'] as num).toDouble() : null,
       category: map['category'] as String?,
       barcode: map['barcode'] as String?,
       lowStockAlert: map['low_stock_alert'] as int?,
@@ -73,8 +73,6 @@ final String name;
 final String category;
 final int stock;
 final int? low_stock_alert;
-final double? price;
-final double? cost;
 final String? image_path;
 
 SomeProductData({
@@ -83,8 +81,7 @@ SomeProductData({
   required this.category,
   required this.stock,
   this.low_stock_alert,
-  this.price,
-  this.cost,
+
   this.image_path
 });
 
@@ -95,8 +92,6 @@ factory SomeProductData.fromMap(Map<String,dynamic>map){
     category: map['category'] as String,
     stock: map['stock'] as int,
     low_stock_alert: map['low_stock_alert'] as int?,
-    price: map['price'] as double?,
-    cost: map['cost'] as double?,
     image_path: map['image_path'] as String?
   );
 }

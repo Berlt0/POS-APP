@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pos_app/utils/responsive.dart';
+import 'package:pos_app/db/inventory.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/widgets/footer.dart';
 import 'package:pos_app/models/products.dart';
@@ -20,35 +21,108 @@ class Product {
   Product({required this.name, required this.category, required this.stock});
 }
 
-
 class _InventoryState extends State<Inventory> {
-
   TextEditingController _searchController = TextEditingController();
   String _searchText = '';
 
   String _selectedCategory = 'All';
+  List<String> _categories = ['All'];
 
-  late Future<List<SomeProductData>> _futureProductDatas;
-  
-//   List<Product> _products = [
-//   Product(name: 'Coke', category: 'Drinks', stock: 20),
-//   Product(name: 'Pepsi', category: 'Drinks', stock: 15),
-//   Product(name: 'Burger', category: 'Food', stock: 30),
-//   Product(name: 'Chips', category: 'Food', stock: 50),
-//   Product(name: 'Water', category: 'Drinks', stock: 100),
-// ];
+  int _currentPage = 1;
+  final int _itemsPerPage = 15;
+  int _totalItems = 0;
+  int _totalPages = 1;
 
+  Future<List<SomeProductData>>? _futureProductDatas;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    _futureProductDatas = ProductDB.getFewProductsData();
+    _loadCategories();
+    _loadProducts();
   }
 
   @override
-  void dispose(){
+  void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadCategories() async {
+    final dbCategories = await InventoryDB.getCategories();
+    setState(() {
+      _categories = ['All', ...dbCategories];
+    });
+  }
+
+  Future<void> _loadProducts() async {
+
+    // Compute total items & pages
+    _totalItems = await InventoryDB.countProductsFiltered(
+      category: _selectedCategory,
+      searchText: _searchText,
+    );
+
+    _totalPages = (_totalItems / _itemsPerPage).ceil();
+
+    if (_currentPage > _totalPages && _totalPages != 0) {
+      _currentPage = _totalPages;
+    } else if (_totalPages == 0) {
+      _currentPage = 1;
+    }
+
+    // Fetch products for current page
+    final products = await InventoryDB.getFewProductsData(
+      page: _currentPage,
+      limit: _itemsPerPage,
+      category: _selectedCategory,
+      searchText: _searchText,
+    );
+
+    setState(() {
+      _futureProductDatas = Future.value(products);
+    });
+    
+}
+
+
+  Widget _buildPageNumbers() {
+    // only show numbers if more than one page
+    if (_totalPages <= 1) return const SizedBox();
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(_totalPages, (index) {
+        final page = index + 1;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: InkWell(
+            onTap: page == _currentPage
+                ? null
+                : () {
+                    setState(() {
+                      _currentPage = page;
+                    });
+                    _loadProducts();
+                  },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: _currentPage == page ? Colors.blue : Colors.transparent,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                page.toString(),
+                style: TextStyle(
+                  color: _currentPage == page ? Colors.white : Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        );
+      }),
+    );
   }
 
   @override
@@ -60,16 +134,12 @@ class _InventoryState extends State<Inventory> {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.grey[100],
         elevation: 5,
-        title:Padding(
-          padding: const EdgeInsets.fromLTRB(20,0,0,0),
+        title: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
           child: Text(
             "Inventory",
-            style: GoogleFonts.kameron(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.black
-            ),
-            ),
+            style: GoogleFonts.kameron(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black),
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -84,123 +154,92 @@ class _InventoryState extends State<Inventory> {
                     flex: 3,
                     child: TextField(
                       controller: _searchController,
-                      onChanged: (value) => {
+                      onChanged: (value) {
                         setState(() {
-                        _searchText = value;
-                        })
+                          _searchText = value;
+                          _currentPage = 1; // reset to first page on new search
+                        });
+                        _loadProducts();
                       },
                       decoration: InputDecoration(
                         hintText: 'Search for...',
                         prefixIcon: const Icon(Icons.search),
-                        hintStyle: GoogleFonts.kameron(
-                          fontSize: 16
-                        ),
+                        hintStyle: GoogleFonts.kameron(fontSize: 16),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
-                          borderSide: BorderSide(
-                            color: Colors.black,
-                            width: 1
-                          )
+                          borderSide: BorderSide(color: Colors.black, width: 1),
                         ),
                         fillColor: Colors.grey[100],
                         filled: true,
                       ),
                     ),
                   ),
-        
-                  SizedBox(width: 10,),
-        
+                  SizedBox(width: 10),
                   Expanded(
-                    flex:2,
+                    flex: 2,
                     child: DropdownButtonFormField<String>(
                       value: _selectedCategory,
                       icon: const Icon(Icons.keyboard_arrow_down, color: Colors.black),
-                      dropdownColor: Colors.white, // dropdown menu background
-                      style: GoogleFonts.kameron(
-                      fontSize: 16,
-                      color: Colors.black, // selected text color
-                      ),
+                      dropdownColor: Colors.white,
+                      style: GoogleFonts.kameron(fontSize: 16, color: Colors.black),
                       decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide(
-                          color: Colors.black,
-                          width: 1
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: BorderSide(color: Colors.black, width: 1),
                         ),
+                        fillColor: Colors.grey[100],
+                        filled: true,
                       ),
-                      fillColor: Colors.grey[100],
-                      filled: true,
-                      
+                      items: _categories.map((category) {
+                        return DropdownMenuItem(value: category, child: Text(category));
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedCategory = value!;
+                          _currentPage = 1; // reset to first page on category change
+                        });
+                        _loadProducts();
+                      },
                     ),
-                     items: const [
-                    DropdownMenuItem(value: 'All', child: Text('All')),
-                    DropdownMenuItem(value: 'Food', child: Text('Food')),
-                    DropdownMenuItem(value: 'Drinks', child: Text('Drinks')),
-                    DropdownMenuItem(value: 'Others', child: Text('Others')),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedCategory = value!;
-                    });
-                  },
-                    )
                   )
                 ],
               ),
-              Divider(
-                color: Colors.black,
-                thickness: 1,
-                height: 45,
-              ),
+              Divider(color: Colors.black, thickness: 1, height: 45),
               Text(
-                '$_selectedCategory Products' ,
-                style: GoogleFonts.kameron(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w500
-                ), 
+                '$_selectedCategory Products',
+                style: GoogleFonts.kameron(fontSize: 17, fontWeight: FontWeight.w500),
               ),
               SizedBox(height: 20),
               FutureBuilder(
                 future: _futureProductDatas,
                 builder: (context, snapshot) {
+                  if (_futureProductDatas == null) {
+                    return const SizedBox();
+                  }
 
-                  if(snapshot.connectionState == ConnectionState.waiting){
+                  if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   }
 
-                  if(snapshot.hasError){
+                  if (snapshot.hasError) {
                     return Center(
-                      child: Text('Error loading inventory',
-                      style: GoogleFonts.kameron(
-                        color: Colors.black,
-                      ),),
+                      child: Text(
+                        'Error loading inventory',
+                        style: GoogleFonts.kameron(color: Colors.black),
+                      ),
                     );
                   }
 
                   final products = snapshot.data ?? [];
 
-                  final filteredProducts = products.where((product){
-                  final matchesSearch = product.name.toLowerCase().contains(_searchText.toLowerCase());
-
-                  final matchesCategory = _selectedCategory == 'All' ||
-                  product.category == _selectedCategory;
-
-                  return matchesSearch && matchesCategory;
-        
-                  }).toList();
-
-                  if(filteredProducts.isEmpty){
+                  if (products.isEmpty) {
                     return Center(
                       child: Text(
                         'No products found',
-                        style: GoogleFonts.kameron(
-                          color: Colors.black
-                        ),
+                        style: GoogleFonts.kameron(color: Colors.black),
                       ),
                     );
                   }
-
-                  
 
                   return SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -209,50 +248,88 @@ class _InventoryState extends State<Inventory> {
                       child: DataTable(
                         columnSpacing: 25,
                         headingRowColor: MaterialStateProperty.all(const Color(0xFF6FE5F2)),
-                        
                         columns: [
-                          DataColumn(label: Center(child: Text('Product',style: tableTextStyle(fontSize: 15,fontWeight: FontWeight.bold),))),
-                          DataColumn(label: Center(child: Text('Category',style: tableTextStyle(fontSize: 15,fontWeight: FontWeight.bold)))),
-                          DataColumn(label: Center(child: Text('Stock',style: tableTextStyle(fontSize: 15,fontWeight: FontWeight.bold)))),
-                          DataColumn(label: Center(child: Text('Status',style: tableTextStyle(fontSize: 15,fontWeight: FontWeight.bold)))),
-                          DataColumn(label: Center(child: Text('Update',style: tableTextStyle(fontSize: 15,fontWeight: FontWeight.bold)))),
-                        ],rows: filteredProducts.map((product){
+                          DataColumn(
+                              label: Center(
+                                  child: Text('Product',
+                                      style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.bold)))),
+                          DataColumn(label: Center(child: Text('Category', style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.bold)))),
+                          DataColumn(label: Center(child: Text('Stock', style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.bold)))),
+                          DataColumn(label: Center(child: Text('Status', style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.bold)))),
+                          DataColumn(label: Center(child: Text('Update', style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.bold)))),
+                        ],
+                        rows: products.map((product) {
                           return DataRow(cells: [
-                          DataCell(Center(child: Text(product.name,style: tableTextStyle(fontSize: 14, fontWeight: FontWeight.normal)))),
-                          DataCell(Center(child: Text(product.category,style: tableTextStyle(fontSize: 14,fontWeight: FontWeight.normal)))),
-                          DataCell(Center(child: Text(product.stock.toString(),style: tableTextStyle(fontSize: 14,fontWeight: FontWeight.normal)))),
-                          DataCell(
-                            Center(
-                              child: Text(
-                              product.stock > 0 ? 'Available' : 'Out of stock',
-                              style: tableTextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.normal,
-                                color: product.stock > 0 ? const Color.fromARGB(255, 34, 141, 38) : Colors.red,
+                            DataCell(Center(child: Text(product.name, style: tableTextStyle(fontSize: 14)))),
+
+                            DataCell(Center(child: Text(product.category, style: tableTextStyle(fontSize: 14)))),
+
+                            DataCell(Center(child: Text(product.stock.toString(), style: tableTextStyle(fontSize: 14)))),
+
+                            DataCell(
+                              Center(
+                                child: Text(
+                                  product.stock > 0 ? 'Available' : 'Out of stock',
+                                  style: tableTextStyle(
+                                    fontSize: 14,
+                                    color: product.stock > 0 ? const Color.fromARGB(255, 34, 141, 38) : Colors.red,
+                                  ),
+                                ),
                               ),
                             ),
+
+                            DataCell(
+                              Center(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.edit, size: 18, color: const Color.fromARGB(255, 1, 68, 122)),
+                                    SizedBox(width: 5),
+                                    Text("Update", style: tableTextStyle(fontSize: 14, color: Color.fromARGB(255, 1, 68, 122))),
+                                  ],
+                                ),
+                              ),
                             ),
-                          ),
-                          DataCell(
-                            Center(
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min, // make row wrap tightly
-                              children: [
-                                Icon(Icons.edit, size: 18,color: const Color.fromARGB(255, 1, 68, 122),),
-                                SizedBox(width: 5),
-                                Text("Update", style: tableTextStyle(fontSize: 14,color: Color.fromARGB(255, 1, 68, 122)),),
-                              ],
-                            ),
-                          ),
-                          ),
-                        ]);
-                        }).toList()
-                        ),
+                          ]);
+                        }).toList(),
+                      ),
                     ),
                   );
-                }
+                },
+              ),
+              SizedBox(height: 25),
+              Center(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.chevron_left),
+                      onPressed: _currentPage > 1
+                          ? () {
+                              setState(() {
+                                _currentPage--;
+                              });
+                              _loadProducts();
+                            }
+                          : null,
+                    ),
+                    _buildPageNumbers(),
+                    IconButton(
+                      icon: Icon(Icons.chevron_right),
+                      // use computed _totalPages so '>' disables when no next page
+                      onPressed: _currentPage < _totalPages
+                          ? () {
+                              setState(() {
+                                _currentPage++;
+                              });
+                              _loadProducts();
+                            }
+                          : null,
+                    )
+                  ],
+                ),
               )
-
             ],
           ),
         ),
@@ -260,18 +337,18 @@ class _InventoryState extends State<Inventory> {
       bottomNavigationBar: AppFooter(
         currentIndex: 1,
         onTap: (index) {
-          if(index == 0){
+          if (index == 0) {
             Navigator.pushReplacementNamed(context, '/home');
-          }else if(index == 1){
+          } else if (index == 1) {
             Navigator.pushReplacementNamed(context, '/inventory');
-          }else if(index == 2){
+          } else if (index == 2) {
             Navigator.pushReplacementNamed(context, '/products');
-          }else if(index == 3){
+          } else if (index == 3) {
             Navigator.pushReplacementNamed(context, '/reports');
           }
         },
-        onCenterTap: (){
-           Navigator.pushReplacementNamed(context, '/pos');
+        onCenterTap: () {
+          Navigator.pushReplacementNamed(context, '/pos');
         },
       ),
     );

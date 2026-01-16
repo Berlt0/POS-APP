@@ -17,18 +17,6 @@ class ProductDB {
     return result.map((e) => Product.fromMap(e)).toList();
   }
 
-// Fetch just for the product id,name,category,stock,low_stock_alert,price,cost,imagePath 
-
-  static Future<List<SomeProductData>> getFewProductsData() async {
-    final db = await AppDatabase.database;
-    final result = await db.query(
-      'products',
-      columns: ['id','name','category','stock','low_stock_alert','price','cost','image_path']
-    );
-
-    return result.map((product) => SomeProductData.fromMap(product)).toList();
-
-  }
 
 // Update product stock 
 
