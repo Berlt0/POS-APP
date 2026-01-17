@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pos_app/widgets/footer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/db/product.dart';
@@ -17,6 +18,17 @@ class _ProductsState extends State<Products> {
 
   TextEditingController _searchController = TextEditingController();
   String _searchText = '';
+
+  TextEditingController _productNameController = TextEditingController();
+  TextEditingController _productCategoryController = TextEditingController();
+  TextEditingController _barcodeController = TextEditingController();
+  TextEditingController _priceController = TextEditingController();
+  TextEditingController _costController = TextEditingController();
+  TextEditingController _stockAlertController = TextEditingController();
+  TextEditingController _descriptionController = TextEditingController();
+
+  File? selectedImage;
+  String stockUnit = 'pcs'; 
 
   List<String> _categories = ['All']; 
   String _selectedCategory = 'All';
@@ -72,6 +84,182 @@ void _loadProducts() {
   });
 }
 
+
+void _openEditModal(Product product){
+
+  _productNameController.text = product.name.toString();
+  _productCategoryController.text = product.category.toString();
+  _priceController.text = '₱ ${product.price.toString()}';
+  _costController.text = '₱ ${product.cost.toString()}';
+  _stockAlertController.text = product.lowStockAlert.toString();
+  _descriptionController.text = product.description.toString();
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadiusGeometry.vertical(top: Radius.circular(20))
+    ),
+    builder: (context) {
+      return Padding(
+        padding:EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 16,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 70,
+        ),
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Edit Product",
+                style: GoogleFonts.kameron(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black
+                ),),
+                SizedBox(height: 15,),
+                ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: product.imagePath != null
+                    ? Image.file(
+                        File(product.imagePath!),
+                        width: 190,
+                        height: 160,
+                        fit: BoxFit.cover,
+                      ): Image.asset(
+                        'assets/Legendaries.png', // fallback image
+                        width: 190,
+                        height: 160,
+                        fit: BoxFit.cover,
+                      ),
+              ),
+              SizedBox(height: 30,),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Column(
+                    children: [
+                   
+                       TextFormField(
+                        controller: _productNameController,
+                        decoration: InputDecoration(
+                          labelText: 'Product',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onChanged: (value) {},),
+
+                        SizedBox(height: 15,),
+                        
+                        TextFormField(
+                        controller: _productCategoryController,       
+                        decoration: InputDecoration(
+                          labelText: 'Category',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onChanged: (value) {},),
+
+                        SizedBox(height: 15,),
+                        
+                        TextFormField(
+                        controller: _priceController,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],              
+                        decoration: InputDecoration(
+                          labelText: 'Price',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onChanged: (value) {},),
+
+                        SizedBox(height: 15,),
+                        
+                        TextFormField(
+                        controller: _costController,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],       
+                        decoration: InputDecoration(
+                          labelText: 'Cost',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onChanged: (value) {},),
+
+                        SizedBox(height: 15,),
+                        
+                        TextFormField(
+                        controller: _stockAlertController,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],       
+                        decoration: InputDecoration(
+                          labelText: 'Stock Alert Level',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+
+                        ),
+                        onChanged: (value) {},),
+                        
+                        SizedBox(height: 15,),
+                        
+                        TextFormField(
+                        controller: _descriptionController,    
+                        decoration: InputDecoration(
+                          labelText: 'Description',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onChanged: (value) {},),
+                        
+                        
+                      
+                    ],
+                  )
+                ],
+              ),
+              SizedBox(height: 20,),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(200,40),
+                  backgroundColor: Colors.green,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)
+                  ),
+                  shadowColor: Colors.grey[800]
+                ),
+                onPressed: (){}  ,
+                child: Text(
+                  "Save",
+                  style: GoogleFonts.kameron(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white
+                  ),
+                ))
+            ],
+          ),
+        ), 
+        );
+    }
+  
+    );
+
+}
 
 
 Widget categoryHeader(String title) {
@@ -171,7 +359,7 @@ Widget productCard(Product product) {
           children: [
             IconButton(
               icon: const Icon(Icons.edit, size: 20),
-              onPressed: () {},
+              onPressed: () => _openEditModal(product)
             ),
             IconButton(
               icon: const Icon(Icons.delete, size: 20, color: Colors.red),
