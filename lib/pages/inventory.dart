@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pos_app/utils/responsive.dart';
 import 'package:pos_app/db/inventory.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -13,15 +14,10 @@ class Inventory extends StatefulWidget {
   State<Inventory> createState() => _InventoryState();
 }
 
-class Product {
-  final String name;
-  final String category;
-  final int stock;
-
-  Product({required this.name, required this.category, required this.stock});
-}
-
 class _InventoryState extends State<Inventory> {
+
+  TextEditingController _stockController = TextEditingController();
+
   TextEditingController _searchController = TextEditingController();
   String _searchText = '';
 
@@ -45,6 +41,7 @@ class _InventoryState extends State<Inventory> {
   @override
   void dispose() {
     _searchController.dispose();
+    _stockController.dispose();
     super.dispose();
   }
 
@@ -83,6 +80,154 @@ class _InventoryState extends State<Inventory> {
       _futureProductDatas = Future.value(products);
     });
     
+}
+
+
+Future<void> _updateStock(SomeProductData product) async{
+
+  try {
+
+    if (_stockController.text.trim().isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(
+              "Stock is empty."
+            ),
+            content: Text(
+              "Stock is required"
+            ),
+            actions: [
+              TextButton(onPressed:() => Navigator.pop(context), child: Text('Ok'))
+            ],
+          );
+        }
+      );
+      return;
+    }
+    
+    final newStock = int.parse(_stockController.text.trim());
+
+    if(newStock < 0){
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Invalid Input'),
+            content: Text('Stock cannot be negative'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+
+    await ProductDB.updateStock(product.id!, newStock);
+
+    Navigator.pop(context);
+    _loadProducts();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Stock updated successfully'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        )
+    );
+
+      } catch (error) {
+         ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update stock'),
+            backgroundColor: Colors.red,
+          ),
+        );
+  }
+
+}
+
+void _openUpdateModal(SomeProductData product){
+
+  _stockController.text = product.stock.toString();
+
+  showModalBottomSheet(
+    context: context ,
+    isScrollControlled: true,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadiusGeometry.vertical(top: Radius.circular(20))
+    ),
+    builder: (context){
+
+      return Padding(
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 16,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 70,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "Update Product",
+              style: GoogleFonts.kameron(
+                fontSize: 18,
+                fontWeight: FontWeight.bold
+              ),
+            ),
+            SizedBox(height: 15,),
+
+              TextFormField(
+                controller: _stockController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly
+                ],
+                decoration: InputDecoration(
+                  labelText: 'Stock',
+                  errorText: _stockController.text.isEmpty ? 'Required' : null,
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (value) {
+                  
+              },
+            ),
+
+            SizedBox(height: 20),
+
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size(200,40),
+                backgroundColor: Colors.green,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+
+                ),
+                shadowColor: Colors.grey[800]
+              ),
+              
+              onPressed: () => _updateStock(product),
+              child: Text('Save',
+              style: GoogleFonts.kameron(
+                fontSize: 17,
+                fontWeight: FontWeight.w500,
+                color: Colors.white
+              ),),
+            ),
+
+          ],
+        ),
+      );
+
+
+    });
+
 }
 
 
@@ -280,16 +425,30 @@ class _InventoryState extends State<Inventory> {
 
                             DataCell(
                               Center(
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.edit, size: 18, color: const Color.fromARGB(255, 1, 68, 122)),
-                                    SizedBox(width: 5),
-                                    Text("Update", style: tableTextStyle(fontSize: 14, color: Color.fromARGB(255, 1, 68, 122))),
-                                  ],
+                                child: InkWell(
+                                  onTap: () => _openUpdateModal(product),
+                                  borderRadius: BorderRadius.circular(6),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.edit,
+                                        size: 18,
+                                        color: const Color.fromARGB(255, 1, 68, 122),
+                                      ),
+                                      SizedBox(width: 5),
+                                      Text(
+                                        "Update",
+                                        style: tableTextStyle(
+                                          fontSize: 14,
+                                          color: const Color.fromARGB(255, 1, 68, 122),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
+                            )
                           ]);
                         }).toList(),
                       ),
