@@ -30,6 +30,19 @@ class ProductDB {
     );
   }
 
+
+static Future<int> updateProduct(editProduct product) async {
+  final db = await AppDatabase.database;
+
+  return await db.update(
+    'products',
+    product.toMap(),
+    where: 'id = ?',
+    whereArgs: [product.id],
+  );
+}
+
+
   static Future<void> delete(int id) async {
     final db = await AppDatabase.database;
     await db.delete('products', where: 'id = ?', whereArgs: [id]);

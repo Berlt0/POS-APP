@@ -146,8 +146,10 @@ Future<void> _updateStock(SomeProductData product) async{
           SnackBar(
             content: Text('Failed to update stock'),
             backgroundColor: Colors.red,
+            duration: Duration(seconds: 2),
           ),
         );
+        Navigator.pop(context);
   }
 
 }
@@ -203,11 +205,10 @@ void _openUpdateModal(SomeProductData product){
 
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                minimumSize: Size(200,40),
-                backgroundColor: Colors.green,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-
+              minimumSize: Size(200,40),
+              backgroundColor: Colors.green,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
                 ),
                 shadowColor: Colors.grey[800]
               ),

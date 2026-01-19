@@ -114,3 +114,45 @@ class ProductUpdateStock{
 
   }
 }
+
+class editProduct {
+
+  final int? id;
+  final String name;
+  final double price;
+  final int stock;
+  final double? cost;
+  final String? category;
+  final int? lowStockAlert;
+  final String? description;
+  final String? image_path;
+
+  editProduct({
+    this.id,
+    required this.name,
+    required this.price,
+    required this.stock,
+    this.cost,
+    this.category,
+    this.lowStockAlert,
+    this.description,
+    this.image_path,
+
+  });
+
+  Map<String, dynamic> toMap() {
+  return {
+    'id': id,
+    'name': name,
+    'price': price,
+    'stock': stock,
+    'cost': cost,
+    'category': category,
+    'low_stock_alert': lowStockAlert,
+    'description': description,
+    'image_path': image_path,
+  };
+}
+
+
+}
