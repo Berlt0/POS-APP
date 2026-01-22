@@ -1,8 +1,11 @@
-
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pos_app/models/pos.dart';
+import 'package:pos_app/db/pos.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 class POS extends StatefulWidget {
   const POS({super.key});
@@ -35,7 +38,7 @@ class ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 3,
-      color: quantity>0 ? Color(0xFF00E6FF) : Colors.grey[200],
+      color: quantity > 0 ? const Color(0xFF00E6FF) : Colors.grey[200],
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
       ),
@@ -44,8 +47,7 @@ class ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
-            /// ➕ ➖ Buttons (Top)
+            //Buttons (Top)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -66,21 +68,27 @@ class ProductCard extends StatelessWidget {
 
             const SizedBox(height: 6),
 
-            /// 🖼 Product Image
+            //Product Image
             Expanded(
-              child: ClipRRect(
+                child: ClipRRect(
                 borderRadius: BorderRadius.circular(10),
-                child: Image.network(
-                  imagePath,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                ),
+                child: imagePath.isNotEmpty && File(imagePath).existsSync()
+                    ? Image.file(
+                        File(imagePath),
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                      )
+                    : Image.asset(
+                        'assets/Legendaries.png',
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                      ),
               ),
             ),
 
             const SizedBox(height: 6),
 
-            /// 🏷 Product Info
+            //Product Info
             Text(
               name,
               maxLines: 1,
@@ -127,7 +135,6 @@ class ProductCard extends StatelessWidget {
   }
 }
 
-
 Widget _rowText(
   String label,
   String value, {
@@ -155,93 +162,89 @@ Widget _rowText(
   );
 }
 
+class _POSItem {
+  final POSModel product;
+  int qty;
+
+  _POSItem({required this.product, this.qty = 0});
+}
 
 class _POSState extends State<POS> {
 
 
-    TextEditingController _searchController = TextEditingController();
-    String _searchText = '';
+  List<_POSItem> products = [];
+  bool isLoading = true;
+  String _selectedCategory = 'All';
+  List<String> categories = ['All'];
+  TextEditingController _searchController = TextEditingController();
+  String _searchText = '';
 
-    String _selectedCategory = 'All';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProducts();
+  }
 
 
-    final List<String> categories = [
-      'All',
-      'Drinks',
-      'Snacks',
-      'Foods',
-      'Others',
-      'Fish',
-      'Can',
-      'Noodles',
-
-    ];
-
-    List<Map<String, dynamic>> products = [
-  {
-    'name': 'Coke',
-    'price': 20.0,
-    'stock': 50,
-    'qty': 0,
-    'image': 'https://shopsuki.ph/cdn/shop/files/102051426_080dc8b7-e441-4d33-8f01-2bcae3404e7d_800x.jpg?v=1764041994',
-  },
-  {
-    'name': 'Super Crunch',
-    'price': 15.0,
-    'stock': 30,
-    'qty': 0,
-    'image': 'https://shopsuki.ph/cdn/shop/files/107256203_1024x.jpg?v=1750067729',
-  }, {
-    'name': 'Kopiko',
-    'price': 10.0,
-    'stock': 14,
-    'qty': 0,
-    'image': 'https://shopsuki.ph/cdn/shop/files/8996001410547_1024x.jpg?v=1748839410',
-  },
-  {
-    'name': 'Kopiko',
-    'price': 10.0,
-    'stock': 14,
-    'qty': 0,
-    'image': 'https://shopsuki.ph/cdn/shop/files/8996001410547_1024x.jpg?v=1748839410',
-  },
-  {
-    'name': 'Kopiko',
-    'price': 10.0,
-    'stock': 14,
-    'qty': 0,
-    'image': 'https://shopsuki.ph/cdn/shop/files/8996001410547_1024x.jpg?v=1748839410',
-  },
-  {
-    'name': 'Kopiko',
-    'price': 10.0,
-    'stock': 14,
-    'qty': 0,
-    'image': 'https://shopsuki.ph/cdn/shop/files/8996001410547_1024x.jpg?v=1748839410',
-  },
-];
-
-  int getTotalQuantity() {
-  return products.fold<int>(
-    0,
-    (total, product) => total + (product['qty'] as int),
-  );
+  Future<String> saveImageLocally(File image) async {
+  final dir = await getApplicationDocumentsDirectory();
+  final newPath = '${dir.path}/${DateTime.now().millisecondsSinceEpoch}.png';
+  final newImage = await image.copy(newPath);
+  return newImage.path;
 }
 
-double getSubTotal() {
-  return products.fold<double>(
-    0.0,
-    (total, product) =>
-        total + (product['price'] * product['qty']),
-  );
-}
 
-double getTotal() => getSubTotal();
+
+
+  Future<void> _loadProducts() async {
+    try {
+      final dbProducts = await POSDB.getProducts();
+
+      final catSet = <String>{};
+      for (var product in dbProducts) {
+        if ((product.category ?? '').isNotEmpty) {
+          catSet.add(product.category!);
+        }
+      }
+
+      setState(() {
+        products = dbProducts.map((p) => _POSItem(product: p)).toList();
+        categories = ['All', ...catSet];
+        isLoading = false;
+      });
+    } catch (error) {
+      debugPrint("POS load error: $error");
+      setState(() => isLoading = false);
+    }
+  }
+
+  int getTotalQuantity() => products.fold(0, (total, item) => total + item.qty);
+
+  double getSubTotal() =>
+      products.fold(0.0, (total, item) => total + (item.product.price * item.qty));
+
+  double getTotal() => getSubTotal();
 
   @override
   Widget build(BuildContext context) {
 
-  
+    // compute filtered products here
+
+    final filteredProducts = products.where((p) {
+
+      final matchesCategory = _selectedCategory == 'All' || (p.product.category ?? '') == _selectedCategory;
+      final matchesSearch = _searchText.trim().isEmpty || p.product.name.toLowerCase().contains(_searchText.toLowerCase());
+      return matchesCategory && matchesSearch;
+    }).toList();
+    
+
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -249,200 +252,190 @@ double getTotal() => getSubTotal();
         shadowColor: Colors.grey.withOpacity(0.5),
         elevation: 5,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
         ),
-        title:Padding(
-          padding: const EdgeInsets.fromLTRB(1,0,0,0),
+        title: Padding(
+          padding: const EdgeInsets.fromLTRB(1, 0, 0, 0),
           child: Text(
             "POS",
             style: GoogleFonts.kameron(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Colors.black
+              color: Colors.black,
             ),
-            ),
+          ),
         ),
-        
       ),
-      body: 
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: TextField(
-                      controller: _searchController,
-                      onChanged: (value) => {
-                        setState(() {
-                          _searchText = value;
-                        })
-                      },
-                      decoration: InputDecoration(
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            /// SEARCH + SCAN
+            Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (value) {
+                      setState(() {
+                        _searchText = value;
+                      });
+                    },
+                    decoration: InputDecoration(
                       hintText: 'Search for...',
                       prefixIcon: const Icon(Icons.search),
-                      hintStyle: GoogleFonts.kameron(
-                        fontSize: 16
-                      ),
+                       suffixIcon: _searchText.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              setState(() {
+                                _searchController.clear();
+                                _searchText = '';
+                              });
+                            },
+                          )
+                        : null,
+                      hintStyle: GoogleFonts.kameron(fontSize: 16),
                       border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide(
-                      color: Colors.black,
-                        width: 1
-                      )
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: const BorderSide(color: Colors.black, width: 1),
                       ),
                       fillColor: Colors.grey[100],
                       filled: true,
-                      contentPadding: EdgeInsets.symmetric(vertical: 1, horizontal: 10),
-                      ),
+                      contentPadding:
+                          const EdgeInsets.symmetric(vertical: 1, horizontal: 10),
                     ),
                   ),
-          
-                  SizedBox(width: 10,),
-          
-                  Expanded(
-                    flex:1,
-                    child: ElevatedButton(
-                    onPressed: (){}, 
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  flex: 1,
+                  child: ElevatedButton(
+                    onPressed: () {},
                     style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)
-                    ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       minimumSize: const Size(double.infinity, 48),
-                      backgroundColor: Color(0xFF30DD04)
+                      backgroundColor: const Color(0xFF30DD04),
                     ),
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Center(child: Text("Scan",
-                        style: GoogleFonts.kameron(
-                          fontSize: 17,
-                          color: Colors.black,
-                          fontWeight: FontWeight.w500
-                        ),)),
-                        SizedBox(width: 5,),
-                        Icon(
-                          Icons.qr_code_scanner,
-                          color: Colors.black,
-                          fontWeight: FontWeight.w500,
-          
-                        )
+                        Text(
+                          "Scan",
+                          style: GoogleFonts.kameron(
+                              fontSize: 17,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w500),
+                        ),
+                        const SizedBox(width: 5),
+                        const Icon(Icons.qr_code_scanner, color: Colors.black),
                       ],
-                    )
-                    )
-          
-                  )
-          
-                ],
-              ),
-              SizedBox(height: 20,),
-              SizedBox(
-                height: 40, 
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: categories.length,
-                  separatorBuilder: (_, __) => SizedBox(width: 8),
-                  itemBuilder: (context, index) {
-                    final category = categories[index];
-                    final isSelected = _selectedCategory == category;
-
-                    return ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _selectedCategory = category;
-                        });
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 14),
-                        backgroundColor: isSelected
-                            ? const Color(0xFF00E6FF)
-                            : Colors.white,
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          side: BorderSide(
-                            color: isSelected ? Colors.transparent : Colors.grey,
-                          ),
-                        ),
-                      ),
-                      child: Text(
-                        category,
-                        style: GoogleFonts.kameron(
-                          fontSize: 15,
-                          color: Colors.black,
-                          fontWeight:
-                              isSelected ? FontWeight.w700 : FontWeight.w500,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              SizedBox(height: 10),
-              Expanded(
-                child: GridView.builder(
-                  padding: const EdgeInsets.all(12),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,       // 2 per row (phone)
-                    childAspectRatio: 0.7,   // card height ratio
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
+                    ),
                   ),
-                  itemCount: products.length,
-                  itemBuilder: (context, index) {
-                    final product = products[index];
-                
-                    return ProductCard(
-                      name: product['name'],
-                      price: product['price'],
-                      stock: product['stock'],
-                      quantity: product['qty'],
-                      imagePath: product['image'],
-                      onAdd: () {
-                        setState(() {
-                          product['qty']++;
-                        });
-                      },
-                      onRemove: () {
-                        setState(() {
-                          if (product['qty'] > 0) {
-                                setState(() {
-                                  product['qty']--;
-                                });
-                              }
-                        });
-                      },
-                    );
-                  },
                 ),
-              ),
+              ],
+            ),
 
-              SizedBox(height: 15,),
-              //Review 
-              Center(
+            const SizedBox(height: 20),
+
+            /// CATEGORIES
+            SizedBox(
+              height: 40,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: categories.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                itemBuilder: (context, index) {
+                  final category = categories[index];
+                  final isSelected = _selectedCategory == category;
+
+                  return ElevatedButton(
+                    onPressed: () {
+                      setState(() => _selectedCategory = category);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      backgroundColor:
+                          isSelected ? const Color(0xFF00E6FF) : Colors.white,
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        side: BorderSide(
+                          color: isSelected ? Colors.transparent : Colors.grey,
+                        ),
+                      ),
+                    ),
+                    child: Text(
+                      category,
+                      style: GoogleFonts.kameron(
+                        fontSize: 15,
+                        color: Colors.black,
+                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            /// PRODUCT GRID
+            Expanded(
+              child: GridView.builder(
+                padding: const EdgeInsets.all(12),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.7,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                ),
+                itemCount: filteredProducts.length,
+                itemBuilder: (context, index) {
+                  final item = filteredProducts[index];
+
+                  return ProductCard(
+                    name: item.product.name,
+                    price: item.product.price,
+                    stock: item.product.stock ?? 0,
+                    quantity: item.qty,
+                    imagePath: item.product.image_path ?? '',
+                    onAdd: () {
+                      setState(() {
+                        if (item.qty < (item.product.stock ?? 0)) item.qty++;
+                      });
+                    },
+                    onRemove: () {
+                      setState(() {
+                        if (item.qty > 0) item.qty--;
+                      });
+                    },
+                  );
+                },
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            /// CART SUMMARY
+            Center(
               child: Container(
                 padding: const EdgeInsets.all(3),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF00E6FF),
-                  borderRadius: BorderRadius.circular(12)
-                ),
+                    color: const Color(0xFF00E6FF),
+                    borderRadius: BorderRadius.circular(12)),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12)
-                  ),
+                      color: Colors.white, borderRadius: BorderRadius.circular(12)),
                   padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-                  child: IntrinsicHeight( 
+                  child: IntrinsicHeight(
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-
                         /// LEFT — TEXT COLUMN
                         Expanded(
                           flex: 1,
@@ -450,7 +443,8 @@ double getTotal() => getSubTotal();
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _rowText("Total Quantity", getTotalQuantity().toString()),
+                              _rowText(
+                                  "Total Quantity", getTotalQuantity().toString()),
                               _rowText("Subtotal", "₱${getSubTotal()}"),
                               const SizedBox(height: 6),
                               _rowText(
@@ -476,8 +470,6 @@ double getTotal() => getSubTotal();
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-
-                              /// Checkout
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF6FE5F2),
@@ -488,18 +480,19 @@ double getTotal() => getSubTotal();
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Icon(Icons.chevron_right, color: Colors.black),
-                                      Text("Checkout", style: GoogleFonts.kameron(
-                                        color: Colors.black,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w500
-                                      )),
+                                      const Icon(Icons.chevron_right,
+                                          color: Colors.black),
+                                      Text(
+                                        "Checkout",
+                                        style: GoogleFonts.kameron(
+                                            color: Colors.black,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w500),
+                                      ),
                                     ],
                                   ),
                                 ),
                               ),
-
-                              /// Clear Cart
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFFEE5558),
@@ -507,15 +500,17 @@ double getTotal() => getSubTotal();
                                 ),
                                 onPressed: () {},
                                 child: Center(
-                                  child: Row( 
+                                  child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Icon(Icons.delete, color: Colors.black),
-                                      Text("Clear Cart", style: GoogleFonts.kameron(
-                                        color: Colors.black,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w500
-                                      )),
+                                      const Icon(Icons.delete, color: Colors.black),
+                                      Text(
+                                        "Clear Cart",
+                                        style: GoogleFonts.kameron(
+                                            color: Colors.black,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w500),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -529,14 +524,11 @@ double getTotal() => getSubTotal();
                 ),
               ),
             ),
-            SizedBox(height: 40),
 
-            
-            ],
-          ),
+            const SizedBox(height: 40),
+          ],
         ),
-      
-    
+      ),
     );
   }
 }

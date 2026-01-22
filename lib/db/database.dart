@@ -69,6 +69,7 @@ class AppDatabase {
       )
     ''');
 
+
     // SALES
     await db.execute('''
       CREATE TABLE sales (
