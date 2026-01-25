@@ -475,7 +475,20 @@ class _POSState extends State<POS> {
                                   backgroundColor: const Color(0xFF6FE5F2),
                                   minimumSize: const Size(double.infinity, 36),
                                 ),
-                                onPressed: () {},
+                                onPressed: (){
+                                  
+                                  if(getTotalQuantity() == 0){
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Cart is empty! Please'),
+                                        backgroundColor: Colors.red,
+                                        duration: Duration(seconds: 2),
+                                      ),
+                                    );
+                                    return;
+                                  }
+                                  Navigator.pushNamed(context, '/reviewcart');
+                                },
                                 child: Center(
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -498,7 +511,13 @@ class _POSState extends State<POS> {
                                   backgroundColor: const Color(0xFFEE5558),
                                   minimumSize: const Size(double.infinity, 36),
                                 ),
-                                onPressed: () {},
+                                onPressed: () {
+                                  setState(() {
+                                    for(final item in products){
+                                      item.qty = 0;
+                                    }
+                                  });
+                                },
                                 child: Center(
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,

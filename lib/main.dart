@@ -12,6 +12,7 @@ import 'services/auth_service.dart'; // ensure this matches your file name
 import 'db/database.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:pos_app/pages/reviewCart.dart';
 
 Future<void> deleteOldDatabase() async {
   final dbPath = await getDatabasesPath();
@@ -32,7 +33,6 @@ Future<void> main() async {
   final dynamic result = await AuthService.isLoggedIn(); // dynamic to catch null
   final bool loggedIn = result == true; // null or false -> false
 
-  // debug print — remove later
   debugPrint('AuthService.isLoggedIn() returned: $result');
 
   runApp(MyApp(isLoggedIn: loggedIn));
@@ -57,7 +57,8 @@ class MyApp extends StatelessWidget {
         '/products': (context) => const Products(),
         '/reports': (context) => const Reports(),
         '/pos': (context) => const POS(),
-        '/addproduct': (context) => const Addproduct()
+        '/addproduct': (context) => const Addproduct(),
+        '/reviewcart': (context) => const ReviewCart(),
       },
     );
   }

@@ -192,7 +192,7 @@ Future<void> _saveEditedProduct(Product originalProduct) async {
 
      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Product updated successfully'),
+          content: Text('Product updated successfully',),
           backgroundColor: Colors.green,
           duration: Duration(seconds: 2),
         )
