@@ -4,8 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pos_app/models/pos.dart';
 import 'package:pos_app/db/pos.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pos_app/models/cartItem.dart';
 
 class POS extends StatefulWidget {
   const POS({super.key});
@@ -13,6 +13,7 @@ class POS extends StatefulWidget {
   @override
   State<POS> createState() => _POSState();
 }
+
 
 class ProductCard extends StatelessWidget {
   final String name;
@@ -33,6 +34,9 @@ class ProductCard extends StatelessWidget {
     required this.onAdd,
     required this.onRemove,
   });
+
+
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -477,18 +481,40 @@ class _POSState extends State<POS> {
                                 ),
                                 onPressed: (){
                                   
-                                  if(getTotalQuantity() == 0){
+                                 if(getTotalQuantity() == 0){
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('Cart is empty! Please'),
+                                        content: Text('Cart is empty! Please select a product to proceed.'),
                                         backgroundColor: Colors.red,
                                         duration: Duration(seconds: 2),
                                       ),
                                     );
+
                                     return;
                                   }
-                                  Navigator.pushNamed(context, '/reviewcart');
+
+                                  final cartItems = products
+                                      .where((item) => item.qty > 0)
+                                      .map((item) => CartItem(
+                                            productId: item.product.id!,
+                                            name: item.product.name,
+                                            price: item.product.price,
+                                            quantity: item.qty,
+                                            imagePath: item.product.image_path ?? '',
+                                          ))
+                                      .toList();
+
+                                  Navigator.pushNamed(
+                                    context,
+                                    '/reviewcart',
+                                    arguments:{
+                                      'items': cartItems,
+                                      'subtotal': getSubTotal(),
+                                      'total': getTotal(),
+                                      'totalQuantity': getTotalQuantity(),
+                                    } );
                                 },
+
                                 child: Center(
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
