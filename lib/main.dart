@@ -13,6 +13,7 @@ import 'db/database.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:pos_app/pages/reviewCart.dart';
+import 'package:pos_app/services/session_service.dart';
 
 Future<void> deleteOldDatabase() async {
   final dbPath = await getDatabasesPath();
@@ -26,14 +27,27 @@ Future<void> main() async {
 
   // initialize DB & seed
 
+  
+
   await AppDatabase.database;
   await UserSeed.seed();
 
   // call isLoggedIn() defensively
   final dynamic result = await AuthService.isLoggedIn(); // dynamic to catch null
-  final bool loggedIn = result == true; // null or false -> false
+  final bool loggedIn = result == true; 
 
   debugPrint('AuthService.isLoggedIn() returned: $result');
+  print('Is user logged in? $loggedIn');
+  
+  final session = await SessionService.getSession();
+  if (session != null) {
+    print('--- Logged-in user data ---');
+    print('User ID: ${session['user_id']}');
+    print('Username: ${session['username']}');
+    print('Role: ${session['role']}');
+  } else {
+    print('No user is currently logged in.');
+  }
 
   runApp(MyApp(isLoggedIn: loggedIn));
 }

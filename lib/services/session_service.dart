@@ -25,7 +25,7 @@ class SessionService {
   // Get logged-in user
   static Future<Map<String, dynamic>?> getSession() async {
     final db = await AppDatabase.database;
-    final result = await db.query('session', limit: 1);
+    final result = await db.query('session',columns: ['user_id','username'], limit: 1);
 
     if (result.isEmpty) return null;
     return result.first;

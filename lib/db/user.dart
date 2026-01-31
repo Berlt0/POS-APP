@@ -45,4 +45,22 @@ class UserDB {
     };
     
   }
+
+
+  Future<int?> getLoggedInUserId() async {
+    final db = await AppDatabase.database;
+
+    final List<Map<String, dynamic>> result = await db.query(
+      'session',
+      columns: ['user_id','username'],
+      limit: 1,
+    );
+
+    if (result.isNotEmpty) {
+      return result.first['user_id'] as int;
+    } else {
+      return null; 
+    }
+}
+
 }

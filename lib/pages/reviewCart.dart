@@ -2,6 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/models/cartItem.dart';
+import 'package:pos_app/db/database.dart';
+import 'package:pos_app/db/user.dart';
+import 'package:pos_app/db/debug.dart';
 
 class ReviewCart extends StatefulWidget {
   const ReviewCart({super.key});
@@ -17,6 +20,8 @@ class _ReviewCartState extends State<ReviewCart> {
   late int totalQty;
 
   bool _initialized = false;
+
+  int total_amount = 0;
 
   @override
   void didChangeDependencies() {
@@ -37,8 +42,8 @@ class _ReviewCartState extends State<ReviewCart> {
 
 
 
-    void _paymentModal() {
-    showModalBottomSheet(
+    Future<String?> _paymentModal() {
+    return showModalBottomSheet<String>(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
@@ -62,23 +67,17 @@ class _ReviewCartState extends State<ReviewCart> {
               ListTile(
                 leading: const Icon(Icons.credit_card),
                 title: const Text("Credit / Debit Card"),
-                onTap: () {
-                  Navigator.pop(context);
-                },
+                onTap: () => Navigator.pop(context,'card'),
               ),
               ListTile(
                 leading: const Icon(Icons.account_balance_wallet),
                 title: const Text("GCash"),
-                onTap: () {
-                  Navigator.pop(context);
-                },
+                onTap: () => Navigator.pop(context,'gcash'),
               ),
               ListTile(
                 leading: const Icon(Icons.money),
                 title: const Text("Cash"),
-                onTap: () {
-                  Navigator.pop(context);
-                },
+                onTap: ()  => Navigator.pop(context,'cash'),
               ),
             ],
           ),
@@ -86,6 +85,68 @@ class _ReviewCartState extends State<ReviewCart> {
       },
     );
   }
+
+  
+
+
+  Future<void> _saveSale(String paymentType) async {
+    final db = await AppDatabase.database;
+    final int? userId = await UserDB().getLoggedInUserId();
+
+    if(userId == null){
+      debugPrint("No logged in user found.");
+      return;
+    }
+
+    await db.transaction((txn) async {
+    
+      final saleId = await txn.insert('sales', {
+        'user_id': userId, // replace with logged-in user ID
+        'total_amount': total,
+        'amount_received': total_amount, // you can add a field to enter cash received
+        'change_amount': 0,       // calculate if needed
+        'payment_type': paymentType,
+        'created_at': DateTime.now().toIso8601String(),
+      });
+
+      
+      for (var item in items) {
+        await txn.insert('sale_items', {
+          'sale_id': saleId,
+          'product_id': item.productId,
+          'product_name': item.name,
+          'price': item.price,
+          'quantity': item.quantity,
+          'created_at': DateTime.now().toIso8601String(),
+        });
+      
+
+      int updated = await txn.rawUpdate('''
+        UPDATE products
+        SET stock = stock - ?
+        WHERE id = ? AND stock >= ?
+      ''', [item.quantity, item.productId, item.quantity]);
+
+      if (updated == 0) {
+        throw Exception("Not enough stock for product ${item.name}");
+      }
+      }
+
+       
+      await txn.insert('transaction_history', {
+        'user_id': userId,
+        'action': 'SALE',
+        'entity_type': 'sale',
+        'entity_id': saleId,
+        'description': 'Sale of ${items.length} items',
+        'created_at': DateTime.now().toIso8601String(),
+      });
+
+     
+      debugPrint('Sale saved with id: $saleId');
+    });
+  }
+
 
 
   @override
@@ -249,7 +310,27 @@ class _ReviewCartState extends State<ReviewCart> {
                 backgroundColor: const Color(0xFF6FE5F2),
                 minimumSize: const Size(double.infinity, 48),
               ),
-              onPressed: _paymentModal,
+              onPressed: () async {
+                final paymentType = await _paymentModal();
+                if (paymentType != null) {
+                  await _saveSale(paymentType);
+                  await printTables();
+
+                  setState(() {
+                    items.clear();
+                    totalQty = 0;
+                    subtotal = 0;
+                    total = 0;
+                });
+                  
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Sale completed! Payment: $paymentType'),duration: Duration(seconds: 3)),
+                  );
+
+                  
+                  Navigator.pop(context,true);
+                }
+              },
               child: Text(
                 "Proceed to Payment",
                 style: GoogleFonts.kameron(

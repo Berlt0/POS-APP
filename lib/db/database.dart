@@ -16,18 +16,15 @@ class AppDatabase {
 
     return await openDatabase(
       path,
-      version: 3,
+      version: 5,
+      onOpen: (db) async{
+        await db.execute("PRAGMA foreign_keys = ON");
+      },
       onCreate: _createTables,
       onUpgrade: (db, oldVersion, newVersion) async {
-      if (oldVersion < 3) {
-      await db.execute("ALTER TABLE products ADD COLUMN stock_unit TEXT DEFAULT 'pcs'");
-      await db.execute("ALTER TABLE products ADD COLUMN cost REAL");
-      await db.execute("ALTER TABLE products ADD COLUMN barcode TEXT UNIQUE");
-      await db.execute("ALTER TABLE products ADD COLUMN low_stock_alert INTEGER DEFAULT 10");
-      await db.execute("ALTER TABLE products ADD COLUMN description TEXT");
-      await db.execute("ALTER TABLE products ADD COLUMN image_path TEXT");
-      await db.execute("ALTER TABLE products ADD COLUMN createdAt TEXT");
-      await db.execute("ALTER TABLE products ADD COLUMN lastUpdate TEXT");
+      if (oldVersion < 5) {
+
+       await db.execute("ALTER TABLE sales ADD COLUMN payment_type TEXT DEFAULT 'cash'");
       
       print("Session table altered on upgrade");
       }
@@ -74,8 +71,14 @@ class AppDatabase {
     await db.execute('''
       CREATE TABLE sales (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        total REAL,
-        created_at TEXT
+        user_id INTEGER NOT NULL,
+        total_amount REAL NOT NULL,
+        amount_received REAL NOT NULL,
+        change_amount REAL NOT NULL,
+        payment_type TEXT DEFAULT 'cash',
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+
+        FOREIGN KEY (user_id) REFERENCES users(id)
       )
     ''');
 
@@ -83,10 +86,31 @@ class AppDatabase {
     await db.execute('''
       CREATE TABLE sale_items (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        sale_id INTEGER,
-        product_id INTEGER,
-        quantity INTEGER,
-        price REAL
+        sale_id INTEGER NOT NULL,
+        product_id INTEGER NOT NULL,
+        product_name TEXT NOT NULL,
+        price REAL NOT NULL,
+        quantity INTEGER NOT NULL,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      
+        FOREIGN KEY (sale_id) REFERENCES sales(id) ON DELETE CASCADE,
+        FOREIGN KEY (product_id) REFERENCES products(id)
+      )
+
+    ''');
+
+
+    await db.execute('''
+     CREATE TABLE transaction_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        action TEXT NOT NULL,
+        entity_type TEXT,      -- 'sale', 'product'
+        entity_id INTEGER,     -- nullable
+        description TEXT,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+
+        FOREIGN KEY (user_id) REFERENCES users(id)
       )
     ''');
 

@@ -512,7 +512,15 @@ class _POSState extends State<POS> {
                                       'subtotal': getSubTotal(),
                                       'total': getTotal(),
                                       'totalQuantity': getTotalQuantity(),
-                                    } );
+                                    }, ).then((value) {
+                                      if(value == true){
+                                        setState(() {
+                                          for(final item in products){
+                                            item.qty = 0;
+                                          }
+                                        });
+                                      }
+                                    });
                                 },
 
                                 child: Center(
