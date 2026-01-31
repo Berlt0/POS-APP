@@ -35,6 +35,59 @@ class _ReviewCartState extends State<ReviewCart> {
     _initialized = true;
   }
 
+
+
+    void _paymentModal() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20),
+        ),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Select Payment Method",
+                style: GoogleFonts.kameron(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+              ListTile(
+                leading: const Icon(Icons.credit_card),
+                title: const Text("Credit / Debit Card"),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.account_balance_wallet),
+                title: const Text("GCash"),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.money),
+                title: const Text("Cash"),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -196,9 +249,7 @@ class _ReviewCartState extends State<ReviewCart> {
                 backgroundColor: const Color(0xFF6FE5F2),
                 minimumSize: const Size(double.infinity, 48),
               ),
-              onPressed: () {
-                
-              },
+              onPressed: _paymentModal,
               child: Text(
                 "Proceed to Payment",
                 style: GoogleFonts.kameron(
@@ -240,3 +291,5 @@ class _ReviewCartState extends State<ReviewCart> {
     );
   }
 }
+
+
