@@ -6,6 +6,7 @@ import 'package:pos_app/db/database.dart';
 import 'package:pos_app/db/user.dart';
 import 'package:pos_app/db/debug.dart';
 
+
 class ReviewCart extends StatefulWidget {
   const ReviewCart({super.key});
 
@@ -13,7 +14,17 @@ class ReviewCart extends StatefulWidget {
   State<ReviewCart> createState() => _ReviewCartState();
 }
 
+class PaymentResult {
+  final String method;
+  final double? amountReceived; // only for cash
+
+  PaymentResult({required this.method, this.amountReceived});
+}
+
+
 class _ReviewCartState extends State<ReviewCart> {
+
+
   late List<CartItem> items;
   late double subtotal;
   late double total;
@@ -41,9 +52,86 @@ class _ReviewCartState extends State<ReviewCart> {
   }
 
 
+  Future<String?> _cashPaymentModal() {
+  final TextEditingController _controller = TextEditingController();
 
-    Future<String?> _paymentModal() {
-    return showModalBottomSheet<String>(
+  return showGeneralDialog<String>(
+    context: context,
+    barrierLabel: "Cash Payment",
+    barrierDismissible: true,
+    barrierColor: Colors.black.withOpacity(0.5),
+    transitionDuration: const Duration(milliseconds: 300),
+    pageBuilder: (context, anim1, anim2) {
+      return Center(
+        child: Material(
+          type: MaterialType.transparency, 
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: 300,
+            ),
+            child: SingleChildScrollView(
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Enter Amount Received",
+                      style: GoogleFonts.kameron(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    TextField(
+                      controller: _controller,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      decoration: const InputDecoration(
+                        prefixText: '₱ ',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(12)),
+                        ),
+                        labelText: 'Amount Received',
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, null),
+                          child: const Text("Cancel"),
+                        ),
+                        const SizedBox(width: 10),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, _controller.text),
+                          child: const Text("Confirm"),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    },
+    transitionBuilder: (context, anim1, anim2, child) {
+      return ScaleTransition(
+        scale: CurvedAnimation(parent: anim1, curve: Curves.easeOutBack),
+        child: child,
+      );
+    },
+  );
+}
+
+    Future<PaymentResult?> _paymentModal() {
+    return showModalBottomSheet<PaymentResult>(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
@@ -67,17 +155,27 @@ class _ReviewCartState extends State<ReviewCart> {
               ListTile(
                 leading: const Icon(Icons.credit_card),
                 title: const Text("Credit / Debit Card"),
-                onTap: () => Navigator.pop(context,'card'),
+                onTap: () => Navigator.pop(context,PaymentResult(method: 'card',amountReceived: null)),
               ),
               ListTile(
                 leading: const Icon(Icons.account_balance_wallet),
                 title: const Text("GCash"),
-                onTap: () => Navigator.pop(context,'gcash'),
+                onTap: () => Navigator.pop(context,PaymentResult(method: 'gcash',amountReceived: null)),
               ),
               ListTile(
                 leading: const Icon(Icons.money),
                 title: const Text("Cash"),
-                onTap: ()  => Navigator.pop(context,'cash'),
+                onTap: () async {
+
+                final amountString = await _cashPaymentModal();
+
+                if(amountString != null){
+                  final amountReceived = double.tryParse(amountString) ?? 0;
+                  
+                  Navigator.pop(context,PaymentResult(method: 'cash',amountReceived: amountReceived));
+                  }
+
+                },
               ),
             ],
           ),
@@ -89,7 +187,7 @@ class _ReviewCartState extends State<ReviewCart> {
   
 
 
-  Future<void> _saveSale(String paymentType) async {
+  Future<void> _saveSale(PaymentResult payment) async {
     final db = await AppDatabase.database;
     final int? userId = await UserDB().getLoggedInUserId();
 
@@ -103,9 +201,9 @@ class _ReviewCartState extends State<ReviewCart> {
       final saleId = await txn.insert('sales', {
         'user_id': userId, // replace with logged-in user ID
         'total_amount': total,
-        'amount_received': total_amount, // you can add a field to enter cash received
-        'change_amount': 0,       // calculate if needed
-        'payment_type': paymentType,
+        'amount_received': payment.amountReceived ?? 0, 
+        'change_amount': (payment.amountReceived != null) ? (payment.amountReceived! - total) : 0, 
+        'payment_type': payment.method,
         'created_at': DateTime.now().toIso8601String(),
       });
 
@@ -311,9 +409,11 @@ class _ReviewCartState extends State<ReviewCart> {
                 minimumSize: const Size(double.infinity, 48),
               ),
               onPressed: () async {
-                final paymentType = await _paymentModal();
-                if (paymentType != null) {
-                  await _saveSale(paymentType);
+                final payment = await _paymentModal();
+
+
+                if (payment != null) {
+                  await _saveSale(payment);
                   await printTables();
 
                   setState(() {
@@ -324,11 +424,20 @@ class _ReviewCartState extends State<ReviewCart> {
                 });
                   
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Sale completed! Payment: $paymentType'),duration: Duration(seconds: 3)),
+                    SnackBar(content: Text('Sale completed! Payment: ${payment.method}'),
+                    backgroundColor: Colors.green,
+                    behavior: SnackBarBehavior.floating,
+                     margin: EdgeInsets.only(
+                      top: MediaQuery.of(context).padding.top + 16,
+                      left: 16,
+                      right: 16,
+                    ),
+                    duration: Duration(seconds: 3)),
+                    
                   );
 
                   
-                  Navigator.pop(context,true);
+                  Navigator.pop(context, true);
                 }
               },
               child: Text(

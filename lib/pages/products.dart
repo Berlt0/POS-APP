@@ -299,10 +299,9 @@ final autocompleteCategories = _categories.where((c) => c != 'All').toList();
             left: 16,
             right: 16,
             top: 16,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 70,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
           ),
-          child: SizedBox(
-            width: double.infinity,
+          child: SingleChildScrollView( 
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -490,6 +489,9 @@ final autocompleteCategories = _categories.where((c) => c != 'All').toList();
                     shadowColor: Colors.grey[800]
                   ),
                   onPressed: () async{
+
+                     FocusScope.of(context).unfocus();
+
                     if(_productNameController.text.trim().isEmpty || _productCategoryController.text.trim().isEmpty || _priceController.text.trim().isEmpty || _costController.text.trim().isEmpty || _stockAlertController.text.trim().isEmpty ){
                       showDialog(
                         context: context,
@@ -533,7 +535,9 @@ final autocompleteCategories = _categories.where((c) => c != 'All').toList();
                       fontWeight: FontWeight.w500,
                       color: Colors.white
                     ),
+                    
                   ))
+                  ,const SizedBox(height: 30),
               ],
             ),
           ), 
@@ -664,6 +668,7 @@ Widget productCard(Product product) {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         backgroundColor: Colors.grey[100],

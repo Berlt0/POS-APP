@@ -274,6 +274,7 @@ void _openUpdateModal(SomeProductData product){
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         shadowColor: Colors.grey.withOpacity(0.5),
@@ -387,46 +388,47 @@ void _openUpdateModal(SomeProductData product){
                     );
                   }
 
+                
+
                   return SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: SingleChildScrollView(
                       scrollDirection: Axis.vertical,
                       child: DataTable(
-                        columnSpacing: 25,
+                        columnSpacing: 30,
                         headingRowColor: MaterialStateProperty.all(const Color(0xFF6FE5F2)),
                         columns: [
-                          DataColumn(
-                              label: Center(
-                                  child: Text('Product',
-                                      style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.bold)))),
-                          DataColumn(label: Center(child: Text('Category', style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.bold)))),
-                          DataColumn(label: Center(child: Text('Stock', style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.bold)))),
-                          DataColumn(label: Center(child: Text('Status', style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.bold)))),
-                          DataColumn(label: Center(child: Text('Update', style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.bold)))),
+                          DataColumn(label: Text('Product', style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.bold))),
+                          DataColumn(label: Text('Category', style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.bold))),
+                          DataColumn(label: Text('Stock', style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.bold))),
+                          DataColumn(label: Text('Status', style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.bold))),
+                          DataColumn(label: Text('Update', style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.bold))),
                         ],
                         rows: products.map((product) {
+                          
                           return DataRow(cells: [
-                            DataCell(Center(child: Text(product.name, style: tableTextStyle(fontSize: 14)))),
+                            DataCell(Text(capitalizeEachWord(product.name), style: tableTextStyle(fontSize: 14))),
 
-                            DataCell(Center(child: Text(product.category, style: tableTextStyle(fontSize: 14)))),
+                            DataCell(Text(capitalizeEachWord(product.category), style: tableTextStyle(fontSize: 14))),
 
-                            DataCell(Center(child: Text(product.stock.toString(), style: tableTextStyle(fontSize: 14)))),
+                            DataCell( Text(product.stock.toString(), style: tableTextStyle(fontSize: 14))),   
 
                             DataCell(
-                              Center(
-                                child: Text(
-                                  product.stock > 0 ? 'Available' : 'Out of stock',
+                              
+                                Text(
+                                  product.stock == 0 ? 'Out of Stock' : product.stock <= product.low_stock_alert! ? 'Low Stock' : 'In Stock',
                                   style: tableTextStyle(
                                     fontSize: 14,
-                                    color: product.stock > 0 ? const Color.fromARGB(255, 34, 141, 38) : Colors.red,
+                                    fontWeight: FontWeight.w500,
+                                    color: product.stock == 0 ? Colors.red : product.stock <= product.low_stock_alert! ? const Color.fromARGB(255, 255, 165, 0) : const Color.fromARGB(255, 34, 141, 38),
                                   ),
                                 ),
-                              ),
+                                
+                              
                             ),
 
                             DataCell(
-                              Center(
-                                child: InkWell(
+                                InkWell(
                                   onTap: () => _openUpdateModal(product),
                                   borderRadius: BorderRadius.circular(6),
                                   child: Row(
@@ -449,7 +451,7 @@ void _openUpdateModal(SomeProductData product){
                                   ),
                                 ),
                               ),
-                            )
+                            
                           ]);
                         }).toList(),
                       ),
@@ -525,4 +527,12 @@ TextStyle tableTextStyle({
     fontWeight: fontWeight,
     color: color,
   );
+}
+
+String capitalizeEachWord(String text) {
+  return text
+      .split(' ')
+      .map((word) =>
+          word.isNotEmpty ? '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}' : '')
+      .join(' ');
 }

@@ -98,7 +98,7 @@ int _currentIndex = 0;
         }
       },
       onCenterTap: () {
-         Navigator.pushReplacementNamed(context, '/pos');
+         Navigator.pushNamed(context, '/pos');
       },
     ),
 
