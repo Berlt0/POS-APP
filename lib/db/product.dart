@@ -1,5 +1,7 @@
+import 'package:sqflite/sqflite.dart';
 import '../models/products.dart';
 import 'database.dart';
+
 
 class ProductDB {
 
@@ -43,8 +45,26 @@ static Future<int> updateProduct(editProduct product) async {
 }
 
 
+
+
+
   static Future<void> delete(int id) async {
     final db = await AppDatabase.database;
     await db.delete('products', where: 'id = ?', whereArgs: [id]);
   }
+
+
+
+  static Future<int> countProducts() async {
+
+    final db = await AppDatabase.database;
+
+    final result = await db.rawQuery('SELECT COUNT(*) FROM products');
+
+    return Sqflite.firstIntValue(result) ?? 0;
+
+  }
+
 }
+
+

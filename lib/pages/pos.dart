@@ -286,7 +286,7 @@ class _POSState extends State<POS> {
         elevation: 5,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.pop(context,true),
         ),
         title: Padding(
           padding: const EdgeInsets.fromLTRB(1, 0, 0, 0),

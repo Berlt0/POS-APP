@@ -37,6 +37,7 @@ class _POSState extends State<Addproduct> {
   final List<String> _units = ['pcs', 'liter', 'kg', 'meter'];
   
   List<String> _categories = [];
+  bool _isLoading = false;
 
 
   Future<void> loadCategoriesFromProducts() async {
@@ -688,8 +689,35 @@ Widget productFormWidget(int index) {
                     borderRadius: BorderRadius.circular(12), 
                   ),
                 ),
-                onPressed: _saveProducts,
-                child: Text("Save Product",
+                onPressed: _isLoading ? null : () async {
+                  setState(() { _isLoading = true; });
+
+                  try{
+                    await _saveProducts();
+                  }catch(error){
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Error saving products."),
+                      backgroundColor: Colors.red,
+                      behavior: SnackBarBehavior.floating,
+                      margin: EdgeInsets.only(
+                      top: MediaQuery.of(context).padding.top + 16,
+                      left: 16,
+                      right: 16,),
+                    )
+                    );
+                  }finally{
+                    setState(() { _isLoading = false; });
+                  }
+
+                },
+                child: _isLoading
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : 
+                Text("Save Product",
                 style: GoogleFonts.kameron(
                   color: Colors.black,
                   fontSize: 17,

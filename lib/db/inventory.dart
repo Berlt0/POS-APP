@@ -83,5 +83,6 @@ static Future<int> countProductsFiltered({String? category, String? searchText})
   return result.map((e) => e['category'] as String).toList();
 }
 
+  
 
 }

@@ -5,7 +5,9 @@ import 'package:pos_app/widgets/footer.dart';
 import 'package:pos_app/services/auth_service.dart';
 import 'package:pos_app/db/database.dart';
 import 'package:pos_app/services/session_service.dart';
-
+import 'package:pos_app/db/product.dart';
+import 'package:pos_app/db/sales.dart';
+import 'package:pos_app/models/products.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -22,11 +24,33 @@ class _MyWidgetState extends State<Home>  {
   String? username;
   String? role;
 
+  int? totalProducts = 0;
+  int? todaySalesCount = 0;
+  int? lowStockProductsCount = 0;
+  double? todaysRevenue = 0;
+  
+
+  
+
+  
+
    void initState() {
     super.initState();
     _loadSession();
+    _countTotalProducts();
+    _countTodaySales();
+    _countLowStockProducts();
+    _todaysRevenue();
     // _verifyToken(); // prints tokens to console when Home opens
   }
+
+  void _refreshDashboard() {
+  _countTotalProducts();
+  _countTodaySales();
+  _countLowStockProducts();
+  _todaysRevenue();
+}
+
 
 // Future<void> _verifyToken() async {
 //   final userId = await AuthService.getUserId();
@@ -66,7 +90,52 @@ Future<void> _loadSession() async {
 }
 
 
+Future<void> _countTotalProducts() async {
+  
+  int count = await ProductDB.countProducts();
+  setState(() {
+    totalProducts = count;
+  });
+}
 
+Future<void> _countTodaySales() async {
+  
+  int count = await Sales.countTodaySales();
+  setState(() {
+    todaySalesCount = count;
+  });
+}
+
+Future <void> _countLowStockProducts() async {
+
+  final products = await ProductDB.getAll();
+
+  setState(() {
+    lowStockProductsCount = products.where((product) => product.stock <= product.lowStockAlert! && product.stock != 0).length;
+   
+  });
+
+  
+} 
+
+Future <void> _todaysRevenue() async {
+
+  final revenue = await Sales.todaysRevenue();
+
+  setState(() {
+   todaysRevenue = revenue;
+  });
+
+
+}
+
+
+
+// Future<List<Map<String, dynamic>>> _loadProducts() async {
+
+
+
+// }
 
 
 int _currentIndex = 0;
@@ -97,8 +166,13 @@ int _currentIndex = 0;
           
         }
       },
-      onCenterTap: () {
-         Navigator.pushNamed(context, '/pos');
+      onCenterTap: () async {
+         final shouldRefresh = await Navigator.pushNamed(context, '/pos');
+
+          if (shouldRefresh == true) {
+            _refreshDashboard();
+          }
+
       },
     ),
 
@@ -216,28 +290,28 @@ int _currentIndex = 0;
                             iconColor: Colors.blue,
                             iconBgColor: Colors.blue.shade50,
                             title: "Total Products",
-                            value: "32",
+                            value: totalProducts.toString(),
                           ),
                           _buildStatCard(
                             icon: Icons.attach_money,
                             iconColor: Colors.green,
                             iconBgColor: Colors.green.shade50,
                             title: "Today's Revenue",
-                            value: "\$3,000",
+                            value: '₱${todaysRevenue?.toStringAsFixed(2) ?? '0'}',
                           ),
                           _buildStatCard(
                             icon: Icons.shopping_cart_outlined,
                             iconColor: Colors.purple,
                             iconBgColor: Colors.purple.shade50,
                             title: "Today's Sales",
-                            value: "51",
+                            value: todaySalesCount.toString(),
                           ),
                           _buildStatCard(
                             icon: Icons.warning_amber_rounded,
                             iconColor: Colors.red,
                             iconBgColor: Colors.red.shade50,
                             title: "Low Stocks Alert",
-                            value: "2",
+                            value: lowStockProductsCount.toString(),
                           ),
                         ];
                         return cards[index];
