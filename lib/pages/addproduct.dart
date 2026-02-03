@@ -26,7 +26,7 @@ class ProductFormState {
     TextEditingController description = TextEditingController();
 
     File? selectedImage;
-    String stockUnit = 'pcs'; // default value
+    String stockUnit = 'pcs';
 }
 
 

@@ -108,7 +108,30 @@ class _ReviewCartState extends State<ReviewCart> {
                         ),
                         const SizedBox(width: 10),
                         TextButton(
-                          onPressed: () => Navigator.pop(context, _controller.text),
+                          onPressed: ()  {
+
+                            if(double.tryParse(_controller.text) == null || double.parse(_controller.text) < total){
+                              showAdaptiveDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog.adaptive(
+                                    title: Text("Invalid Amount",style: GoogleFonts.kameron(fontSize: 28,fontWeight: FontWeight.w500)),
+                                    content: Text('Amount received must be at least ₱${total.toStringAsFixed(2)}',
+                                    style: GoogleFonts.kameron(fontSize: 16,fontWeight: FontWeight.w500)),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: Text("OK", style: GoogleFonts.kameron(fontSize: 16,fontWeight: FontWeight.w500)),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                              return;
+                            }
+
+                            Navigator.pop(context, _controller.text);
+                          },
                           child: const Text("Confirm"),
                         ),
                       ],

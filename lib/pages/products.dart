@@ -269,7 +269,7 @@ Future<bool?> showConfirmationDialog(BuildContext context) {
 
 void _openEditModal(Product product){
 
-  _productNameController.text = product.name;
+  _productNameController.text = capitalizeEachWord(product.name);
   _productCategoryController.text = product.category ?? "";
   _priceController.text = product.price.toString();
   _costController.text = product.cost.toString();
@@ -583,7 +583,7 @@ Widget productCard(Product product) {
     margin: const EdgeInsets.only(top: 12),
     padding: const EdgeInsets.all(12),
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: product.stock == 0 ? Colors.red[100] : Colors.white,
       borderRadius: BorderRadius.circular(14),
       boxShadow: [
         BoxShadow(
@@ -632,14 +632,14 @@ Widget productCard(Product product) {
                   '₱${product.price.toStringAsFixed(2)}',
                   style: GoogleFonts.kameron(
                     fontSize: 14,
-                    color: Colors.grey[700],
+                    color: Colors.grey[900],
                   ),
                 ),
                 Text(
                   'Stock: ${product.stock}',
                   style: GoogleFonts.kameron(
                     fontSize: 14,
-                    color: Colors.grey[700],
+                    color: Colors.grey[900],
                   ),
                 ),
               ],
@@ -850,4 +850,12 @@ Widget productCard(Product product) {
       ),
     );
   }
+}
+
+String capitalizeEachWord(String text) {
+  return text
+      .split(' ')
+      .map((word) =>
+          word.isNotEmpty ? '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}' : '')
+      .join(' ');
 }
