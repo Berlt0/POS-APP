@@ -83,6 +83,17 @@ static Future<int> countProductsFiltered({String? category, String? searchText})
   return result.map((e) => e['category'] as String).toList();
 }
 
-  
+  static Future<List<LowStockProducts>> getLowStockProducts() async {
+    final db = await AppDatabase.database;
+
+    final result = await db.rawQuery('''
+      SELECT id, name, stock, stock_unit, low_stock_alert FROM products
+      WHERE stock <= low_stock_alert
+      ORDER BY stock ASC
+    ''');
+
+    return result.map((e) => LowStockProducts.fromMap(e)).toList();
+  }
+
 
 }

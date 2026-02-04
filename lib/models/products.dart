@@ -156,3 +156,32 @@ class editProduct {
 
 
 }
+
+class LowStockProducts{
+
+  final int id;
+  final String name;
+  final int stock;
+  final String stock_unit;
+  final int low_stock_alert;
+
+  LowStockProducts({
+    required this.id,
+    required this.name,
+    required this.stock,
+    required this.stock_unit,
+    required this.low_stock_alert,
+  });
+
+  factory LowStockProducts.fromMap(Map<String, dynamic> map) {
+    return LowStockProducts(
+      id: map['id'],
+      name: map['name'],
+      stock: map['stock'],
+      stock_unit: map['stock_unit'],
+      low_stock_alert: map['low_stock_alert'],
+    );
+  }
+
+
+}

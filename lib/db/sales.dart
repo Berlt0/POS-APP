@@ -29,4 +29,28 @@ class Sales{
     return result.first['total'] != null ? (result.first['total'] as num).toDouble() : 0.0;
   }
 
+
+  static Future<List<Map<String, dynamic>>> fetchRecentSales() async{
+
+    final db = await AppDatabase.database;
+
+    final result = await db.rawQuery('''
+      SELECT 
+        s.id,
+        s.total_amount,
+        s.created_at,
+        si.product_name,
+        si.quantity,
+        si.price
+      FROM sales s
+      JOIN sale_items si ON si.sale_id = s.id
+      GROUP BY s.id
+      ORDER BY s.created_at DESC
+      LIMIT 10;
+    ''');
+
+    return result;
+
+  }
+
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pos_app/pages/inventory.dart';
 import 'package:pos_app/utils/responsive.dart';
 import 'package:pos_app/widgets/footer.dart';
 import 'package:pos_app/services/auth_service.dart';
@@ -8,6 +9,9 @@ import 'package:pos_app/services/session_service.dart';
 import 'package:pos_app/db/product.dart';
 import 'package:pos_app/db/sales.dart';
 import 'package:pos_app/models/products.dart';
+import 'package:pos_app/models/sales.dart';
+import 'package:intl/intl.dart';
+import 'package:pos_app/db/inventory.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -28,6 +32,10 @@ class _MyWidgetState extends State<Home>  {
   int? todaySalesCount = 0;
   int? lowStockProductsCount = 0;
   double? todaysRevenue = 0;
+
+  List<Sale> recentSales = [];
+  List<LowStockProducts> lowStockProducts = [];
+  bool isLoading = false;
   
 
   
@@ -41,6 +49,8 @@ class _MyWidgetState extends State<Home>  {
     _countTodaySales();
     _countLowStockProducts();
     _todaysRevenue();
+    _fetchRecentSales();
+    _fetchLowStockProducts();
     // _verifyToken(); // prints tokens to console when Home opens
   }
 
@@ -49,6 +59,8 @@ class _MyWidgetState extends State<Home>  {
   _countTodaySales();
   _countLowStockProducts();
   _todaysRevenue();
+  _fetchRecentSales();
+  _fetchLowStockProducts();
 }
 
 
@@ -129,13 +141,48 @@ Future <void> _todaysRevenue() async {
 
 }
 
+Future<void> _fetchRecentSales() async {
+  
+  setState(() => isLoading = true);
+  
+  try{
+
+    final recentSalesData = await Sales.fetchRecentSales();
+
+    final sales =  recentSalesData.map((data) => Sale.fromMap(data)).toList();
+
+    setState(() {
+      recentSales = sales;
+      isLoading = false;
+    });
+
+  }catch(error){
+    print("Error fetching recent sales: $error");
+    setState(() => isLoading = false);
+  }
+
+  
+}
 
 
-// Future<List<Map<String, dynamic>>> _loadProducts() async {
+Future <void> _fetchLowStockProducts() async {
+
+ try{
+
+  final products = await InventoryDB.getLowStockProducts();
+
+  setState(() {
+    lowStockProducts = products;
+  });
 
 
+ }catch(error){
+  print("Error fetching low stock products: $error");
 
-// }
+  
+  }
+}
+
 
 
 int _currentIndex = 0;
@@ -504,7 +551,10 @@ int _currentIndex = 0;
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            ...List.generate(4, (index) => _buildSaleItem(index)),
+                                            if (isLoading)
+                                              Center(child: CircularProgressIndicator())
+                                            else
+                                              ...List.generate(recentSales.length, (index) => _buildSaleItem(index)),
                                           ],
                                         ),
                                       ),
@@ -534,7 +584,7 @@ int _currentIndex = 0;
                                   ),
                               SizedBox(width: 8),
                               Text(
-                                "Low Stock Alerts",
+                                "Stock Alerts",
                                 style: GoogleFonts.kameron(
                                   fontSize: Responsive.font(
                                     context,
@@ -571,7 +621,7 @@ int _currentIndex = 0;
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            ...List.generate(2, (index) => _buildLowStockItem(index)),
+                                            ...List.generate(lowStockProducts.length, (index) => _buildLowStockItem(index)),
                                           ],
                                         ),
                                       ),
@@ -737,7 +787,14 @@ int _currentIndex = 0;
   }
 
   Widget _buildSaleItem(int index) {
-    final sales = ["Kopiko", "Lucky Me Pancit Canton", "Red Horse", "Nova"];
+    
+    if(index >= recentSales.length) return SizedBox();
+
+    final sale = recentSales[index];
+
+    final date = DateTime.parse(sale.createdAt);
+    final formattedDate = DateFormat('MMMM d, y').format(date);
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 1),
       child: Card(
@@ -755,7 +812,7 @@ int _currentIndex = 0;
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "${sales[index]} (${index + 1})",
+                    '${capitalizeEachWord(sale.product_name)} (${sale.quantity})',
                     style: GoogleFonts.kameron(
                       fontSize: Responsive.font(
                         context,
@@ -769,7 +826,7 @@ int _currentIndex = 0;
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    "December 20, 2025",
+                    formattedDate,
                     style: GoogleFonts.kameron(
                       fontSize: Responsive.font(
                         context,
@@ -783,7 +840,7 @@ int _currentIndex = 0;
                 ],
               ),
               Text(
-                "\$0.3",
+                '₱${sale.price * sale.quantity}',
                 style: GoogleFonts.kameron(
                   fontSize: Responsive.font(
                     context,
@@ -803,7 +860,12 @@ int _currentIndex = 0;
   }
 
   Widget _buildLowStockItem(int index) {
-    final items = ["Kopiko", "Juice"];
+    
+    if(index >= lowStockProducts.length) return SizedBox();
+
+    final product = lowStockProducts[index];
+
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Card(
@@ -822,7 +884,7 @@ int _currentIndex = 0;
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "${items[index]} (${index + 1})",
+                    capitalizeEachWord(product.name),
                     style: GoogleFonts.kameron(
                       fontSize: Responsive.font(
                         context,
@@ -835,7 +897,7 @@ int _currentIndex = 0;
                     ),
                   ),
                   Text(
-                    "Stocks: ${index + 1} unit(s)",
+                    "Stocks: ${product.stock} ${product.stock_unit}",
                     style: GoogleFonts.kameron(
                       fontSize: Responsive.font(
                         context,
@@ -852,12 +914,21 @@ int _currentIndex = 0;
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF05454),
+                  color: product.stock == 0 ? Colors.red : Color.fromARGB(255, 255, 165, 0),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Text(
-                  "Low Stock",
-                  style: TextStyle(color: Colors.white, fontSize: 12),
+                child: Text(
+                  product.stock == 0 ? 'Out of Stock' :  'Low Stock' ,
+                  style: GoogleFonts.kameron(
+                    fontSize: Responsive.font(
+                      context,
+                      mobile: 12,
+                      tablet: 15,
+                      desktop: 16,
+                    ),
+                    fontWeight: FontWeight.bold,
+                    color: const Color.fromARGB(255, 255, 255, 255),
+                  ),
                 ),
               ),
             ],
@@ -956,4 +1027,12 @@ int _currentIndex = 0;
       ),
     );
   }
+}
+
+String capitalizeEachWord(String text) {
+  return text
+      .split(' ')
+      .map((word) =>
+          word.isNotEmpty ? '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}' : '')
+      .join(' ');
 }
