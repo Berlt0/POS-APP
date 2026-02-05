@@ -24,3 +24,19 @@ class Sale {
   }
 }
 
+
+class SaleChart{
+  
+  final String date;
+  final int totalSales;
+
+  SaleChart({required this.date, required this.totalSales});
+
+  factory SaleChart.fromMap(Map<String, dynamic> map) {
+    return SaleChart(
+      date: map['sale_date'],
+      totalSales: map['total_sales'],
+    );
+  }
+
+}

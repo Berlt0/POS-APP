@@ -1,5 +1,6 @@
 import 'package:pos_app/db/database.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:pos_app/models/sales.dart';
 
 
 class Sales{
@@ -16,6 +17,7 @@ class Sales{
     return Sqflite.firstIntValue(result) ?? 0;
 
   }
+
 
   static Future<double> todaysRevenue() async {
 
@@ -52,5 +54,24 @@ class Sales{
     return result;
 
   }
+
+
+  static Future<List<Map<String, dynamic>>> fetchWeeklySales() async {
+  
+    final db = await AppDatabase.database;
+
+    final result = await db.rawQuery('''
+      SELECT 
+        DATE(created_at, 'localtime') AS sale_date,
+        COUNT(*) AS total_sales
+      FROM sales
+      WHERE DATE(created_at, 'localtime') >= DATE('now', '-6 days', 'localtime')
+      GROUP BY sale_date
+      ORDER BY sale_date ASC;
+    ''');
+
+    return result;
+}
+
 
 }

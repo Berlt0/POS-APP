@@ -12,6 +12,9 @@ import 'package:pos_app/models/products.dart';
 import 'package:pos_app/models/sales.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_app/db/inventory.dart';
+import 'package:fl_chart/fl_chart.dart';
+
+
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -41,7 +44,7 @@ class _MyWidgetState extends State<Home>  {
   
 
   
-
+  @override
    void initState() {
     super.initState();
     _loadSession();
@@ -51,6 +54,7 @@ class _MyWidgetState extends State<Home>  {
     _todaysRevenue();
     _fetchRecentSales();
     _fetchLowStockProducts();
+    _fetchChartData();
     // _verifyToken(); // prints tokens to console when Home opens
   }
 
@@ -61,6 +65,7 @@ class _MyWidgetState extends State<Home>  {
   _todaysRevenue();
   _fetchRecentSales();
   _fetchLowStockProducts();
+  _fetchChartData();
 }
 
 
@@ -182,6 +187,23 @@ Future <void> _fetchLowStockProducts() async {
   
   }
 }
+
+
+Future<List<SaleChart>> _fetchChartData() async {
+
+  try{
+
+  final data = await Sales.fetchWeeklySales();
+  return data.map((e) => SaleChart.fromMap(e)).toList();
+
+  }catch(error){
+    print('Error fetching weekly sales: $error');
+    return [];
+  }
+
+
+}
+
 
 
 
@@ -384,9 +406,9 @@ int _currentIndex = 0;
                 Container(
                   height: Responsive.spacing(
                     context,
-                    mobile: 200,
-                    tablet: 250,
-                    desktop: 300,
+                    mobile: 250,
+                    tablet: 300,
+                    desktop: 350,
                   ),
                   margin: const EdgeInsets.only(top: 20),
                   decoration: BoxDecoration(
@@ -401,29 +423,88 @@ int _currentIndex = 0;
                       ),
                     ],
                   ),
-                  child: Container(
-                    margin: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Center(
-                      child: Text(
-                        "Loading Chart...",
-                        style: GoogleFonts.kameron(
-                          fontSize: Responsive.font(
-                            context,
-                            mobile: 14,
-                            tablet: 16,
-                            desktop: 20,
-                          ),
-                          fontWeight: FontWeight.normal,
-                          color: Colors.grey,
+                      child: Container(
+                        margin: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                      ),
-                    ),
-                  ),
-                ),
+                        child: FutureBuilder<List<SaleChart>>(
+                              future: _fetchChartData(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return const Center(child: CircularProgressIndicator());
+                                } else if (snapshot.hasError) {
+                                  return const Center(child: Text("Error loading chart"));
+                                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                                  return const Center(child: Text("No sales data for this week"));
+                                }
+
+                                final data = snapshot.data!; // non-null now
+                                final spots = data.asMap().entries.map((entry) {
+                                  final index = entry.key.toDouble();
+                                  final value = entry.value.totalSales.toDouble();
+                                  return FlSpot(index, value);
+                                }).toList();
+
+                                final titles = data.map((e) => e.date).toList();
+
+                                return Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: LineChart(
+                                    duration: Duration(milliseconds: 800),
+                                    curve: Curves.bounceIn,
+                                    LineChartData(
+                                      minY: 0,
+                                      gridData: FlGridData(show: true),
+                                      borderData: FlBorderData(
+                                        show: true,
+                                        border: Border.all(color: Colors.grey.shade300),
+                                      ),
+                                      titlesData: FlTitlesData(
+                                        bottomTitles: AxisTitles(
+                                          sideTitles: SideTitles(
+                                          showTitles: true,
+                                          reservedSize: 16,
+                                          interval: 1,
+                                          getTitlesWidget: (value,meta) {
+                                            final index = value.toInt();
+                                            if (index >= 0 && index < titles.length) {
+                                              return  Text(titles[index], style: const TextStyle(fontSize: 10,fontWeight: FontWeight.w500));
+                                            }
+                                            return const Text('');
+                                          },
+                                        ),
+                                        ),
+                                        leftTitles: AxisTitles(
+                                          sideTitles: SideTitles(
+                                          showTitles: true,
+                                          interval: 1,
+                                           getTitlesWidget: (value, meta) {
+                                            return Text(value.toInt().toString(), style: const TextStyle(fontSize: 12));
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                      lineBarsData: [
+                                        LineChartBarData(
+                                          spots: spots,
+                                          isCurved: true,
+                                          color: const Color.fromARGB(255, 14, 68, 161),
+                                          barWidth: 2,
+                                          dotData: FlDotData(show: true),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      
+                    
+                          
           
                 const SizedBox(height: 25),
           // ── RESPONSIVE SECTION ──
