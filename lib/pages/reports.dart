@@ -30,7 +30,6 @@ class _ReportsState extends State<Reports> {
             ),
             ),
         ),
-        
       ),
       bottomNavigationBar: AppFooter(
         currentIndex: 3,
