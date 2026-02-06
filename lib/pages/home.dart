@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:pos_app/pages/inventory.dart';
 import 'package:pos_app/utils/responsive.dart';
 import 'package:pos_app/widgets/footer.dart';
-import 'package:pos_app/services/auth_service.dart';
-import 'package:pos_app/db/database.dart';
 import 'package:pos_app/services/session_service.dart';
 import 'package:pos_app/db/product.dart';
 import 'package:pos_app/db/sales.dart';
