@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'package:pos_app/db/reports.dart';
 import 'package:pos_app/widgets/footer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/utils/responsive.dart';
@@ -15,15 +16,25 @@ class Reports extends StatefulWidget {
 
 class _ReportsState extends State<Reports> {
 
-int totalTransaction = 0;
-double revenue = 0;
-double profit = 0;
-double margin = 0;
-
-
 String selectedFilter = 'Today';
 
+Map<String, dynamic>? reportCard;
+bool isLoading = false;
+
 DateTimeRange? selectedRange;
+
+
+@override
+void initState() {
+  super.initState();
+  loadReportsCard();
+}
+
+
+
+
+
+
 
 Future<void> _pickDateRange(BuildContext context) async {
   final DateTimeRange? picked = await showDateRangePicker(
@@ -46,16 +57,52 @@ Future<void> _pickDateRange(BuildContext context) async {
   if (picked != null) {
     setState(() {
       selectedRange = picked;
+      selectedFilter = 'Custom';
     });
 
+    await loadReportsCard();
 
-    // _fetchReports(picked.start, picked.end);
   }
 }
 
 
+Future<void> loadReportsCard() async {
+
+  try {
+
+    setState(() => isLoading = true);
+
+    reportCard = await fetchReportCard(
+      filter: selectedFilter,
+      dateRange: selectedRange
+    );
+
+    setState(() => isLoading = false);
+
+    
+  } catch (error) {
+    debugPrint("Error fetching report cards, $error");
+    return;
+  }
+
+} 
 
 
+String _valueOrLoading(String key, {bool peso = false}) {
+  if (isLoading || reportCard == null) {
+    return 'Loading...';
+  }
+
+  final value = reportCard![key];
+
+  if (value is num) {
+    return peso
+        ? '₱${value.toStringAsFixed(2)}'
+        : value.toString();
+  }
+
+  return value.toString();
+}
 
 
 
@@ -137,25 +184,22 @@ Future<void> _pickDateRange(BuildContext context) async {
                   Expanded(
                     flex: 1,
                     child: DropdownButtonFormField<String>(
-                      value: selectedFilter,
-                      items: const [
-                        DropdownMenuItem(
-                          value: 'Today',
-                          child: Text('Today'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'Weekly',
-                          child: Text('Weekly'),
-                        ),
-                      ],
-                      onChanged: (value) {
+                     value: selectedFilter,
+                     items: ['Today', 'Weekly', 'Custom']
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e, style: GoogleFonts.kameron(fontSize: 16, color:Colors.black),)))
+                    .toList(),
+                      onChanged: (value) async {
                         setState(() {
                           selectedFilter = value!;
                         });
+
+                          if (value == 'Custom' && selectedRange == null) return;
+
+                          await loadReportsCard();
                       },
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: Color(0xFF00E6FF),
+                        fillColor: Colors.grey[100],
                         contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -194,7 +238,7 @@ Future<void> _pickDateRange(BuildContext context) async {
                             iconColor: Colors.blue,
                             iconBgColor: Colors.blue.shade50,
                             title: "Total Sales",
-                            value: '123',
+                            value: _valueOrLoading('totalSales'),
                           ),
                           _buildStatCard(
                             context: context,
@@ -202,7 +246,7 @@ Future<void> _pickDateRange(BuildContext context) async {
                             iconColor: Colors.green,
                             iconBgColor: Colors.green.shade50,
                             title: "Revenue",
-                            value: '₱12',
+                            value: _valueOrLoading('revenue',peso: true),
                           ),
                           _buildStatCard(
                             context: context,
@@ -210,7 +254,7 @@ Future<void> _pickDateRange(BuildContext context) async {
                             iconColor: Colors.purple,
                             iconBgColor: Colors.purple.shade50,
                             title: "Gross Profit",
-                            value: '12',
+                            value: _valueOrLoading('profit', peso: true),
                           ),
                           _buildStatCard(
                             context: context,
@@ -218,7 +262,7 @@ Future<void> _pickDateRange(BuildContext context) async {
                             iconColor: Color(0xFF7C6D00),
                             iconBgColor: Color(0xFFF5EEB6),
                             title: "Gross Margin",
-                            value: '12',
+                            value: _valueOrLoading('margin',peso: true),
                           ),
                           
                         ];
@@ -353,3 +397,4 @@ String capitalizeEachWord(String text) {
           word.isNotEmpty ? '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}' : '')
       .join(' ');
 }
+
