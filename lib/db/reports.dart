@@ -142,3 +142,51 @@ import 'package:intl/intl.dart';
 
   }
 
+
+  Future<List<Map<String, dynamic >>> fetchTopProducts({
+    required String filter,
+    DateTimeRange? dateRange,
+  }) async {
+
+    String range = '';
+    List<dynamic> args = [];
+
+    final db = await AppDatabase.database;
+
+    if (filter == 'Today') {
+      range = "DATE(s.created_at) = DATE('now')";
+    } else if (filter == 'Weekly') {
+      range = "s.created_at >= DATE('now', '-6 days')";
+    } else if (filter == 'Custom' && dateRange != null) {
+      range = "DATE(s.created_at) BETWEEN ? AND ?";
+      args = [
+        DateFormat('yyyy-MM-dd').format(dateRange.start),
+        DateFormat('yyyy-MM-dd').format(dateRange.end),
+      ];
+    }
+
+    final result = await db.rawQuery(
+      '''
+        SELECT 
+          p.id AS product_id,
+          p.name AS product_name,
+          SUM(si.quantity) AS total_quantity_sold,
+          SUM(si.quantity * si.price) as revenue
+          FROM sale_items si
+        JOIN products p ON si.product_id = p.id
+        JOIN sales s ON si.sale_id = s.id
+        WHERE $range
+        GROUP BY p.id, p.name
+        ORDER BY total_quantity_sold DESC
+        LIMIT 10;
+      ''',args
+    );
+
+  return result.map((row) => {
+    'product_name': row['product_name'],
+    'product_id': row['product_id'],
+    'revenue': (row['revenue'] as num).toDouble(),
+    'total_sold': row['total_quantity_sold'],
+  }).toList();
+
+  }

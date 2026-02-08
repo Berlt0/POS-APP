@@ -7,6 +7,7 @@ import 'package:pos_app/widgets/footer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/utils/responsive.dart';
 import 'package:pos_app/widgets/sale_chart.dart';
+import 'package:pos_app/widgets/topSellingProduct.dart';
 
 
 class Reports extends StatefulWidget {
@@ -25,11 +26,15 @@ Map<String, dynamic>? reportCard;
 bool isLoading = false;
 bool isSaleTrendLoading = false;
 bool isRCOGSPLoading = false;
+bool isTopProductsLoading = false;
 
 DateTimeRange? selectedRange;
 
 List<Map<String, dynamic>> salesTrend = [];
 List<Map<String, dynamic>> rcogsp = [];
+List<Map<String, dynamic>> topProducts = [];
+
+final ScrollController _topProductsScrollController = ScrollController();
 
 
 @override
@@ -38,8 +43,14 @@ void initState() {
   loadReportsCard();
   loadSalesTrend();
   loadRCOGSP();
+  loadTopSellingProducts();
 }
 
+@override
+  void dispose() {
+    _topProductsScrollController.dispose();
+    super.dispose();
+  }
 
 
 
@@ -70,6 +81,7 @@ Future<void> _pickDateRange(BuildContext context) async {
     await loadReportsCard();
     await loadSalesTrend();
     await loadRCOGSP();
+    await loadTopSellingProducts();
 
   }
 }
@@ -143,6 +155,28 @@ Future<void> loadRCOGSP() async {
 
 }
 
+Future<void> loadTopSellingProducts() async {
+
+  try {
+    
+    setState(() => isTopProductsLoading = true);
+
+    final products = await fetchTopProducts(
+      filter: selectedFilter,
+      dateRange: selectedRange
+    );
+
+    setState(() {
+      topProducts = products; 
+    });
+
+    setState(() => isTopProductsLoading = false);
+
+  } catch (error) {
+    debugPrint('Error fetching data,$error');
+  }
+
+}
 
 
 
@@ -257,6 +291,7 @@ String _valueOrLoading(String key, {bool peso = false}) {
                           await loadReportsCard();
                           await loadSalesTrend();
                           await loadRCOGSP();
+                          await loadTopSellingProducts();
                       },
                       decoration: InputDecoration(
                         filled: true,
@@ -428,6 +463,85 @@ String _valueOrLoading(String key, {bool peso = false}) {
                         : RcogspChartWidget(rcogsp: rcogsp, isLoading: isRCOGSPLoading )
                     ),
                     ),
+                  ],
+                ),
+                SizedBox(height: 25,),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text("Top Selling Products",style: GoogleFonts.kameron(
+                        fontSize: Responsive.font(context, mobile: 17,tablet: 21, desktop: 24 ),
+                        fontWeight: FontWeight.bold
+                      ),),
+                    ),
+                    Container(
+                      height: Responsive.spacing(
+                        context,
+                        mobile: 400,
+                        tablet: 450,
+                        desktop: 500,
+                      ),
+                      margin: const EdgeInsets.only(top: 13),
+                      decoration: BoxDecoration(
+                        color: Color(0xFF3CE7FA),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.3),
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Container(
+                        margin: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: isTopProductsLoading
+                            ? Center(
+                                child: CircularProgressIndicator.adaptive(
+                                  backgroundColor: Colors.blue,
+                                ),
+                              )
+                            : topProducts.isEmpty
+                                ? Center(
+                                    child: Text(
+                                      "No data",
+                                      style: GoogleFonts.kameron(
+                                          fontSize: 15, fontWeight: FontWeight.w500),
+                                    ),
+                                  )
+                                : LayoutBuilder(
+                                    builder: (context, constraints) {
+                                      return Scrollbar(
+                                        thumbVisibility: true,
+                                        controller: _topProductsScrollController,
+                                        child: SingleChildScrollView(
+                                          controller: _topProductsScrollController,
+                                          scrollDirection: Axis.vertical,
+                                          child: ConstrainedBox(
+                                            constraints:
+                                                BoxConstraints(minWidth: constraints.maxWidth),
+                                            child: SingleChildScrollView(
+                                              scrollDirection: Axis.horizontal,
+                                              child: TopProductWidget(
+                                                products: topProducts,
+                                                isLoading: isTopProductsLoading,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                      ),
+                    ),
+
                   ],
                 ),
 
