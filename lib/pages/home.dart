@@ -444,10 +444,13 @@ int _currentIndex = 0;
                                   return FlSpot(index, value);
                                 }).toList();
 
-                                final titles = data.map((e) => e.date).toList();
+                                final titles = data.map((e) {
+                                  final date = DateTime.parse(e.date);
+                                  return DateFormat('MM/dd/yy').format(date); 
+                                }).toList();
 
                                 return Padding(
-                                  padding: const EdgeInsets.all(10),
+                                  padding: const EdgeInsets.fromLTRB(10, 20, 10, 15),
                                   child: LineChart(
                                     duration: Duration(milliseconds: 800),
                                     curve: Curves.bounceIn,
@@ -473,23 +476,61 @@ int _currentIndex = 0;
                                           },
                                         ),
                                         ),
+                                        
                                         leftTitles: AxisTitles(
                                           sideTitles: SideTitles(
+                                          reservedSize: 20,
                                           showTitles: true,
                                           interval: 1,
                                            getTitlesWidget: (value, meta) {
-                                            return Text(value.toInt().toString(), style: const TextStyle(fontSize: 12));
+                                            return Text(
+                                                '${value.toInt()}',
+                                                style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w500, fontSize: 14)
+                                              );
                                           },
                                         ),
                                       ),
+                                       rightTitles: AxisTitles(
+                                        sideTitles: SideTitles(
+                                        showTitles: true,
+                                        reservedSize: 20,
+                                        getTitlesWidget: (value, meta) {
+                                            return Text(
+                                                '${value.toInt()}',
+                                                style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w500, fontSize: 14)
+                                              );
+                                          },
+                                        
+
+                                    ),
+                                  ),
+                                  topTitles: AxisTitles(
+                                        sideTitles: SideTitles(
+                                        showTitles: false,
+
+                                    ),
+                                  ),
+                                      
                                     ),
                                       lineBarsData: [
                                         LineChartBarData(
                                           spots: spots,
                                           isCurved: true,
                                           color: const Color.fromARGB(255, 14, 68, 161),
-                                          barWidth: 2,
+                                          barWidth: 3,
                                           dotData: FlDotData(show: true),
+                                           belowBarData: BarAreaData(
+                                            show: true,
+                                            color: const Color.fromARGB(100, 14, 68, 161), 
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Color.fromARGB(150, 14, 68, 161),
+                                                Color.fromARGB(0, 14, 68, 161),   
+                                              ],
+                                              begin: Alignment.topCenter,
+                                              end: Alignment.bottomCenter,
+                                            ),
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -871,7 +912,7 @@ int _currentIndex = 0;
     final sale = recentSales[index];
 
     final date = DateTime.parse(sale.createdAt);
-    final formattedDate = DateFormat('MMMM d, y').format(date);
+    final formattedDate = DateFormat('MMMM d, yy').format(date);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 1),
