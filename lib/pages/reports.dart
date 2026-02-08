@@ -412,7 +412,7 @@ String _valueOrLoading(String key, {bool peso = false}) {
                         ),)
                         :salesTrend.isEmpty
                         ? Center(child: Text("No data", style: GoogleFonts.kameron()))
-                        : SaleChartWidget(salesTrend: salesTrend, isLoading: isSaleTrendLoading )
+                        : SaleChartWidget(salesTrend: salesTrend, isLoading: isSaleTrendLoading, selectedFilter: selectedFilter )
                     ),
                     ),
                   ],

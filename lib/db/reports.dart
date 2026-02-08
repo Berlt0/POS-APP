@@ -55,25 +55,29 @@ import 'package:intl/intl.dart';
     DateTimeRange? dateRange,
   }) async {
     String range = '';
+    String groupBy = '';
     List<dynamic> args = [];
 
     final db = await AppDatabase.database;
 
     if (filter == 'Today') {
       range = "DATE(s.created_at) = DATE('now')";
+      groupBy = "strftime('%Y-%m-%d %H:00:00', s.created_at)";
     } else if (filter == 'Weekly') {
       range = "s.created_at >= DATE('now', '-6 days')";
+       groupBy = "DATE(s.created_at)";
     } else if (filter == 'Custom' && dateRange != null) {
       range = "DATE(s.created_at) BETWEEN ? AND ?";
       args = [
         DateFormat('yyyy-MM-dd').format(dateRange.start),
         DateFormat('yyyy-MM-dd').format(dateRange.end),
       ];
+      groupBy = "DATE(s.created_at)";
     }
 
     final result = await db.rawQuery('''
       SELECT
-      DATE(s.created_at) AS sale_date,
+      $groupBy AS sale_date,
       IFNULL(SUM(s.total_amount), 0) AS revenue,
       COUNT(s.id) AS total_sales
     FROM sales s
@@ -93,6 +97,8 @@ import 'package:intl/intl.dart';
       };
     }).toList();
   }
+
+
 
   Future<List<Map<String, dynamic>>> fetchRCOGSP({
     required String filter,

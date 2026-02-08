@@ -6,11 +6,14 @@ import 'package:pos_app/widgets/legend.dart';
 class SaleChartWidget extends StatefulWidget {
   final List<Map<String, dynamic>> salesTrend;
   final bool isLoading;
+  final String selectedFilter; 
+  
 
   const SaleChartWidget({
     super.key,
     required this.salesTrend,
     this.isLoading = false,
+    required this.selectedFilter,
   });
 
   @override
@@ -21,7 +24,12 @@ class _MyWidgetState extends State<SaleChartWidget> {
   @override
   Widget build(BuildContext context) {
 
-
+if (widget.selectedFilter == 'Today') {
+    debugPrint('Sales Trend Data for Today: ${widget.salesTrend}');
+    if (widget.salesTrend.isNotEmpty) {
+      debugPrint('First date sample: ${widget.salesTrend[0]['date']}');
+    }
+  }
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 20, 8, 10),
       child: Column(
@@ -91,11 +99,19 @@ class _MyWidgetState extends State<SaleChartWidget> {
                       interval: 1,
                       getTitlesWidget: (value, meta) {
                         int index = value.toInt();
+
                         if (index >= 0 && index < widget.salesTrend.length) {
-                          final date = DateFormat(
-                            'MM/dd',
-                          ).format(DateTime.parse(widget.salesTrend[index]['date']));
-                          return Text(date, style: TextStyle(fontSize: 10));
+                          final dateTime = DateTime.parse(widget.salesTrend[index]['date']);
+                          
+                          if (widget.selectedFilter == 'Today') {
+                           
+                            final hour = DateFormat('ha').format(dateTime); 
+                            return Text(hour, style: TextStyle(fontSize: 10));
+                          } else {
+                           
+                            final date = DateFormat('MM/dd').format(dateTime);
+                            return Text(date, style: TextStyle(fontSize: 10));
+                          }
                         }
                         return const Text('');
                       },
@@ -109,17 +125,20 @@ class _MyWidgetState extends State<SaleChartWidget> {
                     getTooltipColor: (spot) => Colors.white,
                     getTooltipItems: (touchedSpots) {
                       return touchedSpots.map((touchedSpot) {
-                        // Only show tooltip for the first line (revenue)
+                        
                         if (touchedSpot.barIndex == 0) {
                           final index = touchedSpot.spotIndex;
-                          final date = DateFormat(
-                            'MM/dd',
-                          ).format(DateTime.parse(widget.salesTrend[index]['date']));
-                          final revenue = widget.salesTrend[index]['revenue'];
+                           final dateTime = DateTime.parse(widget.salesTrend[index]['date']);
+
+                          final label =  widget.selectedFilter == 'Today'
+                            ? DateFormat('ha').format(dateTime) 
+                            : DateFormat('MM/dd').format(dateTime);
+
+                          final revenue = widget.salesTrend[index]['revenue'] as double;
                           final totalSales = widget.salesTrend[index]['totalSales'];
             
                           return LineTooltipItem(
-                            '$date\nRevenue: ₱${revenue.toStringAsFixed(2)}\nSales: $totalSales',
+                            '$label\nRevenue: ₱${revenue.toStringAsFixed(2)}\nSales: $totalSales',
                             TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
