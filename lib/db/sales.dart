@@ -1,6 +1,6 @@
 import 'package:pos_app/db/database.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:pos_app/models/sales.dart';
+
 
 
 class Sales{

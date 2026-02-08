@@ -2,10 +2,12 @@
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:pos_app/db/reports.dart';
+import 'package:pos_app/widgets/RCOGSP.dart';
 import 'package:pos_app/widgets/footer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/utils/responsive.dart';
 import 'package:pos_app/widgets/sale_chart.dart';
+
 
 class Reports extends StatefulWidget {
   const Reports({super.key});
@@ -22,10 +24,12 @@ String selectedFilter = 'Today';
 Map<String, dynamic>? reportCard;
 bool isLoading = false;
 bool isSaleTrendLoading = false;
+bool isRCOGSPLoading = false;
 
 DateTimeRange? selectedRange;
 
 List<Map<String, dynamic>> salesTrend = [];
+List<Map<String, dynamic>> rcogsp = [];
 
 
 @override
@@ -33,6 +37,7 @@ void initState() {
   super.initState();
   loadReportsCard();
   loadSalesTrend();
+  loadRCOGSP();
 }
 
 
@@ -64,6 +69,7 @@ Future<void> _pickDateRange(BuildContext context) async {
 
     await loadReportsCard();
     await loadSalesTrend();
+    await loadRCOGSP();
 
   }
 }
@@ -101,8 +107,6 @@ Future<void> loadSalesTrend() async {
       dateRange: selectedRange
     );
 
-    debugPrint("Sales Trend Data: $data");
-
     setState(() {
       salesTrend = data;
     });
@@ -114,6 +118,30 @@ Future<void> loadSalesTrend() async {
   }
 }
 
+Future<void> loadRCOGSP() async {
+
+  try {
+    
+    setState(() => isSaleTrendLoading = true);
+
+    final data = await fetchRCOGSP(
+      filter: selectedFilter,
+      dateRange: selectedRange
+    );
+
+    setState(() {
+      rcogsp = data;
+    });
+
+
+
+    setState(() => isSaleTrendLoading = false);
+
+  } catch (error) {
+    debugPrint('Error fetching data, $error');
+  }
+
+}
 
 
 
@@ -228,6 +256,7 @@ String _valueOrLoading(String key, {bool peso = false}) {
 
                           await loadReportsCard();
                           await loadSalesTrend();
+                          await loadRCOGSP();
                       },
                       decoration: InputDecoration(
                         filled: true,
@@ -352,7 +381,56 @@ String _valueOrLoading(String key, {bool peso = false}) {
                     ),
                     ),
                   ],
-                )
+                ),
+                SizedBox(height: 25,),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text("Revenue vs COGS vs Profit",style: GoogleFonts.kameron(
+                        fontSize: Responsive.font(context, mobile: 17,tablet: 21, desktop: 24 ),
+                        fontWeight: FontWeight.bold
+                      ),),
+                    ),
+                    Container(
+                      height: Responsive.spacing(
+                        context,
+                        mobile: 250,
+                        tablet: 300,
+                        desktop: 350,
+                      ),
+                      margin: const EdgeInsets.only(top: 13),
+                      decoration: BoxDecoration(
+                      color: Color(0xFF3CE7FA),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.3),
+                          spreadRadius: 2,
+                          blurRadius: 5,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Container(
+                      margin: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                       child: isRCOGSPLoading
+                        ? Center(child: CircularProgressIndicator.adaptive(
+                          backgroundColor: Colors.blue
+                        ),)
+                        :rcogsp.isEmpty
+                        ? Center(child: Text("No data", style: GoogleFonts.kameron()))
+                        : RcogspChartWidget(rcogsp: rcogsp, isLoading: isRCOGSPLoading )
+                    ),
+                    ),
+                  ],
+                ),
+
             ],
           ),
         ),
