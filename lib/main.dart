@@ -8,12 +8,13 @@ import 'package:pos_app/pages/reports.dart';
 import 'package:pos_app/pages/pos.dart';
 import 'db/database.dart';
 import 'db/addUser.dart';
-import 'services/auth_service.dart'; // ensure this matches your file name
+import 'services/auth_service.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:pos_app/pages/reviewCart.dart';
 import 'package:pos_app/services/session_service.dart';
 import 'pages/receipt.dart';
+import 'pages/transaction.dart';
 
 Future<void> deleteOldDatabase() async {
   final dbPath = await getDatabasesPath();
@@ -74,6 +75,7 @@ class MyApp extends StatelessWidget {
         '/addproduct': (context) => const Addproduct(),
         '/reviewcart': (context) => const ReviewCart(),
         '/receipt': (context) => const ViewReceipt(),
+        '/transaction': (context) => const TransactionPage(),
       },
     );
   }

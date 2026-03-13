@@ -210,16 +210,51 @@ String _valueOrLoading(String key, {bool peso = false}) {
         elevation: 5,
         title:Padding(
           padding: const EdgeInsets.fromLTRB(20,0,0,0),
-          child: Text(
-            "Reports",
-            style: GoogleFonts.kameron(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.black
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Reports",
+                style: GoogleFonts.kameron(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black
+                ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    
+                    Material(
+                      color: Color(0xFF3CE7FA), 
+                      borderRadius: BorderRadius.circular(8),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(8),
+                        onTap: () {
+                          print("Transaction Records tapped");
+                          Navigator.pushNamed(context, '/transaction');
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.all(10),
+                          child: Text(
+                            'Transaction Records',
+                            style: GoogleFonts.kameron(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+
+
+                  ],
+                )
+              ],
             ),
-            ),
+          ),
         ),
-      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(16),

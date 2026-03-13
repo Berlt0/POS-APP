@@ -283,7 +283,7 @@ class _POSState extends State<POS> {
       appBar: AppBar(
         backgroundColor: Colors.grey[100],
         shadowColor: Colors.grey.withOpacity(0.5),
-        elevation: 5,
+        elevation: 3,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context,true),
