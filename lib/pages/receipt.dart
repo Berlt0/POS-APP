@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 
 class ViewReceipt extends StatefulWidget {
-  const ViewReceipt({super.key});
+
+  final int transactionID;
+
+  const ViewReceipt({super.key,required this.transactionID});
 
   @override
   State<ViewReceipt> createState() => _ViewReceiptState();
 }
 
 class _ViewReceiptState extends State<ViewReceipt> {
+  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,13 +39,13 @@ class _ViewReceiptState extends State<ViewReceipt> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Center(
-                  child: const Text(
+                  child: Text(
                     'Thank you for your purchase!',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text('Item 1 - \$10.00'),
+                Text('Transaction ID: ${widget.transactionID}'),
                 const Text('Item 2 - \$15.00'),
                 const Text('Item 3 - \$5.00'),
                 const Divider(),

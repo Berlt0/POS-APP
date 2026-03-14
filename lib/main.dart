@@ -74,7 +74,7 @@ class MyApp extends StatelessWidget {
         '/pos': (context) => const POS(),
         '/addproduct': (context) => const Addproduct(),
         '/reviewcart': (context) => const ReviewCart(),
-        '/receipt': (context) => const ViewReceipt(),
+        // '/receipt': (context) => const ViewReceipt(),
         '/transaction': (context) => const TransactionPage(),
       },
     );

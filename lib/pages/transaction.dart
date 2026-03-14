@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/db/transaction.dart';
 import 'package:intl/intl.dart';
+import 'package:pos_app/pages/receipt.dart';
 
 
 class TransactionPage extends StatefulWidget {
@@ -290,28 +291,40 @@ class _TransactionPageState extends State<TransactionPage> {
                     scrollDirection: Axis.horizontal,
                     child: SingleChildScrollView(
                       scrollDirection: Axis.vertical,
-                      child: DataTable(
-                            columns: [
-                              DataColumn(label: Text('ID',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
-                              DataColumn(label: Text('Date',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
-                              DataColumn(label: Text('Action',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
-                              DataColumn(label: Text('Payment Method',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
-                            ],
-                            rows: transactions.map<DataRow>((transaction) {
-                              return DataRow(cells: [
-                                DataCell(Text(transaction['transaction_id'].toString())),
-                                DataCell(Text(DateFormat('MM/dd/yyyy').format(DateTime.parse(transaction['created_at'])))),
-                                DataCell(Text(transaction['action'])),
-                                DataCell(Text(transaction['payment_type'])),
-                              ]);
-                            }).toList(),
-                          ),       
+                      child: Material(
+                        color: Colors.transparent,
+                        child: DataTable(
+                            showCheckboxColumn:false,
+                            headingRowColor: MaterialStateProperty.all(const Color.fromARGB(164, 224, 224, 224)),
+                            dataRowHeight: 50,
+                              columns: [
+                                DataColumn(label: Text('ID',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
+                                DataColumn(label: Text('Processed By',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
+                                DataColumn(label: Text('Date',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
+                                DataColumn(label: Text('Action',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
+                                DataColumn(label: Text('Payment Method',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
+                              ],
+                              rows: transactions.map<DataRow>((transaction) {
+                                return DataRow(
+                                  onSelectChanged: (selected) {
+                                    Navigator.push(context,MaterialPageRoute(builder: (context) => ViewReceipt(transactionID: transaction['transaction_id'])));
+                                  },
+                                  cells: [
+                                    DataCell(Text(transaction['transaction_id'].toString())),
+                                    DataCell(Text(capitalizeEachWord(transaction['username'].toString()))),
+                                    DataCell(Text(DateFormat('MM/dd/yyyy').format(DateTime.parse(transaction['created_at'])))),
+                                    DataCell(Text(transaction['action'])),
+                                    DataCell(Text(capitalizeEachWord(transaction['payment_type']))),
+                                ]);
+                              }).toList(),
+                            ),
+                      ),       
                     ),
                   );
                 }
               ),
 
-              SizedBox(height: 20,),
+              SizedBox(height: 30,),
                Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -363,4 +376,13 @@ TextStyle tableTextStyle({
     fontWeight: fontWeight,
     color: color,
   );
+}
+
+
+String capitalizeEachWord(String text) {
+  return text
+      .split(' ')
+      .map((word) =>
+          word.isNotEmpty ? '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}' : '')
+      .join(' ');
 }

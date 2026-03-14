@@ -233,9 +233,6 @@ void _openUpdateModal(SomeProductData product){
 
 
   Widget _buildPageNumbers() {
-    // only show numbers if more than one page
-    if (_totalPages <= 1) return const SizedBox();
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(_totalPages, (index) {

@@ -27,9 +27,13 @@ Future<List<Map<String, dynamic>>> fetchTransactions({
 
         si.product_name,
         si.price,
-        si.quantity
+        si.quantity,
+
+        u.username
 
       FROM transaction_history t
+      LEFT JOIN users u
+        ON u.id = t.user_id
       LEFT JOIN sales s 
         ON s.id = t.entity_id
       LEFT JOIN sale_items si
