@@ -30,22 +30,66 @@ class _TransactionPageState extends State<TransactionPage> {
     if (picked != null) {
       setState(() {
         selectedRange = picked;
+        selectedFilter = 'Custom';
+      
       });
+
+      await _refreshTransactions();
     }
   }
 
 
   Future<void> _refreshTransactions() async {
-    setState(() {
-      _transactionDatas = fetchTransactions(); 
-    });
+
+    try{
+
+      DateTime now = DateTime.now();
+
+      if(selectedFilter == 'Today'){
+        DateTime start = DateTime(now.year, now.month, now.day);
+        DateTime end = start.add(Duration(days: 1));
+
+        setState(() {
+          _transactionDatas = fetchTransactions(startDate: start, endDate: end);
+        });
+
+      }
+      else if (selectedFilter == 'Weekly') {
+
+        DateTime start = now.subtract(const Duration(days: 7));
+
+        setState(() {
+          
+          _transactionDatas = fetchTransactions(
+            startDate: start,
+            endDate: now,
+          );
+        });
+
+      } 
+      else if (selectedFilter == 'Custom' && selectedRange != null) {
+
+        setState(() {
+          _transactionDatas = fetchTransactions(
+            startDate: selectedRange!.start,
+            endDate: selectedRange!.end,
+          );
+        });
+
+      }
+
+
+    }catch(error){
+      print("Error refreshing transactions: $error");
+    }
+    
   
   }
 
   @override
   void initState() {
     super.initState();
-    _transactionDatas = fetchTransactions();
+    _refreshTransactions();
   }
 
 
@@ -137,9 +181,17 @@ class _TransactionPageState extends State<TransactionPage> {
                       .map((e) => DropdownMenuItem(value: e, child: Text(e, style: GoogleFonts.kameron(fontSize: 16, color:Colors.black),)))
                       .toList(),
                         onChanged: (value) async {
-                          setState(() {
-                            selectedFilter = value!;
+                          setState(() async{
+                            selectedFilter = value!;   
+                            
+                            if (value == 'Custom') {
+                              await _pickDateRange(context);
+                            } else {
+                              _refreshTransactions();
+                            }     
                           });
+
+                          await _refreshTransactions();
           
                         },
                         decoration: InputDecoration(
@@ -189,18 +241,18 @@ class _TransactionPageState extends State<TransactionPage> {
                     child: SingleChildScrollView(
                       scrollDirection: Axis.vertical,
                       child: DataTable(
-                        columns: const [
-                          DataColumn(label: Text('ID')),
-                          DataColumn(label: Text('Date')),
-                          DataColumn(label: Text('Total Amount')),
-                          DataColumn(label: Text('Payment Method')),
+                        columns: [
+                          DataColumn(label: Text('ID',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
+                          DataColumn(label: Text('Date',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
+                          DataColumn(label: Text('Action',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
+                          DataColumn(label: Text('Payment Method',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
                         ],
                         rows: transactions.map<DataRow>((transaction) {
                           return DataRow(cells: [
-                            DataCell(Text(transaction['id'].toString())),
-                            DataCell(Text(DateFormat('MM/dd/yyyy').format(DateTime.parse(transaction['date'])))),
-                            DataCell(Text('\$${transaction['total_amount']}')),
-                            DataCell(Text(transaction['payment_method'])),
+                            DataCell(Text(transaction['transaction_id'].toString())),
+                            DataCell(Text(DateFormat('MM/dd/yyyy').format(DateTime.parse(transaction['created_at'])))),
+                            DataCell(Text(transaction['action'])),
+                            DataCell(Text(transaction['payment_type'])),
                           ]);
                         }).toList(),
                       ),
@@ -220,4 +272,18 @@ class _TransactionPageState extends State<TransactionPage> {
       ),
     );
   }
+}
+
+
+
+TextStyle tableTextStyle({
+  double fontSize = 16,
+  FontWeight fontWeight = FontWeight.normal,
+  Color color = Colors.black,
+}) {
+  return GoogleFonts.kameron(
+    fontSize: fontSize,
+    fontWeight: fontWeight,
+    color: color,
+  );
 }
