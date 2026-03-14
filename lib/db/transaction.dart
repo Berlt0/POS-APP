@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 Future<List<Map<String, dynamic>>> fetchTransactions({
   DateTime? startDate,
   DateTime? endDate,
+  int limit = 15,
+  int offset = 0,
 }) async {
     final db = await AppDatabase.database;
 
@@ -45,9 +47,38 @@ Future<List<Map<String, dynamic>>> fetchTransactions({
       args.add(DateFormat('yyyy-MM-dd').format(endDate));
     }
 
-    query += " ORDER BY t.created_at DESC";
+    query += " ORDER BY t.created_at DESC LIMIT ? OFFSET ?";
+    args.add(limit);
+    args.add(offset);
 
     final result = await db.rawQuery(query, args);
 
     return result;
   }
+
+  Future<int> countTransactions({
+    DateTime? startDate,
+    DateTime? endDate,
+  })async {
+
+    final db = await AppDatabase.database;
+
+    String query = '''
+      SELECT COUNT(*) as total
+      FROM transaction_history t
+    ''';
+
+     List<dynamic> args = [];
+
+      if (startDate != null && endDate != null) {
+        query += " WHERE DATE(t.created_at) BETWEEN ? AND ?";
+        args.add(DateFormat('yyyy-MM-dd').format(startDate));
+        args.add(DateFormat('yyyy-MM-dd').format(endDate));
+      }
+
+      final result = await db.rawQuery(query, args);
+
+      return result.first['total'] as int;
+    }
+
+      

@@ -18,6 +18,10 @@ class _TransactionPageState extends State<TransactionPage> {
   Future<List<Map<String, dynamic>>>? _transactionDatas;
   bool isLoading = false;
 
+  int _currentPage = 0;
+  final int _rowsPerPage = 15;
+  int _totalRows = 0;
+  int _totalPages = 0;
 
   Future<void> _pickDateRange(BuildContext context) async {
     final DateTimeRange? picked = await showDateRangePicker(
@@ -45,42 +49,47 @@ class _TransactionPageState extends State<TransactionPage> {
 
       DateTime now = DateTime.now();
 
-      if(selectedFilter == 'Today'){
-        DateTime start = DateTime(now.year, now.month, now.day);
-        DateTime end = start.add(Duration(days: 1));
+      int offset = _currentPage * _rowsPerPage; 
 
-        setState(() {
-          _transactionDatas = fetchTransactions(startDate: start, endDate: end);
-        });
+      DateTime? start;
+      DateTime? end;
+
+
+      if(selectedFilter == 'Today'){
+        start = DateTime(now.year, now.month, now.day);
+        end = start.add(Duration(days: 1));
 
       }
       else if (selectedFilter == 'Weekly') {
 
-        DateTime start = now.subtract(const Duration(days: 7));
-
-        setState(() {
-          
-          _transactionDatas = fetchTransactions(
-            startDate: start,
-            endDate: now,
-          );
-        });
-
+        start = now.subtract(const Duration(days: 7));
+        end = now;
       } 
       else if (selectedFilter == 'Custom' && selectedRange != null) {
 
-        setState(() {
-          _transactionDatas = fetchTransactions(
-            startDate: selectedRange!.start,
-            endDate: selectedRange!.end,
-          );
-        });
+        start = selectedRange!.start;
+        end = selectedRange!.end;
 
       }
 
+      _totalRows = await countTransactions(
+        startDate: start,
+        endDate: end,
+      );
+
+       _totalPages = (_totalRows / _rowsPerPage).ceil();
+
+        setState(() {
+          _transactionDatas = fetchTransactions(
+            startDate: start,
+            endDate: end,
+            limit: _rowsPerPage,
+            offset: offset
+          );
+        });
 
     }catch(error){
-      print("Error refreshing transactions: $error");
+      debugPrint("Error refreshing transactions: $error");
     }
     
   
@@ -91,6 +100,47 @@ class _TransactionPageState extends State<TransactionPage> {
     super.initState();
     _refreshTransactions();
   }
+
+
+  Widget _buildPageNumbers() {
+    
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(_totalPages, (index) {
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: InkWell(
+            onTap: () {
+                    setState(() {
+                      _currentPage = index;
+                    });
+                    _refreshTransactions();
+                  },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: _currentPage == index ? Colors.blue : Colors.transparent,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                (index + 1).toString(),
+                style: TextStyle(
+                  color: _currentPage == index ? Colors.white : Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        );
+      }),
+    );
+  }
+
+
+
+
+
 
 
   @override
@@ -181,17 +231,17 @@ class _TransactionPageState extends State<TransactionPage> {
                       .map((e) => DropdownMenuItem(value: e, child: Text(e, style: GoogleFonts.kameron(fontSize: 16, color:Colors.black),)))
                       .toList(),
                         onChanged: (value) async {
-                          setState(() async{
-                            selectedFilter = value!;   
+                          setState(() {
+                            selectedFilter = value!;
+                            _currentPage = 0;   
                             
+                          });
+
                             if (value == 'Custom') {
                               await _pickDateRange(context);
                             } else {
                               _refreshTransactions();
                             }     
-                          });
-
-                          await _refreshTransactions();
           
                         },
                         decoration: InputDecoration(
@@ -241,29 +291,56 @@ class _TransactionPageState extends State<TransactionPage> {
                     child: SingleChildScrollView(
                       scrollDirection: Axis.vertical,
                       child: DataTable(
-                        columns: [
-                          DataColumn(label: Text('ID',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
-                          DataColumn(label: Text('Date',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
-                          DataColumn(label: Text('Action',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
-                          DataColumn(label: Text('Payment Method',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
-                        ],
-                        rows: transactions.map<DataRow>((transaction) {
-                          return DataRow(cells: [
-                            DataCell(Text(transaction['transaction_id'].toString())),
-                            DataCell(Text(DateFormat('MM/dd/yyyy').format(DateTime.parse(transaction['created_at'])))),
-                            DataCell(Text(transaction['action'])),
-                            DataCell(Text(transaction['payment_type'])),
-                          ]);
-                        }).toList(),
-                      ),
+                            columns: [
+                              DataColumn(label: Text('ID',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
+                              DataColumn(label: Text('Date',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
+                              DataColumn(label: Text('Action',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
+                              DataColumn(label: Text('Payment Method',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
+                            ],
+                            rows: transactions.map<DataRow>((transaction) {
+                              return DataRow(cells: [
+                                DataCell(Text(transaction['transaction_id'].toString())),
+                                DataCell(Text(DateFormat('MM/dd/yyyy').format(DateTime.parse(transaction['created_at'])))),
+                                DataCell(Text(transaction['action'])),
+                                DataCell(Text(transaction['payment_type'])),
+                              ]);
+                            }).toList(),
+                          ),       
                     ),
                   );
+                }
+              ),
 
+              SizedBox(height: 20,),
+               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      onPressed: _currentPage > 0
+                      ? () {
+                        setState(() {
+                          _currentPage--;
+                        });
+                        _refreshTransactions();
+                      } : null,
+                      icon: Icon(Icons.chevron_left)),
 
-                    }
-                  ),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: _buildPageNumbers(),
+                      ),
 
-
+                      IconButton(
+                      onPressed:  _currentPage < _totalPages - 1 ?() {
+                        setState(() {
+                          _currentPage++;
+                        });
+                        _refreshTransactions();
+                      }:null,
+                      icon: Icon(Icons.chevron_right)),
+                    ],
+                  )
 
 
             ],
