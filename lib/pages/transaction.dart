@@ -307,7 +307,7 @@ class _TransactionPageState extends State<TransactionPage> {
                               rows: transactions.map<DataRow>((transaction) {
                                 return DataRow(
                                   onSelectChanged: (selected) {
-                                    Navigator.push(context,MaterialPageRoute(builder: (context) => ViewReceipt(transactionID: transaction['transaction_id'])));
+                                    Navigator.push(context,MaterialPageRoute(builder: (context) => ViewReceipt(transaction: transaction)));
                                   },
                                   cells: [
                                     DataCell(Text(transaction['transaction_id'].toString())),

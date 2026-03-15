@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 class ViewReceipt extends StatefulWidget {
 
-  final int transactionID;
+  final Map<String, dynamic> transaction;
 
-  const ViewReceipt({super.key,required this.transactionID});
+  const ViewReceipt({super.key,required this.transaction});
 
   @override
   State<ViewReceipt> createState() => _ViewReceiptState();
@@ -40,25 +42,44 @@ class _ViewReceiptState extends State<ViewReceipt> {
               children: [
                 Center(
                   child: Text(
-                    'Thank you for your purchase!',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    'CASH RECEIPT',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.kameron(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 20),
-                Text('Transaction ID: ${widget.transactionID}'),
-                const Text('Item 2 - \$15.00'),
-                const Text('Item 3 - \$5.00'),
-                const Divider(),
-                const Text(
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Store name:'),
+                    Text('Gilbert Convenience Store'),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Date: '),
+                    Text(DateFormat('MM/dd/yyyy').format(DateTime.parse(widget.transaction['created_at']))),
+                  ],
+                ),
+                Divider(),
+                Text('Transaction ID: ${widget.transaction['transaction_id']}'),
+                Text('Item 2 - \$15.00'),
+                Text('Item 3 - \$5.00'),
+                Divider(),
+                Text(
                   'Total: \$30.00',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 20),
-                const Text('Payment Method: Cash'),
-                const Text('Amount Received: \$50.00'),
-                const Text('Change Given: \$20.00'),
-                const SizedBox(height: 40),
-                const Center(
+                SizedBox(height: 20),
+                Text('Payment Method: Cash'),
+                Text('Amount Received: \$50.00'),
+                Text('Change Given: \$20.00'),
+                SizedBox(height: 40),
+                Center(
                   child: Text(
                     'Visit Again!',
                     style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
