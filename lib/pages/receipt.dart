@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:pos_app/pages/home.dart';
 
 class ViewReceipt extends StatefulWidget {
 
@@ -17,6 +18,9 @@ class _ViewReceiptState extends State<ViewReceipt> {
 
   @override
   Widget build(BuildContext context) {
+    
+    final List products = widget.transaction['products'] ?? [];
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Receipt'),
@@ -61,15 +65,90 @@ class _ViewReceiptState extends State<ViewReceipt> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    Text('Address: '),
+                    Text('Brgy. Balangasan, Pagadian City'),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
                     Text('Date: '),
                     Text(DateFormat('MM/dd/yyyy').format(DateTime.parse(widget.transaction['created_at']))),
                   ],
                 ),
-                Divider(),
-                Text('Transaction ID: ${widget.transaction['transaction_id']}'),
-                Text('Item 2 - \$15.00'),
-                Text('Item 3 - \$5.00'),
-                Divider(),
+                Divider(thickness: 2),
+                SizedBox(height: 5),
+                
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(vertical: 8),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: 5,
+                            child: Text(
+                              'Product',
+                              style: GoogleFonts.kameron(
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: Text(
+                              'QTY',
+                              style: GoogleFonts.kameron(
+                                fontSize: 15,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              'Price',
+                              style: GoogleFonts.kameron(
+                                fontSize: 15,
+                              ),
+                              textAlign: TextAlign.right,
+                            ),
+                          ),
+                        ],
+                      )
+                    ),
+                    
+                    ...products.map<Widget>((item) => Container(
+                      padding: EdgeInsets.symmetric(vertical: 2),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: 5,
+                            child: Text(capitalizeEachWord(item['product_name'] ?? '')),
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: Text(
+                              item['quantity'].toString(),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              '\$${item['price'].toStringAsFixed(2)}',
+                              textAlign: TextAlign.right,
+                            ),
+                          ),
+                        ],
+                      )
+                    )).toList(),
+                  ],
+                ),
+
+                SizedBox(height: 5),
+                Divider(thickness: 2),
                 Text(
                   'Total: \$30.00',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),

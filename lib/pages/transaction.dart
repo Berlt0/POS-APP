@@ -96,6 +96,7 @@ class _TransactionPageState extends State<TransactionPage> {
   
   }
 
+
   @override
   void initState() {
     super.initState();
@@ -104,6 +105,7 @@ class _TransactionPageState extends State<TransactionPage> {
 
 
   Widget _buildPageNumbers() {
+    
     
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -146,6 +148,48 @@ class _TransactionPageState extends State<TransactionPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    List<Map<String, dynamic>> groupTransactionsBySale(List<Map<String, dynamic>> transactions) {
+    Map<int, Map<String, dynamic>> grouped = {};
+
+    for (var t in transactions) {
+
+      final id = t['transaction_id'];
+
+      if (grouped.containsKey(id)) {
+        
+        grouped[id]!['products'].add({
+          'product_name': t['product_name'],
+          'quantity': t['quantity'],
+          'price': t['price'],
+        
+        });
+      } else {
+     
+        grouped[id] = {
+          'id': id,
+          'created_at': t['created_at'],
+          'processed_by': t['username'],
+          'payment_type': t['payment_type'],
+          'total_amount': t['total_amount'],
+          'action': t['action'],
+          'products': [
+            {
+              'product_name': t['product_name'],
+              'quantity': t['quantity'],
+              'price': t['price'],
+            }
+          ],
+
+        };
+      }
+    }
+
+    return grouped.values.toList(); // one row per sale
+  }
+
+  
+
     return Scaffold(
       appBar: AppBar(
          backgroundColor: Colors.grey[100],
@@ -287,6 +331,8 @@ class _TransactionPageState extends State<TransactionPage> {
                     );
                   }
 
+                  final groupedTransactions = groupTransactionsBySale(transactions);
+
                   return SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: SingleChildScrollView(
@@ -304,14 +350,19 @@ class _TransactionPageState extends State<TransactionPage> {
                                 DataColumn(label: Text('Action',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
                                 DataColumn(label: Text('Payment Method',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
                               ],
-                              rows: transactions.map<DataRow>((transaction) {
+                              
+                              rows: groupedTransactions.map((transaction) {
+
+                                final products = transaction['products'] as List;
+
                                 return DataRow(
                                   onSelectChanged: (selected) {
-                                    Navigator.push(context,MaterialPageRoute(builder: (context) => ViewReceipt(transaction: transaction)));
+                                    Navigator.push(context,MaterialPageRoute(builder: (context) => ViewReceipt(transaction: transaction
+                                    )));
                                   },
                                   cells: [
-                                    DataCell(Text(transaction['transaction_id'].toString())),
-                                    DataCell(Text(capitalizeEachWord(transaction['username'].toString()))),
+                                    DataCell(Text(transaction['id'].toString())),
+                                    DataCell(Text(capitalizeEachWord(transaction['processed_by'].toString()))),
                                     DataCell(Text(DateFormat('MM/dd/yyyy').format(DateTime.parse(transaction['created_at'])))),
                                     DataCell(Text(transaction['action'])),
                                     DataCell(Text(capitalizeEachWord(transaction['payment_type']))),
