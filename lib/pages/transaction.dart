@@ -172,6 +172,8 @@ class _TransactionPageState extends State<TransactionPage> {
           'processed_by': t['username'],
           'payment_type': t['payment_type'],
           'total_amount': t['total_amount'],
+          'change_amount': t['change_amount'],
+          'amount_received': t['amount_received'],
           'action': t['action'],
           'products': [
             {
@@ -357,6 +359,7 @@ class _TransactionPageState extends State<TransactionPage> {
 
                                 return DataRow(
                                   onSelectChanged: (selected) {
+                                    print(transaction);
                                     Navigator.push(context,MaterialPageRoute(builder: (context) => ViewReceipt(transaction: transaction
                                     )));
                                   },

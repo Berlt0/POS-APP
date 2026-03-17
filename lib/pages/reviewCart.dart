@@ -16,7 +16,7 @@ class ReviewCart extends StatefulWidget {
 
 class PaymentResult {
   final String method;
-  final double? amountReceived; // only for cash
+  final double? amountReceived; 
 
   PaymentResult({required this.method, this.amountReceived});
 }
@@ -33,6 +33,8 @@ class _ReviewCartState extends State<ReviewCart> {
   bool _initialized = false;
 
   int total_amount = 0;
+
+  int? transactionId;
 
   @override
   void didChangeDependencies() {
@@ -109,8 +111,8 @@ class _ReviewCartState extends State<ReviewCart> {
                         const SizedBox(width: 10),
                         TextButton(
                           onPressed: ()  {
-
-                            if(double.tryParse(_controller.text) == null || double.parse(_controller.text) < total){
+                            final enteredAmount = double.tryParse(_controller.text);
+                            if(enteredAmount == null || enteredAmount < total){
                               showAdaptiveDialog(
                                 context: context,
                                 builder: (context) {
@@ -210,19 +212,19 @@ class _ReviewCartState extends State<ReviewCart> {
   
 
 
-  Future<void> _saveSale(PaymentResult payment) async {
+  Future<int> _saveSale(PaymentResult payment) async {
     final db = await AppDatabase.database;
     final int? userId = await UserDB().getLoggedInUserId();
 
     if(userId == null){
       debugPrint("No logged in user found.");
-      return;
+      return 0;
     }
 
-    await db.transaction((txn) async {
+    final insertedTransactionId = await db.transaction((txn) async {
     
       final saleId = await txn.insert('sales', {
-        'user_id': userId, // replace with logged-in user ID
+        'user_id': userId, 
         'total_amount': total,
         'amount_received': payment.amountReceived ?? 0, 
         'change_amount': (payment.amountReceived != null) ? (payment.amountReceived! - total) : 0, 
@@ -254,7 +256,7 @@ class _ReviewCartState extends State<ReviewCart> {
       }
 
        
-      await txn.insert('transaction_history', {
+      final transactionId = await txn.insert('transaction_history', {
         'user_id': userId,
         'action': 'SALE',
         'entity_type': 'sale',
@@ -265,7 +267,13 @@ class _ReviewCartState extends State<ReviewCart> {
 
      
       debugPrint('Sale saved with id: $saleId');
+      
+      return transactionId;
     });
+
+    transactionId = insertedTransactionId;
+    return insertedTransactionId;
+  
   }
 
 
@@ -436,7 +444,7 @@ class _ReviewCartState extends State<ReviewCart> {
 
 
                 if (payment != null) {
-                  await _saveSale(payment);
+                  final transId = await _saveSale(payment);
                   await printTables();
 
                   setState(() {
@@ -460,7 +468,7 @@ class _ReviewCartState extends State<ReviewCart> {
                   );
 
                   
-                  Navigator.pop(context, true);
+                  Navigator.pop(context, transId );
                 }
               },
               child: Text(

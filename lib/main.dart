@@ -74,7 +74,17 @@ class MyApp extends StatelessWidget {
         '/pos': (context) => const POS(),
         '/addproduct': (context) => const Addproduct(),
         '/reviewcart': (context) => const ReviewCart(),
-        // '/receipt': (context) => const ViewReceipt(),
+        '/receipt': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments;
+
+           if (args == null) {
+            return const Scaffold(
+              body: Center(child: Text('No transaction data provided')),
+            );
+          }
+
+          return ViewReceipt(transaction: args);
+        },  
         '/transaction': (context) => const TransactionPage(),
       },
     );

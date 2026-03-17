@@ -542,7 +542,7 @@ class _POSState extends State<POS> {
                                             ))
                                         .toList();
         
-                                    final saleCompleted = await Navigator.pushNamed(
+                                    final transactionId = await Navigator.pushNamed(
                                       context,
                                       '/reviewcart',
                                       arguments:{
@@ -552,9 +552,9 @@ class _POSState extends State<POS> {
                                         'totalQuantity': getTotalQuantity(),
                                       }, );
 
-                                    if(saleCompleted == true){
+                                    if(transactionId != null){
 
-                                      await Navigator.pushNamed(context, '/receipt');
+                                      await Navigator.pushNamed(context, '/receipt',arguments: transactionId);
 
                                       setState(() {
                                         for (final item in products) {

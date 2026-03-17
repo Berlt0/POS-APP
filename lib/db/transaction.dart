@@ -85,4 +85,42 @@ Future<List<Map<String, dynamic>>> fetchTransactions({
       return result.first['total'] as int;
     }
 
-      
+
+  Future<List<Map<String, dynamic>>> fetchTransactionDetails(int transactionId) async {
+    final db = await AppDatabase.database;
+
+    final query = '''
+      SELECT 
+        t.id AS transaction_id,
+        t.user_id,
+        t.action,
+        t.entity_id,
+        t.entity_type,
+        t.description,
+        t.created_at,
+
+        s.total_amount,
+        s.payment_type,
+        s.amount_received,
+        s.change_amount,
+
+        si.product_name,
+        si.price,
+        si.quantity,
+
+        u.username
+
+      FROM transaction_history t
+      LEFT JOIN users u
+        ON u.id = t.user_id
+      LEFT JOIN sales s 
+        ON s.id = t.entity_id
+      LEFT JOIN sale_items si
+        ON si.sale_id = s.id
+      WHERE t.id = ?
+    ''';
+
+    final result = await db.rawQuery(query, [transactionId]);
+
+    return result;
+  }

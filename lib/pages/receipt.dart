@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:pos_app/pages/home.dart';
+// import 'package:pos_app/pages/home.dart';
+import 'package:pos_app/db/transaction.dart';
 
 class ViewReceipt extends StatefulWidget {
 
-  final Map<String, dynamic> transaction;
+  // final Map<String, dynamic> transaction;
+  final dynamic transaction;
 
   const ViewReceipt({super.key,required this.transaction});
 
@@ -14,13 +16,69 @@ class ViewReceipt extends StatefulWidget {
 }
 
 class _ViewReceiptState extends State<ViewReceipt> {
-  
+  Map<String, dynamic>? transaction;
+
+
+    Future<void> _loadTransaction() async {
+     
+    if(widget.transaction is Map<String, dynamic>) {
+
+      setState(() {
+        transaction = widget.transaction;
+      });
+
+    }else if(widget.transaction is int) {
+
+      final int transactionId = widget.transaction;
+
+      final sale = await fetchTransactionDetails(transactionId);
+
+      if (sale.isNotEmpty) {
+        
+        Map<String, dynamic> grouped = {
+          'id': sale[0]['transaction_id'],
+          'created_at': sale[0]['created_at'],
+          'processed_by': sale[0]['username'],
+          'payment_type': sale[0]['payment_type'],
+          'total_amount': sale[0]['total_amount'],
+          'change_amount': sale[0]['change_amount'],
+          'amount_received': sale[0]['amount_received'],
+          'action': sale[0]['action'],
+          'products': sale.map((t) => {
+            'product_name': t['product_name'],
+            'quantity': t['quantity'],
+            'price': t['price'],
+          }).toList(),
+        };
+
+      setState((){
+
+        transaction = grouped;
+
+      });
+
+    }
+    }
+  }
+
+   @override
+    void initState() {
+      super.initState();
+      _loadTransaction();
+  }
 
   @override
   Widget build(BuildContext context) {
     
-    final List products = widget.transaction['products'] ?? [];
+  if (transaction == null) {
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
+    );
+  }    
+
+    final List products  = transaction?['products'] ?? [];
     
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Receipt'),
@@ -50,7 +108,7 @@ class _ViewReceiptState extends State<ViewReceipt> {
                     textAlign: TextAlign.center,
                     style: GoogleFonts.kameron(
                       fontSize: 20,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
@@ -58,22 +116,58 @@ class _ViewReceiptState extends State<ViewReceipt> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Store name:'),
-                    Text('Gilbert Convenience Store'),
+                    Text('Store name:',style: GoogleFonts.kameron(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),),
+                    Text('Gilbert Convenience Store',style: GoogleFonts.kameron(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),),
                   ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Address: '),
-                    Text('Brgy. Balangasan, Pagadian City'),
+                    Text('Address: ',style: GoogleFonts.kameron(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),),
+                    Text('Brgy. Balangasan, Pagadian City',style: GoogleFonts.kameron(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),),
+                  ],
+                ),      
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Date: ',style: GoogleFonts.kameron(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),),
+                    Text(
+                      transaction!['created_at'] != null
+                          ? DateFormat('MM/dd/yyyy').format(DateTime.parse(transaction!['created_at']))
+                          : 'N/A',
+                      style: GoogleFonts.kameron(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Date: '),
-                    Text(DateFormat('MM/dd/yyyy').format(DateTime.parse(widget.transaction['created_at']))),
+                    Text('Payment Method: ',style: GoogleFonts.kameron(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),),
+                    Text(capitalizeEachWord(transaction!['payment_type'] ?? ''),style: GoogleFonts.kameron(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),),
                   ],
                 ),
                 Divider(thickness: 2),
@@ -92,6 +186,7 @@ class _ViewReceiptState extends State<ViewReceipt> {
                               'Product',
                               style: GoogleFonts.kameron(
                                 fontSize: 15,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
@@ -101,6 +196,7 @@ class _ViewReceiptState extends State<ViewReceipt> {
                               'QTY',
                               style: GoogleFonts.kameron(
                                 fontSize: 15,
+                                fontWeight: FontWeight.w600,
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -111,6 +207,7 @@ class _ViewReceiptState extends State<ViewReceipt> {
                               'Price',
                               style: GoogleFonts.kameron(
                                 fontSize: 15,
+                                fontWeight: FontWeight.w600,
                               ),
                               textAlign: TextAlign.right,
                             ),
@@ -125,20 +222,30 @@ class _ViewReceiptState extends State<ViewReceipt> {
                         children: [
                           Expanded(
                             flex: 5,
-                            child: Text(capitalizeEachWord(item['product_name'] ?? '')),
+                            child: Text(capitalizeEachWord(item['product_name'] ?? ''), style: GoogleFonts.kameron(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),),
                           ),
                           Expanded(
                             flex: 3,
                             child: Text(
                               item['quantity'].toString(),
                               textAlign: TextAlign.center,
-                            ),
+                            style: GoogleFonts.kameron(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),),
                           ),
                           Expanded(
                             flex: 2,
                             child: Text(
-                              '\$${item['price'].toStringAsFixed(2)}',
+                              '\₱${item['price'].toStringAsFixed(2)}',
                               textAlign: TextAlign.right,
+                              style: GoogleFonts.kameron(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ],
@@ -149,19 +256,56 @@ class _ViewReceiptState extends State<ViewReceipt> {
 
                 SizedBox(height: 5),
                 Divider(thickness: 2),
-                Text(
-                  'Total: \$30.00',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                SizedBox(height: 10),
+               Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('TOTAL AMOUNT:', style: GoogleFonts.kameron(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    )),
+                    Text('\₱${(transaction!['total_amount'] ?? 0).toStringAsFixed(2)}', style: GoogleFonts.kameron(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),),
+                  ],
                 ),
-                SizedBox(height: 20),
-                Text('Payment Method: Cash'),
-                Text('Amount Received: \$50.00'),
-                Text('Change Given: \$20.00'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('AMOUNT RECEIVED:', style: GoogleFonts.kameron(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    )),
+                    Text('\₱${(transaction!['amount_received'] ?? 0).toStringAsFixed(2)}',style: GoogleFonts.kameron(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('CHANGE:', style: GoogleFonts.kameron(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    )),
+                    Text('\₱${(transaction!['change_amount'] ?? 0).toStringAsFixed(2)}',style: GoogleFonts.kameron(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),),
+                  ],
+                ),
+                
                 SizedBox(height: 40),
                 Center(
                   child: Text(
-                    'Visit Again!',
-                    style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
+                    'Thank you for your purchase!',
+                    style: GoogleFonts.kameron(
+                      fontSize: 16,
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.w400
+                    ),
                   ),
                 ),
               ],
@@ -171,4 +315,13 @@ class _ViewReceiptState extends State<ViewReceipt> {
       ),
     );
   }
+}
+
+
+String capitalizeEachWord(String text) {
+  return text
+      .split(' ')
+      .map((word) =>
+          word.isNotEmpty ? '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}' : '')
+      .join(' ');
 }
