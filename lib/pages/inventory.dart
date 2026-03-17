@@ -406,7 +406,7 @@ void _openUpdateModal(SomeProductData product){
                           return DataRow(cells: [
                             DataCell(Text(capitalizeEachWord(product.name), style: tableTextStyle(fontSize: 14))),
 
-                            DataCell(Text(capitalizeEachWord(product.category), style: tableTextStyle(fontSize: 14))),
+                            DataCell(Text(capitalizeEachWord(product.category ?? 'Uncategorized'), style: tableTextStyle(fontSize: 14))),
 
                             DataCell( Text(product.stock.toString(), style: tableTextStyle(fontSize: 14))),   
 

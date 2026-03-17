@@ -699,6 +699,9 @@ Widget productCard(Product product) {
                     flex: 3,
                     child: TextField(
                       controller: _searchController,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')),
+                      ],
                       decoration: InputDecoration(
                         hintText: 'Search for...',
                         prefixIcon: const Icon(Icons.search),

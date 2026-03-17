@@ -80,7 +80,7 @@ static Future<int> countProductsFiltered({String? category, String? searchText})
     'SELECT DISTINCT category FROM products'
   );
 
-  return result.map((e) => e['category'] as String).toList();
+  return result.map((e) => (e['category'] ?? 'Uncategorized') as String).toList();
 }
 
   static Future<List<LowStockProducts>> getLowStockProducts() async {

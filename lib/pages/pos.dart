@@ -6,6 +6,7 @@ import 'package:pos_app/models/pos.dart';
 import 'package:pos_app/db/pos.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pos_app/models/cartItem.dart';
+import 'package:flutter/services.dart';
 
 class POS extends StatefulWidget {
   const POS({super.key});
@@ -313,6 +314,9 @@ class _POSState extends State<POS> {
                     flex: 2,
                     child: TextField(
                       controller: _searchController,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')),
+                        ],
                       onChanged: (value) {
                         setState(() {
                           _searchText = value;

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/db/user.dart';
-import 'package:pos_app/services/auth_service.dart'; // use underscore
+import 'package:pos_app/services/auth_service.dart'; 
 import 'package:pos_app/services/session_service.dart';
+import 'package:flutter/services.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -132,6 +133,9 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _emailController,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9@._\-]')),
+                      ],
                       decoration: _inputDecoration(),
                       validator: (v) =>
                           v == null || v.isEmpty ? 'Enter username' : null,
@@ -141,6 +145,9 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _passwordController,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};:"\\|,.<>\/?]')),
+                      ],
                       obscureText: _obscurePassword,
                       decoration: _inputDecoration(
                         suffix: IconButton(

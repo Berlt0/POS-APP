@@ -5,7 +5,7 @@ import 'package:pos_app/models/cartItem.dart';
 import 'package:pos_app/db/database.dart';
 import 'package:pos_app/db/user.dart';
 import 'package:pos_app/db/debug.dart';
-
+import 'package:flutter/services.dart';
 
 class ReviewCart extends StatefulWidget {
   const ReviewCart({super.key});
@@ -91,6 +91,9 @@ class _ReviewCartState extends State<ReviewCart> {
                     const SizedBox(height: 20),
                     TextField(
                       controller: _controller,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                      ],
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       decoration: const InputDecoration(
                         prefixText: '₱ ',

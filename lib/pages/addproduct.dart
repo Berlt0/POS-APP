@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pos_app/db/product.dart';
 import 'package:pos_app/models/products.dart';
+import 'package:flutter/services.dart';
 
 class Addproduct extends StatefulWidget {
   const Addproduct({super.key});
@@ -63,7 +64,7 @@ class _POSState extends State<Addproduct> {
 
 
   List<ProductFormState> forms = [ProductFormState()];
-  final ImagePicker _picker = ImagePicker();
+  // final ImagePicker _picker = ImagePicker();
   final int maxProductsPerSave = 5;
 
 
@@ -260,6 +261,9 @@ Widget productFormWidget(int index) {
                       SizedBox(height: 5,),
                       TextField(
                         controller: form.productName,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')),
+                        ],
                         decoration: InputDecoration(
                           hintText: '(ex. Nova)',
                           hintStyle: TextStyle(fontSize: 15,color: Colors.grey[600],fontStyle: FontStyle.italic),
@@ -295,6 +299,9 @@ Widget productFormWidget(int index) {
                           form.productCategory = controller;
                           return TextField(
                             controller: controller,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')),
+                            ],
                             focusNode: focusNode,
                             onEditingComplete: onEditingComplete,
                             decoration: InputDecoration(
@@ -325,6 +332,9 @@ Widget productFormWidget(int index) {
                       SizedBox(height: 5,),
                       TextField(
                         controller: form.barcode,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')),
+                        ],
                         decoration: InputDecoration(
                           hintStyle: GoogleFonts.kameron(fontSize: 16),
                             border: OutlineInputBorder(
@@ -424,6 +434,9 @@ Widget productFormWidget(int index) {
                         SizedBox(height: 5,),
                         TextField(
                           controller: form.price,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'[0-9]+\.?[0-9]{0,2}')),
+                          ],
                           decoration: InputDecoration(
                             hintText: '(ex. 20)',
                             hintStyle: TextStyle(fontSize: 15,color: Colors.grey[600],fontStyle: FontStyle.italic), 
@@ -452,6 +465,9 @@ Widget productFormWidget(int index) {
                         SizedBox(height: 5,),
                         TextField(
                           controller: form.cost,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'[0-9]+\.?[0-9]{0,2}')),
+                          ],
                           decoration: InputDecoration(
                               hintText: '(ex. 15)',
                               hintStyle: TextStyle(fontSize: 15,color: Colors.grey[600],fontStyle: FontStyle.italic),
@@ -489,6 +505,9 @@ Widget productFormWidget(int index) {
                         SizedBox(height: 5,),
                         TextField(
                           controller: form.quantity,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                          ],
                           decoration: InputDecoration(
                             hintText: '(ex. 12)',
                             hintStyle: TextStyle(fontSize: 15,color: Colors.grey[600],fontStyle: FontStyle.italic),
@@ -554,6 +573,9 @@ Widget productFormWidget(int index) {
                         SizedBox(height: 5,),
                         TextField(
                           controller: form.stockAlert,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                          ],
                           decoration: InputDecoration(
                             hintText: '(ex. 5)',
                             hintStyle: TextStyle(fontSize: 15,color: Colors.grey[600],fontStyle: FontStyle.italic),
@@ -585,6 +607,9 @@ Widget productFormWidget(int index) {
                   SizedBox(height: 5,),
                   TextField(
                     controller: form.description,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')),
+                    ],
                     keyboardType: TextInputType.multiline, 
                     minLines: 2, 
                     maxLines: null,

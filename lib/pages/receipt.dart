@@ -102,6 +102,7 @@ class _ViewReceiptState extends State<ViewReceipt> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                SizedBox(height: 30,),
                 Center(
                   child: Text(
                     'CASH RECEIPT',
@@ -308,6 +309,7 @@ class _ViewReceiptState extends State<ViewReceipt> {
                     ),
                   ),
                 ),
+                SizedBox(height: 30),
               ],
             ),
           ),

@@ -70,7 +70,7 @@ class Product {
 class SomeProductData{
 final int? id;
 final String name;
-final String category;
+final String? category;
 final int stock;
 final int? low_stock_alert;
 final String? image_path;
@@ -78,7 +78,7 @@ final String? image_path;
 SomeProductData({
   this.id,
   required this.name,
-  required this.category,
+  this.category,
   required this.stock,
   this.low_stock_alert,
 
@@ -89,7 +89,7 @@ factory SomeProductData.fromMap(Map<String,dynamic>map){
   return SomeProductData(
     id: map['id'] as int?,
     name: map['name'] as String,
-    category: map['category'] as String,
+    category: map['category'] as String?,
     stock: map['stock'] as int,
     low_stock_alert: map['low_stock_alert'] as int?,
     image_path: map['image_path'] as String?
