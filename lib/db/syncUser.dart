@@ -3,7 +3,6 @@ import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 import 'database.dart';
 import '../services/api_service.dart';
-import 'package:pos_app/db/database.dart';
 import 'dart:convert';
 
 

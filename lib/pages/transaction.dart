@@ -324,14 +324,32 @@ class _TransactionPageState extends State<TransactionPage> {
 
                     final transactions = snapshot.data ?? [];
 
-                    if (transactions.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'No transactions records found',
-                        style: GoogleFonts.kameron(color: Colors.black),
-                      ),
-                    );
-                  }
+                   if (transactions.isEmpty) {
+                      return SizedBox(
+                        height: MediaQuery.of(context).size.height - 400, // adjust for AppBar & padding
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.receipt_long, // or Icons.shopping_cart_outlined
+                                size: 55,
+                                color: Colors.grey[400],
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No transactions found',
+                                style: GoogleFonts.kameron(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
 
                   final groupedTransactions = groupTransactionsBySale(transactions);
 
@@ -379,6 +397,7 @@ class _TransactionPageState extends State<TransactionPage> {
               ),
 
               SizedBox(height: 30,),
+              if (_totalRows > 0) 
                Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,

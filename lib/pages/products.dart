@@ -764,7 +764,35 @@ Widget productCard(Product product) {
                   // This is the key line:
                   final products = snapshot.data ?? [];
 
+                   if (products.isEmpty) {
+                      return SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.5,
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.local_mall_outlined,
+                                size: 45,
+                                color: Colors.grey[400],
+                              ),
+                              const SizedBox(height: 15),
+                              Text(
+                                'No products available',
+                                style: GoogleFonts.kameron(
+                                  fontSize: 16,
+                                  color: Colors.grey[700],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
                   List<Widget> productWidgets = [];
+                  
 
                   final filtered = products.where((product) {
                   final matchesCategory = _selectedCategory == 'All' ||

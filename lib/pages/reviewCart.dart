@@ -9,6 +9,7 @@ import 'package:pos_app/db/debug.dart';
 import 'package:flutter/services.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:pos_app/db/sync.dart';
+import 'package:pos_app/widgets/passwordInput.dart';
 
 class ReviewCart extends StatefulWidget {
   const ReviewCart({super.key});
@@ -304,7 +305,6 @@ class _ReviewCartState extends State<ReviewCart> {
   }
 
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -467,6 +467,10 @@ class _ReviewCartState extends State<ReviewCart> {
                 minimumSize: const Size(double.infinity, 48),
               ),
               onPressed: () async {
+                  final password = await PasswordInput.show(context);
+
+                  if (password == null) return;
+
                 final payment = await _paymentModal();
 
 

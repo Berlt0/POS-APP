@@ -265,7 +265,7 @@ String _valueOrLoading(String key, {bool peso = false}) {
               Text(
                 'Date Range',
                 style: GoogleFonts.kameron(
-                  fontSize: 17,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.black
                 )
@@ -411,45 +411,48 @@ String _valueOrLoading(String key, {bool peso = false}) {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text("Sales Trend",style: GoogleFonts.kameron(
-                        fontSize: Responsive.font(context, mobile: 17,tablet: 21, desktop: 24 ),
+                        fontSize: Responsive.font(context, mobile: 16,tablet: 21, desktop: 24 ),
                         fontWeight: FontWeight.bold
                       ),),
                     ),
+
+                    SizedBox(height: 15,),
+                    
                     Container(
                       height: Responsive.spacing(
                         context,
                         mobile: 250,
                         tablet: 300,
-                        desktop: 350,
-                      ),
-                      margin: const EdgeInsets.only(top: 13),
-                      decoration: BoxDecoration(
-                      color: Color(0xFF3CE7FA),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.3),
-                          spreadRadius: 2,
-                          blurRadius: 5,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Container(
+                        desktop: 350,),
                       margin: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                            color: Colors.grey.withOpacity(0.3),
+                            spreadRadius: 4,
+                            blurRadius: 6,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                         ),
                        child: isSaleTrendLoading
                         ? Center(child: CircularProgressIndicator.adaptive(
                           backgroundColor: Colors.blue
                         ),)
                         :salesTrend.isEmpty
-                        ? Center(child: Text("No data", style: GoogleFonts.kameron()))
+                        ? Center(child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.area_chart_rounded, size: 40, color: Colors.grey[400]),
+                            const SizedBox(height: 8),
+                            Text("No data", style: GoogleFonts.kameron(fontSize: 14, fontWeight: FontWeight.w500, color:Colors.grey[700])),
+                          ],
+                        ))
                         : SaleChartWidget(salesTrend: salesTrend, isLoading: isSaleTrendLoading, selectedFilter: selectedFilter )
                     ),
-                    ),
+                    
                   ],
                 ),
                 SizedBox(height: 25,),
@@ -459,10 +462,11 @@ String _valueOrLoading(String key, {bool peso = false}) {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text("Revenue vs COGS vs Profit",style: GoogleFonts.kameron(
-                        fontSize: Responsive.font(context, mobile: 17,tablet: 21, desktop: 24 ),
+                        fontSize: Responsive.font(context, mobile: 16,tablet: 21, desktop: 24 ),
                         fontWeight: FontWeight.bold
                       ),),
                     ),
+                    SizedBox(height: 15,),
                     Container(
                       height: Responsive.spacing(
                         context,
@@ -470,20 +474,6 @@ String _valueOrLoading(String key, {bool peso = false}) {
                         tablet: 300,
                         desktop: 350,
                       ),
-                      margin: const EdgeInsets.only(top: 13),
-                      decoration: BoxDecoration(
-                      color: Color(0xFF3CE7FA),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.3),
-                          spreadRadius: 2,
-                          blurRadius: 5,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Container(
                       margin: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -494,10 +484,16 @@ String _valueOrLoading(String key, {bool peso = false}) {
                           backgroundColor: Colors.blue
                         ),)
                         :rcogsp.isEmpty
-                        ? Center(child: Text("No data", style: GoogleFonts.kameron()))
+                        ? Center(child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.bar_chart_outlined, size: 40, color: Colors.grey[400]),
+                            Text("No data", style: GoogleFonts.kameron(fontSize: 14,fontWeight: FontWeight.w500, color:Colors.grey[700])),
+                          ],
+                        ))
                         : RcogspChartWidget(rcogsp: rcogsp, isLoading: isRCOGSPLoading )
                     ),
-                    ),
+                    
                   ],
                 ),
                 SizedBox(height: 25,),
@@ -507,35 +503,31 @@ String _valueOrLoading(String key, {bool peso = false}) {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text("Top Selling Products",style: GoogleFonts.kameron(
-                        fontSize: Responsive.font(context, mobile: 17,tablet: 21, desktop: 24 ),
+                        fontSize: Responsive.font(context, mobile: 16,tablet: 21, desktop: 24 ),
                         fontWeight: FontWeight.bold
                       ),),
                     ),
-                    Container(
-                      height: Responsive.spacing(
-                        context,
-                        mobile: 400,
-                        tablet: 450,
-                        desktop: 500,
-                      ),
-                      margin: const EdgeInsets.only(top: 13),
-                      decoration: BoxDecoration(
-                        color: Color(0xFF3CE7FA),
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.3),
-                            spreadRadius: 2,
-                            blurRadius: 5,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Container(
+                    SizedBox(height: 15,),
+                     Container(
+                          height: Responsive.spacing(
+                          context,
+                          mobile: 400,
+                          tablet: 450,
+                          desktop: 500,
+                        ),
                         margin: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
+                           boxShadow: [
+                              BoxShadow(
+                              color: Colors.grey.withOpacity(0.3),
+                              spreadRadius: 4,
+                              blurRadius: 6,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                          
                         ),
                         child: isTopProductsLoading
                             ? Center(
@@ -545,10 +537,17 @@ String _valueOrLoading(String key, {bool peso = false}) {
                               )
                             : topProducts.isEmpty
                                 ? Center(
-                                    child: Text(
-                                      "No data",
-                                      style: GoogleFonts.kameron(
-                                          fontSize: 15, fontWeight: FontWeight.w500),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.trending_up_outlined, size: 40, color: Colors.grey[400]),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          "No data",
+                                          style: GoogleFonts.kameron(
+                                              fontSize: 15, fontWeight: FontWeight.w500, color:Colors.grey[700]),
+                                        ),
+                                      ],
                                     ),
                                   )
                                 : LayoutBuilder(
@@ -575,7 +574,7 @@ String _valueOrLoading(String key, {bool peso = false}) {
                                     },
                                   ),
                       ),
-                    ),
+                    
 
                   ],
                 ),

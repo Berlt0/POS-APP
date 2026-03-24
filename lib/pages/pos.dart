@@ -10,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pos_app/models/cartItem.dart';
 import 'package:flutter/services.dart';
 
+
 class POS extends StatefulWidget {
   const POS({super.key});
 
@@ -377,6 +378,8 @@ class _POSState extends State<POS> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          const Icon(Icons.barcode_reader, color: Colors.black,size: 22,),
+                          const SizedBox(width: 5),
                           Text(
                             "Scan",
                             style: GoogleFonts.kameron(
@@ -384,8 +387,6 @@ class _POSState extends State<POS> {
                                 color: Colors.black,
                                 fontWeight: FontWeight.w500),
                           ),
-                          const SizedBox(width: 5),
-                          const Icon(Icons.qr_code_scanner, color: Colors.black),
                         ],
                       ),
                     ),
@@ -396,6 +397,7 @@ class _POSState extends State<POS> {
               const SizedBox(height: 20),
         
               /// CATEGORIES
+              if(products.isNotEmpty)
               SizedBox(
                 height: 40,
                 child: ListView.separated(
@@ -439,7 +441,32 @@ class _POSState extends State<POS> {
         
               /// PRODUCT GRID
               Expanded(
-                child: GridView.builder(
+                child:  filteredProducts.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(_searchText.isNotEmpty
+                            ? Icons.search_off
+                            : Icons.storefront_outlined,
+                            size: 60,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 15),
+                          Text(
+                            _searchText.isNotEmpty
+                                ? 'No products found'
+                                : 'No products available', // optional fallback
+                            style: GoogleFonts.kameron(
+                              fontSize: 16,
+                              color: Colors.grey[700],
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : GridView.builder(
                   padding: const EdgeInsets.all(12),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
@@ -596,8 +623,10 @@ class _POSState extends State<POS> {
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        const Icon(Icons.chevron_right,
-                                            color: Colors.black),
+                                        const Icon(Icons.shopping_cart_checkout_outlined,
+                                            color: Colors.black,
+                                            size: 18,),
+                                        SizedBox(width: 2,),
                                         Text(
                                           "Checkout",
                                           style: GoogleFonts.kameron(
@@ -626,7 +655,8 @@ class _POSState extends State<POS> {
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        const Icon(Icons.delete, color: Colors.black),
+                                        const Icon(Icons.remove_shopping_cart_outlined, color: Colors.black,size: 18,),
+                                        SizedBox(width: 2,),
                                         Text(
                                           "Clear Cart",
                                           style: GoogleFonts.kameron(

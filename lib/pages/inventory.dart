@@ -351,10 +351,14 @@ void _openUpdateModal(SomeProductData product){
                 ],
               ),
               Divider(color: Colors.black, thickness: 1, height: 45),
+              
               Text(
-                '$_selectedCategory Products',
+                 _selectedCategory == 'All'
+                    ? 'Complete Inventory'
+                    : '$_selectedCategory Products',
                 style: GoogleFonts.kameron(fontSize: 17, fontWeight: FontWeight.w500),
               ),
+
               SizedBox(height: 20),
               FutureBuilder(
                 future: _futureProductDatas,
@@ -378,14 +382,39 @@ void _openUpdateModal(SomeProductData product){
 
                   final products = snapshot.data ?? [];
 
+
                   if (products.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'No products found',
-                        style: GoogleFonts.kameron(color: Colors.black),
-                      ),
-                    );
-                  }
+
+                    final isSearching = _searchText.trim().isNotEmpty;
+                    
+                      return SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.5, // helps vertical centering
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon( isSearching
+                                ? Icons.search_off
+                                :Icons.inventory_2_outlined,
+                                size: 45 ,
+                                color: Colors.grey[500],
+                              ),
+                              SizedBox(height: 15),
+                              Text(
+                                _searchText.isNotEmpty
+                                    ? 'No results found'
+                                    : 'No products found',
+                                style: GoogleFonts.kameron(
+                                  fontSize: 16,
+                                  color: Colors.grey[700],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
 
                 
 
@@ -459,37 +488,43 @@ void _openUpdateModal(SomeProductData product){
                 },
               ),
               SizedBox(height: 25),
-              Center(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.chevron_left),
-                      onPressed: _currentPage > 1
-                          ? () {
-                              setState(() {
-                                _currentPage--;
-                              });
-                              _loadProducts();
-                            }
-                          : null,
+              if(_totalItems > 1) 
+              
+              Column(
+                children: [
+                  Center(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.chevron_left),
+                          onPressed: _currentPage > 1
+                              ? () {
+                                  setState(() {
+                                    _currentPage--;
+                                  });
+                                  _loadProducts();
+                                }
+                              : null,
+                        ),
+                        _buildPageNumbers(),
+                        IconButton(
+                          icon: Icon(Icons.chevron_right),
+                          // use computed _totalPages so '>' disables when no next page
+                          onPressed: _currentPage < _totalPages
+                              ? () {
+                                  setState(() {
+                                    _currentPage++;
+                                  });
+                                  _loadProducts();
+                                }
+                              : null,
+                        )
+                      ],
                     ),
-                    _buildPageNumbers(),
-                    IconButton(
-                      icon: Icon(Icons.chevron_right),
-                      // use computed _totalPages so '>' disables when no next page
-                      onPressed: _currentPage < _totalPages
-                          ? () {
-                              setState(() {
-                                _currentPage++;
-                              });
-                              _loadProducts();
-                            }
-                          : null,
-                    )
-                  ],
-                ),
+                  ),
+                ],
               )
             ],
           ),
