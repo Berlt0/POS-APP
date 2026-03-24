@@ -5,8 +5,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pos_app/db/product.dart';
+import 'package:pos_app/db/sync.dart';
 import 'package:pos_app/models/products.dart';
 import 'package:flutter/services.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class Addproduct extends StatefulWidget {
   const Addproduct({super.key});
@@ -60,6 +62,15 @@ class _POSState extends State<Addproduct> {
   void initState() {
     super.initState();
     loadCategoriesFromProducts();
+
+    Connectivity().onConnectivityChanged.listen((result) {
+
+      if(result != ConnectivityResult.none){
+        print("Internet detected. Syncing...");
+        syncProducts();
+      }
+
+    });
   }
 
 
@@ -719,6 +730,7 @@ Widget productFormWidget(int index) {
 
                   try{
                     await _saveProducts();
+                    await syncProducts();
                   }catch(error){
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text("Error saving products."),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pos_app/db/sync.dart';
 import 'package:pos_app/utils/responsive.dart';
 import 'package:pos_app/db/inventory.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -132,6 +133,7 @@ Future<void> _updateStock(SomeProductData product) async{
 
     Navigator.pop(context);
     _loadProducts();
+    await syncProducts();
 
     ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

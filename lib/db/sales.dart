@@ -2,7 +2,6 @@ import 'package:pos_app/db/database.dart';
 import 'package:sqflite/sqflite.dart';
 
 
-
 class Sales{
 
   static Future<int> countTodaySales() async {

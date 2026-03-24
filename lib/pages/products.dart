@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pos_app/db/sync.dart';
 import 'package:pos_app/widgets/footer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/db/product.dart';
@@ -189,6 +190,7 @@ Future<void> _saveEditedProduct(Product originalProduct) async {
     await ProductDB.updateProduct(updatedProduct);
 
     Navigator.pop(context);
+    await syncProducts();
 
      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

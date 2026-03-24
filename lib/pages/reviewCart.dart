@@ -1,11 +1,14 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pos_app/db/syncTransationHistory.dart';
 import 'package:pos_app/models/cartItem.dart';
 import 'package:pos_app/db/database.dart';
 import 'package:pos_app/db/user.dart';
 import 'package:pos_app/db/debug.dart';
 import 'package:flutter/services.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:pos_app/db/sync.dart';
 
 class ReviewCart extends StatefulWidget {
   const ReviewCart({super.key});
@@ -35,6 +38,22 @@ class _ReviewCartState extends State<ReviewCart> {
   int total_amount = 0;
 
   int? transactionId;
+
+  @override
+  void initState() {
+    super.initState();
+
+    Connectivity().onConnectivityChanged.listen((result) async {
+
+      if(result != ConnectivityResult.none){
+        print("Internet detected. Syncing...");
+        await syncSales();
+        await syncTransaction();
+      }
+
+    });
+  }
+
 
   @override
   void didChangeDependencies() {
@@ -233,6 +252,7 @@ class _ReviewCartState extends State<ReviewCart> {
         'change_amount': (payment.amountReceived != null) ? (payment.amountReceived! - total) : 0, 
         'payment_type': payment.method,
         'created_at': DateTime.now().toIso8601String(),
+        'is_synced': 0,
       });
 
       
@@ -244,14 +264,17 @@ class _ReviewCartState extends State<ReviewCart> {
           'price': item.price,
           'quantity': item.quantity,
           'created_at': DateTime.now().toIso8601String(),
+          'is_synced': 0,
         });
       
 
       int updated = await txn.rawUpdate('''
         UPDATE products
-        SET stock = stock - ?
+        SET stock = stock - ?,
+            is_synced = 0,
+            updated_at = ?
         WHERE id = ? AND stock >= ?
-      ''', [item.quantity, item.productId, item.quantity]);
+      ''', [item.quantity,DateTime.now().toIso8601String() ,item.productId, item.quantity]);
 
       if (updated == 0) {
         throw Exception("Not enough stock for product ${item.name}");
@@ -266,6 +289,7 @@ class _ReviewCartState extends State<ReviewCart> {
         'entity_id': saleId,
         'description': 'Sale of ${items.length} items',
         'created_at': DateTime.now().toIso8601String(),
+        'is_synced': 0,
       });
 
      
@@ -449,6 +473,14 @@ class _ReviewCartState extends State<ReviewCart> {
                 if (payment != null) {
                   final transId = await _saveSale(payment);
                   await printTables();
+
+                   try {
+                    await syncSales();
+                    await syncTransaction(); 
+                    debugPrint("Transaction synced successfully!");
+                  } catch (e) {
+                    debugPrint("Sync failed, will retry later: $e");
+                  }
 
                   setState(() {
                     items.clear();

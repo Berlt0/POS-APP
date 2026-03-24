@@ -11,7 +11,9 @@ class Product {
   final String? description;
   final String? imagePath;
   final String? createdAt;
-  final String? lastUpdate;
+  String? lastUpdate;
+  String? deletedAt;
+  int isSync;
 
   Product({
     this.id,
@@ -27,6 +29,8 @@ class Product {
     this.imagePath,
     this.createdAt,
     this.lastUpdate,
+    this.deletedAt,
+    this.isSync = 0,
   });
 
   Map<String, dynamic> toMap() {
@@ -43,26 +47,63 @@ class Product {
       'description': description,
       'image_path': imagePath,
       'createdAt': createdAt ?? DateTime.now().toIso8601String(),
-      'lastUpdate': lastUpdate ?? DateTime.now().toIso8601String(),
+      'updated_at': lastUpdate ?? DateTime.now().toIso8601String(),
+      'deleted_at': deletedAt,
+      'is_synced': isSync,
     };
   }
 
   // Optional: factory method to create Product from DB map
   factory Product.fromMap(Map<String, dynamic> map) {
+
+    double parseDouble(dynamic value) {
+    if (value == null) return 0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0;
+    return 0;
+  }
+
+  int parseInt(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
+  }
     return Product(
-      id: map['id'] as int?,
+      // id: map['id'] as int?,
+      // name: map['name'] as String,
+      // price: (map['price'] as num).toDouble(),
+      // stock: map['stock'] as int,
+      // stockUnit: map['stock_unit'] as String? ?? 'pcs',
+      // cost: map['cost'] != null ? (map['cost'] as num).toDouble() : null,
+      // category: map['category'] as String?,
+      // barcode: map['barcode'] as String?,
+      // lowStockAlert: map['low_stock_alert'] as int?,
+      // description: map['description'] as String?,
+      // imagePath: map['image_path'] as String?,
+      // createdAt: map['createdAt'] as String?,
+      // lastUpdate: map['update_at'] as String?,
+      // deletedAt: map['deleted_at'] as String?,
+      // isSync: map['is_synced'] as int? ?? 0,
+
+      id: map['id'] is int ? map['id'] : int.tryParse(map['id'].toString()),
       name: map['name'] as String,
-      price: (map['price'] as num).toDouble(),
-      stock: map['stock'] as int,
+      price: parseDouble(map['price']),
+      stock: parseInt(map['stock']),
       stockUnit: map['stock_unit'] as String? ?? 'pcs',
-      cost: map['cost'] != null ? (map['cost'] as num).toDouble() : null,
+      cost: map['cost'] != null ? parseDouble(map['cost']) : null,
       category: map['category'] as String?,
       barcode: map['barcode'] as String?,
-      lowStockAlert: map['low_stock_alert'] as int?,
+      lowStockAlert: map['low_stock_alert'] != null ? parseInt(map['low_stock_alert']) : null,
       description: map['description'] as String?,
       imagePath: map['image_path'] as String?,
       createdAt: map['createdAt'] as String?,
-      lastUpdate: map['lastUpdate'] as String?,
+      lastUpdate: map['updated_at'] as String?,
+      deletedAt: map['deleted_at'] as String?,
+      isSync: map['is_synced'] != null ? parseInt(map['is_synced']) : 0,
+      
     );
   }
 }

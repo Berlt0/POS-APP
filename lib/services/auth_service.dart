@@ -10,10 +10,12 @@ class AuthService {
 
   static Future<bool> isLoggedIn() async {
     try {
+
       final token = await _storage.read(key: 'token');
-      return token != null && token.isNotEmpty;
+      final userId = await _storage.read(key: 'userId');
+      return token != null && token.isNotEmpty && userId != null;
+    
     } catch (e) {
-      // if secure storage fails for any reason, treat as logged out
       return false;
     }
   }

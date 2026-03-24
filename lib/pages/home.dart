@@ -287,9 +287,9 @@ int _currentIndex = 0;
                       },
                       child: CircleAvatar(
                         radius: 20,
-                        backgroundImage: NetworkImage(
-                          'https://picsum.photos/200',
-                        ),
+                        // backgroundImage: NetworkImage(
+                        //   'https://picsum.photos/200',
+                        // ),
                       ),
                     ),
                   ],

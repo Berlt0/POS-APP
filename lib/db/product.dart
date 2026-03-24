@@ -1,3 +1,4 @@
+import 'package:pos_app/db/sync.dart';
 import 'package:sqflite/sqflite.dart';
 import '../models/products.dart';
 import 'database.dart';
@@ -11,7 +12,8 @@ class ProductDB {
     return await db.insert('products', product.toMap());
   }
 
-// Fetch all Product/s Data
+
+
   static Future<List<Product>> getAll() async {
     final db = await AppDatabase.database;
     final result = await db.query('products');
@@ -20,13 +22,18 @@ class ProductDB {
   }
 
 
-// Update product stock 
-
-  static Future<void> updateStock(int id, int stock) async {
+  static Future<int> updateStock(int id, int stock) async {
     final db = await AppDatabase.database;
-    await db.update(
+
+    final updatedStock = {
+      'stock':stock,
+      'is_synced':0,
+      'updated_at': DateTime.now().toIso8601String()
+    };
+
+    return await db.update(
       'products',
-      {'stock': stock},
+      updatedStock, 
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -36,9 +43,16 @@ class ProductDB {
 static Future<int> updateProduct(editProduct product) async {
   final db = await AppDatabase.database;
 
+  final updatedProducts = {
+    ...product.toMap(),
+    'is_synced':0,
+    'updated_at': DateTime.now().toIso8601String()
+  };
+
+
   return await db.update(
     'products',
-    product.toMap(),
+    updatedProducts,
     where: 'id = ?',
     whereArgs: [product.id],
   );

@@ -22,11 +22,24 @@ class AppDatabase {
       },
       onCreate: _createTables,
       onUpgrade: (db, oldVersion, newVersion) async {
-      if (oldVersion < 5) {
+      if (oldVersion < 7) {
 
-       await db.execute("ALTER TABLE sales ADD COLUMN payment_type TEXT DEFAULT 'cash'");
+       await db.execute("ALTER TABLE products ADD COLUMN is_synced INTEGER DEFAULT 0");
+       await db.execute("ALTER TABLE products ADD COLUMN updated_at TEXT");
+       await db.execute("ALTER TABLE products ADD COLUMN deleted_at TEXT");
+
+       await db.execute("ALTER TABLE sales ADD COLUMN is_synced INTEGER DEFAULT 0");
+       await db.execute("ALTER TABLE sales ADD COLUMN updated_at TEXT");
+
+       await db.execute("ALTER TABLE sale_items ADD COLUMN is_synced INTEGER DEFAULT 0");
+
+       await db.execute("ALTER TABLE inventory ADD COLUMN is_synced INTEGER DEFAULT 0");
+       await db.execute("ALTER TABLE inventory ADD COLUMN updated_at TEXT");
+       await db.execute("ALTER TABLE inventory ADD COLUMN deleted_at TEXT");
+
+       await db.execute("ALTER TABLE users ADD COLUMN is_synced INTEGER DEFAULT 0");
       
-      print("Session table altered on upgrade");
+       print("Offline-first columns added");
       }
     },
       
@@ -42,7 +55,8 @@ class AppDatabase {
         password TEXT,
         role TEXT,
         token TEXT,
-        createdAt TEXT
+        createdAt TEXT,
+        is_synced INTEGER DEFAULT 0
       )
     ''');
 
@@ -57,12 +71,13 @@ class AppDatabase {
         cost REAL,
         category TEXT,
         barcode TEXT UNIQUE,
-        low_stock_alert INTEGER DEFAULT 10,
+        low_stock_alert INTEGER DEFAULT 5,
         description TEXT,
         image_path TEXT,
         createdAt TEXT,
-        lastUpdate TEXT
-
+        is_synced INTEGER DEFAULT 0,
+        updated_at TEXT,
+        deleted_at TEXT
       )
     ''');
 
@@ -77,6 +92,8 @@ class AppDatabase {
         change_amount REAL NOT NULL,
         payment_type TEXT DEFAULT 'cash',
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        is_synced INTEGER DEFAULT 0,
+      
 
         FOREIGN KEY (user_id) REFERENCES users(id)
       )
@@ -92,6 +109,7 @@ class AppDatabase {
         price REAL NOT NULL,
         quantity INTEGER NOT NULL,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        is_synced INTEGER DEFAULT 0,
       
         FOREIGN KEY (sale_id) REFERENCES sales(id) ON DELETE CASCADE,
         FOREIGN KEY (product_id) REFERENCES products(id)
@@ -109,6 +127,7 @@ class AppDatabase {
         entity_id INTEGER,     -- nullable
         description TEXT,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        is_synced INTEGER DEFAULT 0,
 
         FOREIGN KEY (user_id) REFERENCES users(id)
       )
@@ -121,7 +140,8 @@ class AppDatabase {
         user_id INTEGER,
         username TEXT,
         role TEXT,
-        login_at TEXT
+        login_at TEXT,
+        is_synced INTEGER DEFAULT 0
       )
     ''');
 

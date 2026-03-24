@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pos_app/db/sync.dart';
+import 'package:pos_app/db/syncTransationHistory.dart';
 import 'package:pos_app/models/pos.dart';
 import 'package:pos_app/db/pos.dart';
 import 'package:path_provider/path_provider.dart';
@@ -219,6 +221,13 @@ class _POSState extends State<POS> {
     _loadProducts();
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+
 
   Future<String> saveImageLocally(File image) async {
   final dir = await getApplicationDocumentsDirectory();
@@ -241,6 +250,8 @@ class _POSState extends State<POS> {
         }
       }
 
+      if (!mounted) return;
+
       setState(() {
         products = dbProducts.map((p) => _POSItem(product: p)).toList();
         categories = ['All', ...catSet];
@@ -248,6 +259,7 @@ class _POSState extends State<POS> {
       });
     } catch (error) {
       debugPrint("POS load error: $error");
+      if (!mounted) return;
       setState(() => isLoading = false);
     }
   }
@@ -318,6 +330,7 @@ class _POSState extends State<POS> {
                           FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')),
                         ],
                       onChanged: (value) {
+                        if (!mounted) return;
                         setState(() {
                           _searchText = value;
                         });
@@ -329,6 +342,7 @@ class _POSState extends State<POS> {
                           ? IconButton(
                               icon: const Icon(Icons.clear),
                               onPressed: () {
+                                if (!mounted) return;
                                 setState(() {
                                   _searchController.clear();
                                   _searchText = '';
@@ -484,11 +498,11 @@ class _POSState extends State<POS> {
                               children: [
                                 _rowText(
                                     "Total Quantity", getTotalQuantity().toString()),
-                                _rowText("Subtotal", "₱${getSubTotal()}"),
+                                _rowText("Subtotal", "₱${getSubTotal().toStringAsFixed(2)}"),
                                 const SizedBox(height: 6),
                                 _rowText(
                                   "Total",
-                                  "₱${getTotal()}",
+                                  "₱${getTotal().toStringAsFixed(2)}",
                                   isBold: true,
                                   fontSize: 16,
                                 ),
@@ -560,6 +574,13 @@ class _POSState extends State<POS> {
 
                                       await Navigator.pushNamed(context, '/receipt',arguments: transactionId);
 
+                                      if (!mounted) return;
+
+                                      await syncSales();
+                                      await syncTransaction();
+
+                                      if (!mounted) return;
+
                                       setState(() {
                                         for (final item in products) {
                                           item.qty = 0;
@@ -567,6 +588,7 @@ class _POSState extends State<POS> {
                                       });
 
                                       await _loadProducts();
+                                      
                                   }
                                   },
         
@@ -593,6 +615,7 @@ class _POSState extends State<POS> {
                                     minimumSize: const Size(double.infinity, 36),
                                   ),
                                   onPressed: () {
+                                    if (!mounted) return;
                                     setState(() {
                                       for(final item in products){
                                         item.qty = 0;

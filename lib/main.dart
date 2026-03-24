@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pos_app/db/initDB.dart';
+import 'package:pos_app/db/sync.dart';
 import 'package:pos_app/pages/addproduct.dart';
 import 'package:pos_app/pages/home.dart';
 import 'package:pos_app/pages/inventory.dart';
@@ -7,7 +9,7 @@ import 'package:pos_app/pages/products.dart';
 import 'package:pos_app/pages/reports.dart';
 import 'package:pos_app/pages/pos.dart';
 import 'db/database.dart';
-import 'db/addUser.dart';
+// import 'db/addUser.dart';
 import 'services/auth_service.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -15,6 +17,8 @@ import 'package:pos_app/pages/reviewCart.dart';
 import 'package:pos_app/services/session_service.dart';
 import 'pages/receipt.dart';
 import 'pages/transaction.dart';
+import 'package:pos_app/db/sync.dart';
+import 'dart:async';
 
 Future<void> deleteOldDatabase() async {
   final dbPath = await getDatabasesPath();
@@ -25,34 +29,42 @@ Future<void> deleteOldDatabase() async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // initialize DB & seed
-
   
+
+  // await deleteOldDatabase();
 
   await AppDatabase.database;
-  await UserSeed.seed();
+
+  // await UserSeed.seed();
 
   // call isLoggedIn() defensively
-  final dynamic result = await AuthService.isLoggedIn(); // dynamic to catch null
-  final bool loggedIn = result == true; 
+  final dynamic result = await AuthService.isLoggedIn(); 
+  final bool loggedIn = await isUserLoggedIn();
 
-  debugPrint('AuthService.isLoggedIn() returned: $result');
-  print('Is user logged in? $loggedIn');
-  
-  final session = await SessionService.getSession();
-  if (session != null) {
+  debugPrint('Is user logged in? $loggedIn');
+
+  if (loggedIn) {
+    final session = await SessionService.getSession();
     print('--- Logged-in user data ---');
-    print('User ID: ${session['user_id']}');
-    print('Username: ${session['username']}');
-    print('Role: ${session['role']}');
-  } else {
-    print('No user is currently logged in.');
+    print('User ID: ${session?['user_id']}');
+    print('Username: ${session?['username']}');
+    print('Role: ${session?['role']}');
   }
 
+
+
   runApp(MyApp(isLoggedIn: loggedIn));
+
+  
+    await initializeDatabaseAndSync();
+  
 }
 
+Future<bool> isUserLoggedIn() async {
+  final bool tokenExists = await AuthService.isLoggedIn();
+  final sessionExists = await SessionService.getSession() != null;
+  return tokenExists && sessionExists;
+}
 
 class MyApp extends StatelessWidget {
   final bool isLoggedIn;
