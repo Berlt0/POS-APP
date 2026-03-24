@@ -37,7 +37,7 @@ class _MyWidgetState extends State<Home>  {
   List<LowStockProducts> lowStockProducts = [];
   bool isLoading = false;
   
-
+  late Future<List<SaleChart>> _chartFuture;
   
 
   
@@ -51,7 +51,7 @@ class _MyWidgetState extends State<Home>  {
     _todaysRevenue();
     _fetchRecentSales();
     _fetchLowStockProducts();
-    _fetchChartData();
+    _chartFuture = _fetchChartData();
     // _verifyToken(); // prints tokens to console when Home opens
   }
 
@@ -387,54 +387,78 @@ int _currentIndex = 0;
                 ),
           
                 const SizedBox(height: 25),
-                Text(
-                  "Weekly Sales",
-                  style: GoogleFonts.kronaOne(
-                    fontSize: Responsive.font(
-                      context,
-                      mobile: 12.5,
-                      tablet: 15,
-                      desktop: 20,
+                Row(
+                  children: [
+                     Icon(
+                      Icons.stacked_line_chart_rounded, 
+                      color: Colors.blue, 
+                      size: Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
                     ),
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                Container(
-                  height: Responsive.spacing(
-                    context,
-                    mobile: 250,
-                    tablet: 300,
-                    desktop: 350,
-                  ),
-                  margin: const EdgeInsets.only(top: 20),
-                  decoration: BoxDecoration(
-                    color: Color(0xFF3CE7FA),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.3),
-                        spreadRadius: 2,
-                        blurRadius: 5,
-                        offset: const Offset(0, 3),
+                    const SizedBox(width: 8),
+                    Text(
+                      "Weekly Sales",
+                      style: GoogleFonts.kameron(
+                        fontSize: Responsive.font(
+                          context,
+                          mobile: 14.5,
+                          tablet: 15,
+                          desktop: 20,
+                        ),
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
                       ),
-                    ],
-                  ),
-                      child: Container(
+                    ),
+                  ],
+                ),
+                SizedBox(height: 12,),
+
+                    Container(
+                        height: Responsive.spacing(
+                          context,
+                          mobile: 250,
+                          tablet: 300,
+                          desktop: 350,
+                        ),
                         margin: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
+                           boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.3),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
                         ),
                         child: FutureBuilder<List<SaleChart>>(
-                              future: _fetchChartData(),
+                              future: _chartFuture,
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState == ConnectionState.waiting) {
                                   return const Center(child: CircularProgressIndicator());
                                 } else if (snapshot.hasError) {
                                   return const Center(child: Text("Error loading chart"));
                                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                                  return const Center(child: Text("No sales data for this week"));
+                                  return Center(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                         Icon(
+                                          Icons.show_chart_outlined, // icon representing charts/sales
+                                          size: 35,
+                                          color: Colors.grey.withOpacity(0.6),
+                                        ),
+                                        const SizedBox(height: 12),
+                                        Text("No sales data for this week",
+                                        style: GoogleFonts.kameron(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.black,
+                                        ),
+                                        ),
+                                      ],
+                                    ));
                                 }
 
                                 final data = snapshot.data!; // non-null now
@@ -539,7 +563,7 @@ int _currentIndex = 0;
                               },
                             ),
                           ),
-                        ),
+                        
                       
                     
                           
@@ -558,12 +582,16 @@ int _currentIndex = 0;
                     Widget salesFooter() {
                       return Align(
                         alignment: Alignment.centerLeft,
-                        child: TextButton(
-                          onPressed: () {
+                        child: InkWell(
+                          onTap: () {
                             print("View Sales clicked");
                             // Add navigation or action here
                           },
-                          child: Row(
+                          borderRadius: BorderRadius.circular(8), 
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                            child:Row(
+                              mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
                                 "View Sales",
@@ -580,6 +608,7 @@ int _currentIndex = 0;
                               )
                             ],
                           ),
+                          ),
                         ),
                       );
                     }
@@ -588,12 +617,16 @@ int _currentIndex = 0;
                     Widget inventoryFooter() {
                       return Align(
                         alignment: Alignment.centerLeft,
-                        child: TextButton(
-                          onPressed: () {
-                            print("Manage Inventory clicked");
+                        child: InkWell(
+                          onTap: () {
+                            print("Manage inventorty clicked");
                             // Add navigation or action here
                           },
-                          child: Row(
+                          borderRadius: BorderRadius.circular(8), 
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                            child:Row(
+                              mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
                                 "Manage Inventory",
@@ -603,12 +636,13 @@ int _currentIndex = 0;
                                   color: Colors.black,
                                 ),
                               ),
-                              Icon(
+                              Icon( 
                                 Icons.keyboard_arrow_right,
                                 color: Colors.black,
                                 size: 20,
                               )
                             ],
+                          ),
                           ),
                         ),
                       );
@@ -637,10 +671,11 @@ int _currentIndex = 0;
                                       style: GoogleFonts.kameron(
                                       fontSize: Responsive.font(
                                         context,
-                                        mobile: 12.5,
+                                        mobile: 14.5,
                                         tablet: 20,
                                         desktop: 20,
                                       ),
+                                      
                                       fontWeight: FontWeight.bold,
                                       color: Colors.black,
                                       ),
@@ -652,7 +687,7 @@ int _currentIndex = 0;
                                 height: containerHeight,
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF6FE5F2),
+                                  color: Color(0xFF6FE5F2),
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(
@@ -666,17 +701,34 @@ int _currentIndex = 0;
                                 child: Column(
                                   children: [
                                     Expanded(
-                                      child: SingleChildScrollView(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            if (isLoading)
-                                              Center(child: CircularProgressIndicator())
-                                            else
-                                              ...List.generate(recentSales.length, (index) => _buildSaleItem(index)),
-                                          ],
-                                        ),
-                                      ),
+                                      child: isLoading
+                                          ? const Center(child: CircularProgressIndicator())
+                                          : recentSales.isEmpty
+                                              ? Center(
+                                                  child: Column(
+                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                    children: [
+                                                      Icon(Icons.receipt_long, size: 35, color: Color.fromARGB(214, 0, 0, 0)),
+                                                      SizedBox(height: 10),
+                                                      Text(
+                                                        "No sales today",
+                                                        style: GoogleFonts.kameron(
+                                                          fontSize: 14,
+                                                          fontWeight: FontWeight.w500,
+                                                          color: Colors.black,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                )
+                                              : ListView(
+                                                  children: [
+                                                    ...List.generate(
+                                                      recentSales.length,
+                                                      (index) => _buildSaleItem(index),
+                                                    ),
+                                                  ],
+                                                ),
                                     ),
                                     const SizedBox(height: 8),
                                     salesFooter(),          // ← different footer
@@ -707,7 +759,7 @@ int _currentIndex = 0;
                                 style: GoogleFonts.kameron(
                                   fontSize: Responsive.font(
                                     context,
-                                    mobile: 12.5,
+                                    mobile: 14.5,
                                     tablet: 20,
                                     desktop: 20,
                                   ),
@@ -722,7 +774,7 @@ int _currentIndex = 0;
                                 height: containerHeight,
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF6FE5F2),
+                                  color: Color(0xFF6FE5F2),
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(
@@ -736,15 +788,33 @@ int _currentIndex = 0;
                                 child: Column(
                                   children: [
                                     Expanded(
-                                      child: SingleChildScrollView(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            ...List.generate(lowStockProducts.length, (index) => _buildLowStockItem(index)),
-                                          ],
-                                        ),
+                                        child: lowStockProducts.isEmpty
+                                            ? Center(
+                                                child: Column(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(Icons.inventory_2_outlined, size: 35, color: const Color.fromARGB(214, 0, 0, 0)),
+                                                    SizedBox(height: 10),
+                                                    Text(
+                                                      "No low stock items",
+                                                      style: GoogleFonts.kameron(
+                                                        fontSize: 14,
+                                                        fontWeight: FontWeight.w500,
+                                                        color: Colors.black,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              )
+                                            : ListView(
+                                                children: [
+                                                  ...List.generate(
+                                                    lowStockProducts.length,
+                                                    (index) => _buildLowStockItem(index),
+                                                  ),
+                                                ],
+                                              ),
                                       ),
-                                    ),
                                     const SizedBox(height: 8),
                                     inventoryFooter(),      // ← different footer
                                   ],
@@ -774,11 +844,11 @@ int _currentIndex = 0;
                                       ),
                                       SizedBox(width: 8),                               
                                       Text(
-                                      "Recent Sales",
+                                      "Recent Sale",
                                       style: GoogleFonts.kameron(
                                       fontSize: Responsive.font(
                                         context,
-                                        mobile: 12.5,
+                                        mobile: 14.5,
                                         tablet: 20,
                                         desktop: 20,
                                       ),
@@ -789,42 +859,63 @@ int _currentIndex = 0;
                                     ],
                                   ),
                                   SizedBox(height: 20),
+
                                 Container(
                                   height: containerHeight,
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
                                     color: Color(0xFF6FE5F2),
                                     borderRadius: BorderRadius.circular(12),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.grey.withOpacity(0.3),
-                                        spreadRadius: 2,
-                                        blurRadius: 5,
-                                        offset: const Offset(0, 3),
-                                      ),
-                                    ],
+                                     boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.3),
+                                      spreadRadius: 2,
+                                      blurRadius: 5,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
                                   ),
                                   child: Column(
                                     children: [
                                       Expanded(
-                                        child: SingleChildScrollView(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              ...List.generate(4, (index) => _buildSaleItem(index)),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      salesFooter(),            // ← different footer
-                                    ],
-                                  ),
-                                ),
-                              ],
+                                      child: isLoading
+                                          ? const Center(child: CircularProgressIndicator())
+                                          : recentSales.isEmpty
+                                              ? Center(
+                                                  child: Column(
+                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                    children: [
+                                                      Icon(Icons.receipt_long, size: 35, color: Color.fromARGB(214, 0, 0, 0)),
+                                                      SizedBox(height: 10),
+                                                      Text(
+                                                        "No sales today",
+                                                        style: GoogleFonts.kameron(
+                                                          fontSize: 14,
+                                                          fontWeight: FontWeight.w500,
+                                                          color: Colors.black,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                )
+                                              : ListView(
+                                                  children: [
+                                                    ...List.generate(
+                                                      recentSales.length,
+                                                      (index) => _buildSaleItem(index),
+                                                    ),
+                                                  ],
+                                                ),
+                                    ),
+                          const SizedBox(height: 8),
+                          salesFooter(),
+                           ],
                             ),
                           ),
-                          const SizedBox(width: 25),
+                        ],
+                      ),
+                    ),
+                                           const SizedBox(width: 25),
                           Expanded(
                             flex: 1,
                             child: Column(
@@ -846,7 +937,7 @@ int _currentIndex = 0;
                                 style: GoogleFonts.kameron(
                                   fontSize: Responsive.font(
                                     context,
-                                    mobile: 12.5,
+                                    mobile: 14.5,
                                     tablet: 20,
                                     desktop: 20,
                                   ),
@@ -874,15 +965,33 @@ int _currentIndex = 0;
                                   ),
                                   child: Column(
                                     children: [
-                                      Expanded(
-                                        child: SingleChildScrollView(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              ...List.generate(2, (index) => _buildLowStockItem(index)),
-                                            ],
-                                          ),
-                                        ),
+                                     Expanded(
+                                        child: lowStockProducts.isEmpty
+                                            ? Center(
+                                                child: Column(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(Icons.inventory_2_outlined, size: 35, color: const Color.fromARGB(214, 0, 0, 0)),
+                                                    SizedBox(height: 10),
+                                                    Text(
+                                                      "No low stock items",
+                                                      style: GoogleFonts.kameron(
+                                                        fontSize: 14,
+                                                        fontWeight: FontWeight.w500,
+                                                        color: Colors.black,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              )
+                                            : ListView(
+                                                children: [
+                                                  ...List.generate(
+                                                    lowStockProducts.length,
+                                                    (index) => _buildLowStockItem(index),
+                                                  ),
+                                                ],
+                                              ),
                                       ),
                                       const SizedBox(height: 8),
                                       inventoryFooter(),          // ← different footer

@@ -9,7 +9,7 @@ import 'package:pos_app/pages/products.dart';
 import 'package:pos_app/pages/reports.dart';
 import 'package:pos_app/pages/pos.dart';
 import 'db/database.dart';
-// import 'db/addUser.dart';
+import 'db/addUser.dart';
 import 'services/auth_service.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -35,7 +35,7 @@ Future<void> main() async {
 
   await AppDatabase.database;
 
-  // await UserSeed.seed();
+  await UserSeed.seed();
 
   // call isLoggedIn() defensively
   final dynamic result = await AuthService.isLoggedIn(); 
