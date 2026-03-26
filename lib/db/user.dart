@@ -1,6 +1,7 @@
 import 'database.dart';
 import '../utils/password_hashed.dart';
 import 'package:pos_app/utils/hash_token.dart';
+import 'package:intl/intl.dart';
 
 class UserDB {
   static Future<Map<String, dynamic>?> login(
@@ -36,6 +37,18 @@ class UserDB {
       whereArgs: [userId],
     );
 
+    final now = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+
+    await db.delete('session');
+
+    await db.insert('session', {
+      'user_id': userId,
+      'username': user['username'],
+      'role': user['role'], 
+      'login_at': now,
+      'is_synced': 0
+    });
+
     return {
      
       'userId': userId,
@@ -52,7 +65,7 @@ class UserDB {
 
     final List<Map<String, dynamic>> result = await db.query(
       'session',
-      columns: ['user_id','username'],
+      columns: ['user_id','username','role'],
       limit: 1,
     );
 
@@ -61,6 +74,20 @@ class UserDB {
     } else {
       return null; 
     }
+}
+
+Future<String?> getLoggedInUserRole() async {
+  final db = await AppDatabase.database;
+
+  final result = await db.query(
+    'session',
+    columns: ['role'],
+    limit: 1,
+  );
+
+  if (result.isEmpty) return null;
+
+  return result.first['role']?.toString();
 }
 
 }

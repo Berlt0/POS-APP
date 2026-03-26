@@ -21,7 +21,14 @@ class UserSeed {
     await db.insert('users', {
       'username': 'admin',
       'password': PasswordHelper.hashPassword('admin21034'),
-      'role': 'owner',
+      'role': 'admin',
+      'createdAt': now,
+    });
+
+    await db.insert('users', {
+      'username': 'john',
+      'password': PasswordHelper.hashPassword('johnpass21'),
+      'role': 'cashier',
       'createdAt': now,
     });
 

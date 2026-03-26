@@ -8,6 +8,8 @@ import 'package:pos_app/db/product.dart';
 import 'package:pos_app/models/products.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pos_app/db/user.dart';
+import 'package:flutter/cupertino.dart';
 
 class Products extends StatefulWidget {
   const Products({super.key});
@@ -44,12 +46,16 @@ class _ProductsState extends State<Products> {
 
   late Future<List<Product>> _productsFuture;
 
+  String? _userRole;
+  
+
 
   
  @override
   void initState() {
     super.initState();
     _loadProducts();
+    _loadRole();
 
     _searchController.addListener(() {
       setState(() {
@@ -68,6 +74,13 @@ class _ProductsState extends State<Products> {
   }
 
 
+
+  Future<void> _loadRole() async {
+  final role = await UserDB().getLoggedInUserRole();
+  setState(() {
+    _userRole = role;
+  });
+}
 
 
   String toTitleCase(String text) {
@@ -268,6 +281,122 @@ Future<bool?> showConfirmationDialog(BuildContext context) {
 
 
 
+Future<bool?> showDeleteConfirmationModal(BuildContext context) {
+  return showGeneralDialog<bool>(
+    context: context,
+    barrierLabel: "Delete Product",
+    barrierDismissible: true,
+    barrierColor: Colors.black.withOpacity(0.5),
+    transitionDuration: const Duration(milliseconds: 300),
+    pageBuilder: (context, anim1, anim2) {
+      return Center(
+        child: Material(
+          type: MaterialType.transparency,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 300),
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                   Text(
+                    "Delete Product?",
+                    style: GoogleFonts.kameron(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                       Text(
+                        "Are you sure you want to delete this product?",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.kameron(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500
+                      
+                        ),
+                      ),
+                  
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                     
+                        GestureDetector(
+                          onTap: () { 
+                            Navigator.of(context).pop(false); 
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text("No", style: GoogleFonts.kameron(
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w500
+                            )),
+                          ),
+                        ),
+
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop(true); 
+                        },
+                        child:  Text("Yes", style: GoogleFonts.kameron(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500
+                        ),),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    },
+    transitionBuilder: (context, anim1, anim2, child) {
+      return ScaleTransition(
+        scale: CurvedAnimation(parent: anim1, curve: Curves.easeOutBack),
+        child: child,
+      );
+    },
+  );
+}
+
+
+
+// Usage inside your state:
+void _openDeleteConfirmationModal(int productId) async {
+  print(productId);
+  final confirmed = await showDeleteConfirmationModal(context);
+
+  if (confirmed == true) {
+    // Call your delete logic here
+    await ProductDB.deleteProduct(productId);
+    // await _loadProducts();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Product deleted successfully'),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+}
+
+
+
+
+
 
 void _openEditModal(Product product){
 
@@ -291,7 +420,7 @@ final autocompleteCategories = _categories.where((c) => c != 'All').toList();
     context: context,
     isScrollControlled: true,
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadiusGeometry.vertical(top: Radius.circular(20))
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20))
     ),
     builder: (context) {
       return StatefulBuilder(
@@ -385,13 +514,19 @@ final autocompleteCategories = _categories.where((c) => c != 'All').toList();
                             },
                             displayStringForOption: (option) => option,
                             fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
-                              controller.text = _productCategoryController.text;
-                              controller.selection = TextSelection.fromPosition(
-                                TextPosition(offset: controller.text.length)
+                              // controller.text = _productCategoryController.text;
+                              // controller.selection = TextSelection.fromPosition(
+                              //   TextPosition(offset: controller.text.length)
+                              // );
+                              // controller.addListener(() {
+                              //   _productCategoryController.text = controller.text;
+                              // });
+                              controller.value = TextEditingValue(
+                                text: _productCategoryController.text,
+                                selection: TextSelection.fromPosition(
+                                  TextPosition(offset: _productCategoryController.text.length),
+                                ),
                               );
-                              controller.addListener(() {
-                                _productCategoryController.text = controller.text;
-                              });
                               return TextField(
                                 controller: controller,
                                 focusNode: focusNode,
@@ -652,14 +787,16 @@ Widget productCard(Product product) {
         /// RIGHT SIDE
         Row(
           children: [
-            IconButton(
-              icon: const Icon(Icons.edit, size: 20),
-              onPressed: () => _openEditModal(product)
-            ),
-            IconButton(
-              icon: const Icon(Icons.delete, size: 20, color: Colors.red),
-              onPressed: () {},
-            ),
+            if (_userRole == 'admin') ...[
+              IconButton(
+                icon: const Icon(Icons.edit, size: 20),
+                onPressed: () => _openEditModal(product),
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete, size: 20, color: Colors.red),
+                onPressed: () =>_openDeleteConfirmationModal(product.id!),
+              ),
+            ],
           ],
         ),
       ],
@@ -852,7 +989,7 @@ Widget productCard(Product product) {
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
+        floatingActionButton: (_userRole != 'admin') ? SizedBox.shrink()  :  FloatingActionButton(
           onPressed:(){
             Navigator.pushNamed(context, '/addproduct').then((_) {
             setState(() {

@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/widgets/footer.dart';
 import 'package:pos_app/models/products.dart';
 import 'package:pos_app/db/product.dart';
+import 'package:pos_app/db/user.dart';
 
 class Inventory extends StatefulWidget {
   const Inventory({super.key});
@@ -30,6 +31,11 @@ class _InventoryState extends State<Inventory> {
   int _totalItems = 0;
   int _totalPages = 1;
 
+
+  String? _userRole;
+  bool _isLoadingRole = true;
+
+
   Future<List<SomeProductData>>? _futureProductDatas;
 
   @override
@@ -37,6 +43,8 @@ class _InventoryState extends State<Inventory> {
     super.initState();
     _loadCategories();
     _loadProducts();
+    _loadRole();
+  
   }
 
   @override
@@ -45,6 +53,14 @@ class _InventoryState extends State<Inventory> {
     _stockController.dispose();
     super.dispose();
   }
+
+  Future<void> _loadRole() async {
+  final role = await UserDB().getLoggedInUserRole();
+  setState(() {
+    _userRole = role;
+    _isLoadingRole = false;
+  });
+}
 
   Future<void> _loadCategories() async {
     final dbCategories = await InventoryDB.getCategories();
@@ -87,6 +103,16 @@ class _InventoryState extends State<Inventory> {
 Future<void> _updateStock(SomeProductData product) async{
 
   try {
+
+     if (_userRole != 'admin') {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Unauthorized action'),
+        backgroundColor: Colors.red,
+      ),
+    );
+    return;
+  }
 
     if (_stockController.text.trim().isEmpty) {
       showDialog(
@@ -157,6 +183,7 @@ Future<void> _updateStock(SomeProductData product) async{
 }
 
 void _openUpdateModal(SomeProductData product){
+
 
   _stockController.text = product.stock.toString();
 
@@ -355,7 +382,7 @@ void _openUpdateModal(SomeProductData product){
               Text(
                  _selectedCategory == 'All'
                     ? 'Complete Inventory'
-                    : '$_selectedCategory Products',
+                    : '$_selectedCategory' ,
                 style: GoogleFonts.kameron(fontSize: 17, fontWeight: FontWeight.w500),
               ),
 
@@ -457,7 +484,17 @@ void _openUpdateModal(SomeProductData product){
 
                             DataCell(
                                 InkWell(
-                                  onTap: () => _openUpdateModal(product),
+                                  onTap: (_isLoadingRole || _userRole == 'admin') 
+                                  ? () => _openUpdateModal(product)
+                                  : () {
+                                      
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Only admin can update stock'),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                  },
                                   borderRadius: BorderRadius.circular(6),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -465,14 +502,18 @@ void _openUpdateModal(SomeProductData product){
                                       Icon(
                                         Icons.edit,
                                         size: 18,
-                                        color: const Color.fromARGB(255, 1, 68, 122),
+                                        color: _userRole == 'admin'
+                                        ? const Color.fromARGB(255, 1, 68, 122)
+                                        : Colors.grey,
                                       ),
                                       SizedBox(width: 5),
                                       Text(
                                         "Update",
                                         style: tableTextStyle(
                                           fontSize: 14,
-                                          color: const Color.fromARGB(255, 1, 68, 122),
+                                          color: _userRole == 'admin'
+                                          ? const Color.fromARGB(255, 1, 68, 122)
+                                          : Colors.grey
                                         ),
                                       ),
                                     ],

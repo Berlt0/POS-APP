@@ -373,7 +373,7 @@ class _TransactionPageState extends State<TransactionPage> {
                               
                               rows: groupedTransactions.map((transaction) {
 
-                                final products = transaction['products'] as List;
+                                // final products = transaction['products'] as List;
 
                                 return DataRow(
                                   onSelectChanged: (selected) {

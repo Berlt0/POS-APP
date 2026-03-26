@@ -24,6 +24,7 @@ class ProductDB {
 
   static Future<int> updateStock(int id, int stock) async {
     final db = await AppDatabase.database;
+    
 
     final updatedStock = {
       'stock':stock,
@@ -59,12 +60,12 @@ static Future<int> updateProduct(editProduct product) async {
 }
 
 
-
-
-
-  static Future<void> delete(int id) async {
+  static Future<void> deleteProduct(int id) async {
     final db = await AppDatabase.database;
-    await db.delete('products', where: 'id = ?', whereArgs: [id]);
+    await db.delete(
+        'products', 
+      where: 'id = ?', 
+      whereArgs: [id]);
   }
 
 

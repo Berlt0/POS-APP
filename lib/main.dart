@@ -45,6 +45,7 @@ Future<void> main() async {
 
   if (loggedIn) {
     final session = await SessionService.getSession();
+    print(session);
     print('--- Logged-in user data ---');
     print('User ID: ${session?['user_id']}');
     print('Username: ${session?['username']}');
