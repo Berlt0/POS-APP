@@ -14,12 +14,17 @@ class ProductDB {
 
 
 
-  static Future<List<Product>> getAll() async {
+  static Future<List<Product>> getAllActiveProducts() async {
+
     final db = await AppDatabase.database;
-    final result = await db.query('products');
+    final result = await db.query(
+      'products',
+      where: 'deleted_at IS NULL',
+      );
 
     return result.map((e) => Product.fromMap(e)).toList();
   }
+
 
 
   static Future<int> updateStock(int id, int stock) async {
@@ -41,7 +46,8 @@ class ProductDB {
   }
 
 
-static Future<int> updateProduct(editProduct product) async {
+
+    static Future<int> updateProduct(editProduct product) async {
   final db = await AppDatabase.database;
 
   final updatedProducts = {
@@ -60,23 +66,40 @@ static Future<int> updateProduct(editProduct product) async {
 }
 
 
-  static Future<void> deleteProduct(int id) async {
-    final db = await AppDatabase.database;
-    await db.delete(
-        'products', 
-      where: 'id = ?', 
-      whereArgs: [id]);
-  }
-
-
 
   static Future<int> countProducts() async {
 
     final db = await AppDatabase.database;
 
-    final result = await db.rawQuery('SELECT COUNT(*) FROM products');
+    final result = await db.rawQuery('SELECT COUNT(*) FROM products WHERE deleted_at IS NULL');
 
     return Sqflite.firstIntValue(result) ?? 0;
+
+  }
+
+
+
+  static Future<void> archiveProduct(int productId) async {
+
+  final db = await AppDatabase.database;
+    
+  await db.execute(
+    '''
+      INSERT INTO products_archive
+        SELECT * FROM products
+          WHERE id = ?
+      ''',[productId]
+    );
+
+  await db.update(
+    'products',
+    {'deleted_at': DateTime.now().toIso8601String(),
+    'is_synced': 0,},
+    where: 'id = ?',
+    whereArgs: [productId]
+
+  );
+
 
   }
 

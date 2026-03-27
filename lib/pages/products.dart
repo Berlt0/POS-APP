@@ -154,7 +154,7 @@ Future<void> _pickImage(void Function(void Function()) modalSetState) async {
 
 
 void _loadProducts() {
-   _productsFuture = ProductDB.getAll();
+   _productsFuture = ProductDB.getAllActiveProducts();
   _productsFuture.then((list) {
     print("Products loaded: ${list.length}");
     
@@ -380,8 +380,8 @@ void _openDeleteConfirmationModal(int productId) async {
   final confirmed = await showDeleteConfirmationModal(context);
 
   if (confirmed == true) {
-    // Call your delete logic here
-    await ProductDB.deleteProduct(productId);
+    
+    await ProductDB.archiveProduct(productId);
     // await _loadProducts();
 
     ScaffoldMessenger.of(context).showSnackBar(

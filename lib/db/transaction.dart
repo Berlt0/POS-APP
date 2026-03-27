@@ -60,6 +60,8 @@ Future<List<Map<String, dynamic>>> fetchTransactions({
     return result;
   }
 
+
+
   Future<int> countTransactions({
     DateTime? startDate,
     DateTime? endDate,
@@ -84,6 +86,7 @@ Future<List<Map<String, dynamic>>> fetchTransactions({
 
       return result.first['total'] as int;
     }
+
 
 
   Future<List<Map<String, dynamic>>> fetchTransactionDetails(int transactionId) async {

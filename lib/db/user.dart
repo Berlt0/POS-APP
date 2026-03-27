@@ -60,6 +60,7 @@ class UserDB {
   }
 
 
+
   Future<int?> getLoggedInUserId() async {
     final db = await AppDatabase.database;
 
@@ -75,6 +76,8 @@ class UserDB {
       return null; 
     }
 }
+
+
 
 Future<String?> getLoggedInUserRole() async {
   final db = await AppDatabase.database;

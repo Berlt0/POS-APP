@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/db/syncTransationHistory.dart';
@@ -37,13 +38,15 @@ class _ReviewCartState extends State<ReviewCart> {
 
   int total_amount = 0;
 
+  late StreamSubscription _connectivitySubscription;
+
   int? transactionId;
 
   @override
   void initState() {
     super.initState();
 
-    Connectivity().onConnectivityChanged.listen((result) async {
+    _connectivitySubscription =Connectivity().onConnectivityChanged.listen((result) async {
 
       if(result != ConnectivityResult.none){
         print("Internet detected. Syncing...");
@@ -53,6 +56,12 @@ class _ReviewCartState extends State<ReviewCart> {
 
     });
   }
+
+  @override
+void dispose() {
+  _connectivitySubscription.cancel(); 
+  super.dispose();
+}
 
 
   @override

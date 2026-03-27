@@ -22,6 +22,7 @@ Future<List<Map<String, dynamic>>> getUnsyncedProducts() async {
 }
 
 
+
 Future<List<Map<String,dynamic>>> getUnsyncedSales() async{
 
   final db = await AppDatabase.database;
@@ -82,6 +83,7 @@ Future<void> softDeleteProduct(int productId) async {
 }
 
 
+
 Future<void> updateProductSync(Map<String,dynamic> updatedData, int productId) async {
   
     final db = await AppDatabase.database;
@@ -134,7 +136,7 @@ Future<List<Product>> getAllProducts() async {
     }
   } 
 
-  return await ProductDB.getAll();
+  return await ProductDB.getAllActiveProducts();
 }
 
 
@@ -151,6 +153,8 @@ Future<List<Map<String, dynamic>>> getUnsyncedUsers() async {
   return unsyncedUsers;
 }
 
+
+
 Future<void> markUserAsSynced(int userId) async {
   final db = await AppDatabase.database;
 
@@ -161,7 +165,6 @@ Future<void> markUserAsSynced(int userId) async {
     whereArgs: [userId],
   );
 }
-
 
 
 
@@ -232,6 +235,7 @@ Future<void> syncProducts() async {
 }
 
 
+
 Future<void> syncSales() async {
 
  
@@ -281,6 +285,7 @@ Future<void> syncSales() async {
 
 
 }
+
 
 
 Future<void> fetchSalesFromServer() async {
@@ -339,11 +344,6 @@ Future<void> fetchSalesFromServer() async {
 
   }
 }
-
-
-
-
-
 
 
 

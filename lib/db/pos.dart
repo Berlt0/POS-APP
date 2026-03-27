@@ -8,7 +8,8 @@ class POSDB {
     final db = await AppDatabase.database;
 
     final result = await db.query('products',
-    columns: ['id','name','category','price','cost','stock','image_path']);
+    columns: ['id','name','category','price','cost','stock','image_path'],
+    where: 'deleted_at IS NULL');
 
     return result.map((row) => POSModel.fromMap(row)).toList();
 

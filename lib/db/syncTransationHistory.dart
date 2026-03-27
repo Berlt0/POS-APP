@@ -19,6 +19,8 @@ Future<List<Map<String,dynamic>>> getUnsyncTransaction  () async  {
 
 }
 
+
+
 Future<void> syncTransaction () async {
 
   final db = await AppDatabase.database;
@@ -61,6 +63,7 @@ Future<void> syncTransaction () async {
   }
 
 }
+
 
 
 Future<void> fetchTransactionRecordsFromDB () async {

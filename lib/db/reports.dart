@@ -50,6 +50,7 @@ import 'package:intl/intl.dart';
   }
 
 
+
   Future<List<Map<String, dynamic>>> fetchSalesTrend({
     required String filter,
     DateTimeRange? dateRange,
@@ -147,6 +148,7 @@ import 'package:intl/intl.dart';
 
 
   }
+
 
 
   Future<List<Map<String, dynamic >>> fetchTopProducts({

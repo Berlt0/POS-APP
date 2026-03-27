@@ -122,7 +122,7 @@ Future<void> _countTodaySales() async {
 
 Future <void> _countLowStockProducts() async {
 
-  final products = await ProductDB.getAll();
+  final products = await ProductDB.getAllActiveProducts();
 
   setState(() {
     lowStockProductsCount = products.where((product) => product.stock <= product.lowStockAlert! ).length;

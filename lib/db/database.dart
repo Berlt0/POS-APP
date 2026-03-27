@@ -16,28 +16,33 @@ class AppDatabase {
 
     return await openDatabase(
       path,
-      version: 5,
+      version: 8,
       onOpen: (db) async{
         await db.execute("PRAGMA foreign_keys = ON");
       },
       onCreate: _createTables,
       onUpgrade: (db, oldVersion, newVersion) async {
-      if (oldVersion < 7) {
+      if (oldVersion < 8) {
 
-       await db.execute("ALTER TABLE products ADD COLUMN is_synced INTEGER DEFAULT 0");
-       await db.execute("ALTER TABLE products ADD COLUMN updated_at TEXT");
-       await db.execute("ALTER TABLE products ADD COLUMN deleted_at TEXT");
-
-       await db.execute("ALTER TABLE sales ADD COLUMN is_synced INTEGER DEFAULT 0");
-       await db.execute("ALTER TABLE sales ADD COLUMN updated_at TEXT");
-
-       await db.execute("ALTER TABLE sale_items ADD COLUMN is_synced INTEGER DEFAULT 0");
-
-       await db.execute("ALTER TABLE inventory ADD COLUMN is_synced INTEGER DEFAULT 0");
-       await db.execute("ALTER TABLE inventory ADD COLUMN updated_at TEXT");
-       await db.execute("ALTER TABLE inventory ADD COLUMN deleted_at TEXT");
-
-       await db.execute("ALTER TABLE users ADD COLUMN is_synced INTEGER DEFAULT 0");
+       await db.execute('''
+          CREATE TABLE IF NOT EXISTS products_archive (
+            id INTEGER PRIMARY KEY,
+            name TEXT NOT NULL,
+            price REAL NOT NULL,
+            stock INTEGER NOT NULL,
+            stock_unit TEXT DEFAULT 'pcs',
+            cost REAL,
+            category TEXT,
+            barcode TEXT UNIQUE,
+            low_stock_alert INTEGER DEFAULT 5,
+            description TEXT,
+            image_path TEXT,
+            createdAt TEXT,
+            is_synced INTEGER DEFAULT 0,
+            updated_at TEXT,
+            deleted_at TEXT
+        )
+        ''');
       
        print("Offline-first columns added");
       }
@@ -143,7 +148,29 @@ class AppDatabase {
         login_at TEXT,
         is_synced INTEGER DEFAULT 0
       )
-    ''');
+      ''');
+    
+    await db.execute(
+    '''
+      CREATE TABLE products_archive (
+        id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL,
+        price REAL NOT NULL,
+        stock INTEGER NOT NULL,
+        stock_unit TEXT DEFAULT 'pcs',
+        cost REAL,
+        category TEXT,
+        barcode TEXT UNIQUE,
+        low_stock_alert INTEGER DEFAULT 5,
+        description TEXT,
+        image_path TEXT,
+        createdAt TEXT,
+        is_synced INTEGER DEFAULT 0,
+        updated_at TEXT,
+        deleted_at TEXT
+      )'''
+      );
+
 
     print("SQLite tables created");
   }

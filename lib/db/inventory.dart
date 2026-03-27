@@ -9,13 +9,13 @@ class InventoryDB {
 static Future<List<SomeProductData>> getFewProductsData({
   required int page,
   required int limit,
-  String? category,   // optional category filter
-  String? searchText, // optional search filter
+  String? category,   
+  String? searchText, 
 }) async {
   final db = await AppDatabase.database;
   final offset = (page - 1) * limit;
 
-  String where = '';
+  String where = 'deleted_at IS NULL';
   List<dynamic> whereArgs = [];
 
   if (category != null && category != 'All') {
@@ -47,7 +47,7 @@ static Future<List<SomeProductData>> getFewProductsData({
 static Future<int> countProductsFiltered({String? category, String? searchText}) async {
   final db = await AppDatabase.database;
 
-  String where = '';
+  String where = 'deleted_at IS NULL';
   List<dynamic> whereArgs = [];
 
   if (category != null && category != 'All') {
@@ -71,24 +71,24 @@ static Future<int> countProductsFiltered({String? category, String? searchText})
 
 
 
-  //Get products category
-
   static Future<List<String>> getCategories() async {
   final db = await AppDatabase.database;
 
   final result = await db.rawQuery(
-    'SELECT DISTINCT category FROM products'
+    'SELECT DISTINCT category FROM products WHERE deleted_at IS NULL'
   );
 
   return result.map((e) => (e['category'] ?? 'Uncategorized') as String).toList();
 }
+
+
 
   static Future<List<LowStockProducts>> getLowStockProducts() async {
     final db = await AppDatabase.database;
 
     final result = await db.rawQuery('''
       SELECT id, name, stock, stock_unit, low_stock_alert FROM products
-      WHERE stock <= low_stock_alert
+      WHERE stock <= low_stock_alert AND deleted_at IS NULL
       ORDER BY stock ASC
     ''');
 

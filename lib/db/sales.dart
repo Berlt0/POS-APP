@@ -18,6 +18,7 @@ class Sales{
   }
 
 
+
   static Future<double> todaysRevenue() async {
 
     final db = await AppDatabase.database;
@@ -29,6 +30,7 @@ class Sales{
 
     return result.first['total'] != null ? (result.first['total'] as num).toDouble() : 0.0;
   }
+
 
 
   static Future<List<Map<String, dynamic>>> fetchRecentSales() async{
@@ -53,6 +55,7 @@ class Sales{
     return result;
 
   }
+
 
 
   static Future<List<Map<String, dynamic>>> fetchWeeklySales() async {

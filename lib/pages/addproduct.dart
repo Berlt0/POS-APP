@@ -44,7 +44,7 @@ class _POSState extends State<Addproduct> {
 
 
   Future<void> loadCategoriesFromProducts() async {
-    final allProducts = await ProductDB.getAll(); 
+    final allProducts = await ProductDB.getAllActiveProducts(); 
     final categorySet = <String>{};
 
     for (var product in allProducts) {
