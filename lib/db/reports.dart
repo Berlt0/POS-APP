@@ -24,15 +24,31 @@ import 'package:intl/intl.dart';
       ];
     }
 
-    final result = await db.rawQuery('''
-    SELECT
-      COUNT(DISTINCT s.id) AS total_sales,
-      IFNULL(SUM(s.total_amount), 0) AS revenue,
-      IFNULL(SUM(si.quantity * p.cost), 0) AS cogs
-    FROM sales s
-    JOIN sale_items si ON si.sale_id = s.id
-    JOIN products p ON p.id = si.product_id
-    WHERE $range
+  //   final result = await db.rawQuery('''
+  //   SELECT
+  //     COUNT(DISTINCT s.id) AS total_sales,
+  //     IFNULL(SUM(s.total_amount), 0) AS revenue,
+  //     IFNULL(SUM(si.quantity * p.cost), 0) AS cogs
+  //   FROM sales s
+  //   JOIN sale_items si ON si.sale_id = s.id
+  //   JOIN products p ON p.id = si.product_id
+  //   WHERE $range
+  // ''', args);
+
+  final result = await db.rawQuery('''
+  SELECT
+  (SELECT COUNT(*) FROM sales s WHERE $range) AS total_sales,
+
+  (SELECT IFNULL(SUM(si.quantity * si.price), 0)
+   FROM sale_items si
+   JOIN sales s ON s.id = si.sale_id
+   WHERE $range) AS revenue,
+
+  (SELECT IFNULL(SUM(si.quantity * p.cost), 0)
+   FROM sale_items si
+   JOIN products p ON p.id = si.product_id
+   JOIN sales s ON s.id = si.sale_id
+   WHERE $range) AS cogs
   ''', args);
 
     final row = result.first;
@@ -76,16 +92,28 @@ import 'package:intl/intl.dart';
       groupBy = "DATE(s.created_at)";
     }
 
+    // final result = await db.rawQuery('''
+    //   SELECT
+    //   $groupBy AS sale_date,
+    //   IFNULL(SUM(si.quantity * si.price),0) AS revenue,
+    //   COUNT(s.id) AS total_sales
+    // FROM sales s
+    // WHERE $range
+    // GROUP BY sale_date
+    // ORDER BY sale_date ASC
+    
+    // ''', args);
+
     final result = await db.rawQuery('''
       SELECT
-      $groupBy AS sale_date,
-      IFNULL(SUM(s.total_amount), 0) AS revenue,
-      COUNT(s.id) AS total_sales
-    FROM sales s
-    WHERE $range
-    GROUP BY sale_date
-    ORDER BY sale_date ASC
-    
+        $groupBy AS sale_date,
+        IFNULL(SUM(si.quantity * si.price), 0) AS revenue,
+        COUNT(DISTINCT s.id) AS total_sales
+      FROM sales s
+      JOIN sale_items si ON si.sale_id = s.id
+      WHERE $range
+      GROUP BY sale_date
+      ORDER BY sale_date ASC
     ''', args);
 
     return result.map((row) {
@@ -126,9 +154,9 @@ import 'package:intl/intl.dart';
 
       SELECT
       DATE(s.created_at) AS sale_date,
-      IFNULL(SUM(s.total_amount), 0) AS revenue,
+      IFNULL(SUM(si.quantity * si.price),0) AS revenue,
       IFNULL(SUM(si.quantity * p.cost),0) AS cogs,
-      IFNULL(SUM(s.total_amount) - SUM(si.quantity * p.cost),0) AS profit
+      IFNULL(SUM(si.quantity * si.price) - SUM(si.quantity * p.cost), 0) AS profit
     FROM sales s
     JOIN sale_items  si ON si.sale_id = s.id
     JOIN products p ON p.id = si.product_id

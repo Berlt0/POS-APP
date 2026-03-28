@@ -1,4 +1,4 @@
-
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -42,6 +42,8 @@ class _POSState extends State<Addproduct> {
   List<String> _categories = [];
   bool _isLoading = false;
 
+  late StreamSubscription<dynamic> _connectivitySubscription;
+
 
   Future<void> loadCategoriesFromProducts() async {
     final allProducts = await ProductDB.getAllActiveProducts(); 
@@ -53,6 +55,7 @@ class _POSState extends State<Addproduct> {
       }
     }
 
+    if(!mounted) return;
     setState(() {
       _categories = categorySet.toList(); 
     });
@@ -63,15 +66,19 @@ class _POSState extends State<Addproduct> {
     super.initState();
     loadCategoriesFromProducts();
 
-    Connectivity().onConnectivityChanged.listen((result) {
-
-      if(result != ConnectivityResult.none){
-        print("Internet detected. Syncing...");
-        syncProducts();
-      }
-
-    });
+     _connectivitySubscription = Connectivity().onConnectivityChanged.listen((result) {
+    if(result != ConnectivityResult.none){
+      print("Internet detected. Syncing...");
+      syncProducts();
+    }
+  });
   }
+
+  @override
+void dispose() {
+  _connectivitySubscription.cancel(); 
+  super.dispose();
+}
 
 
   List<ProductFormState> forms = [ProductFormState()];
@@ -100,6 +107,7 @@ class _POSState extends State<Addproduct> {
                 title: Text('Choose from Gallery'),
                 onTap: () async {
                   final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+                  if(!mounted) return;
                   if (image != null) {
                     setState(() {
                       forms[index].selectedImage = File(image.path);
@@ -743,6 +751,7 @@ Widget productFormWidget(int index) {
                     )
                     );
                   }finally{
+                    if(!mounted) return;
                     setState(() { _isLoading = false; });
                   }
 

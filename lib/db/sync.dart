@@ -52,6 +52,20 @@ Future<List<Map<String,dynamic>>> getUnsyncedSales() async{
 
 
 
+Future<List<Map<String, dynamic>>> getUnsyncedArchives() async {
+  final db = await AppDatabase.database;
+
+  final List<Map<String, dynamic>> unsyncedArchives = await db.query(
+    'products_archive',
+    where: 'is_synced = ?',
+    whereArgs: [0],
+  );
+
+  return unsyncedArchives;
+  
+}
+
+
 Future<void> markProductAsSynced(int productId) async {
   final db = await AppDatabase.database;
 
@@ -346,6 +360,70 @@ Future<void> fetchSalesFromServer() async {
 }
 
 
+Future<void> syncArchives() async {
+  if (!(await hasInternet())) {
+    print("No internet");
+    return;
+  }
+
+  final db = await AppDatabase.database;
+  final archives = await getUnsyncedArchives();
+
+  final archivedProducts = await db.query(
+    'products_archive',
+    where: 'is_synced = ?',
+    whereArgs: [0],
+  );
+
+
+  final serverProducts = await ApiService.get('/sync/products'); 
+  final serverIds = serverProducts.map((p) => p['id'] as int).toSet();
+
+  print('---------------Server product IDs: $serverIds');
+  print('---------------Datatype: ${serverIds.runtimeType}');
+
+  for (var archive in archivedProducts) {
+
+    final id = archive['id'] as int;
+    
+    print('*******************id: $id');
+    print('*******************Datatype: ${id.runtimeType}');
+
+    if (serverIds.contains(id)) {
+      try {
+        final res = await ApiService.delete('/sync/products/$id');
+        if (res.statusCode == 200) 
+        print('Deleted product $id on server');
+      } catch (e) {
+        print('Failed to delete product $id on server: $e');
+      }
+    }
+}
+
+
+  for(var archive in archives){
+    try {
+      final res = await ApiService.post('/sync/archives', archive);
+
+      if(res.statusCode == 200){
+        await db.update(
+          'products_archive',
+          {'is_synced': 1},
+          where: 'id = ?',
+          whereArgs: [archive['id']],
+        );
+        print("Archive ${archive['id']} synced");
+      }else{
+        print("Failed syncing archive ${archive['id']}");
+      }
+    } catch (error) {
+      print("Error syncing product archive ${archive['id']}: $error");
+    }
+  }
+}
+
+
+
 
 Future<void> syncAllDataOnAuto() async {
   final connectivityResult = await Connectivity().checkConnectivity();
@@ -356,15 +434,17 @@ Future<void> syncAllDataOnAuto() async {
     if (connectivityResult != ConnectivityResult.none) {
       print("Internet available, syncing unsynced data...");
 
-      await syncUsers();
-      await syncProducts();
-      await syncSales();
-      await syncTransaction();
+      try { await syncUsers(); } catch(e){ print('Sync users failed: $e'); }
+      try { await syncProducts(); } catch(e){ print('Sync products failed: $e'); }
+      try { await syncSales(); } catch(e){ print('Sync sales failed: $e'); }
+      try { await syncTransaction(); } catch(e){ print('Sync transactions failed: $e'); }
+      try { await syncArchives(); } catch(e){ print('Sync archives failed: $e'); }
 
-      await fetchUserFromServer();
-      await getAllProducts();
-      await fetchSalesFromServer();
-      await fetchTransactionRecordsFromDB();
+      // Pull fresh data
+      try { await fetchUserFromServer(); } catch(e){ print('Fetch users failed: $e'); }
+      try { await getAllProducts(); } catch(e){ print('Fetch products failed: $e'); }
+      try { await fetchSalesFromServer(); } catch(e){ print('Fetch sales failed: $e'); }
+      try { await fetchTransactionRecordsFromDB(); } catch(e){ print('Fetch transactions failed: $e'); }
 
       print("Sync completed.");
     } else {

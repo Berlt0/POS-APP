@@ -37,6 +37,17 @@ class ApiService {
       throw Exception('Failed to load data from $endpoint');
     }
   }
+
+ static Future<http.Response> delete(String endpoint) async {
+    final url = Uri.parse('$baseUrl$endpoint');
+    final response = await http.delete(
+      url,
+      headers: {'Content-Type': 'application/json'},
+    );
+    return response;
+  }
+
+
 }
 
 

@@ -1068,7 +1068,7 @@ int _currentIndex = 0;
                 ],
               ),
               Text(
-                '₱${sale.price * sale.quantity}',
+                '₱${(sale.price * sale.quantity).toStringAsFixed(2)}',
                 style: GoogleFonts.kameron(
                   fontSize: Responsive.font(
                     context,

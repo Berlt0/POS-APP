@@ -47,21 +47,21 @@ class ProductDB {
 
 
 
-    static Future<int> updateProduct(editProduct product) async {
-  final db = await AppDatabase.database;
+  static Future<int> updateProduct(editProduct product) async {
+    final db = await AppDatabase.database;
 
-  final updatedProducts = {
-    ...product.toMap(),
-    'is_synced':0,
-    'updated_at': DateTime.now().toIso8601String()
-  };
+    final updatedProducts = {
+      ...product.toMap(),
+      'is_synced':0,
+      'updated_at': DateTime.now().toIso8601String()
+    };
 
 
-  return await db.update(
-    'products',
-    updatedProducts,
-    where: 'id = ?',
-    whereArgs: [product.id],
+    return await db.update(
+      'products',
+      updatedProducts,
+      where: 'id = ?',
+      whereArgs: [product.id],
   );
 }
 
@@ -79,27 +79,35 @@ class ProductDB {
 
 
 
-  static Future<void> archiveProduct(int productId) async {
+static Future<void> archiveProduct(int productId) async {
 
   final db = await AppDatabase.database;
     
-  await db.execute(
-    '''
-      INSERT INTO products_archive
-        SELECT * FROM products
-          WHERE id = ?
-      ''',[productId]
+  final now = DateTime.now().toIso8601String();
+
+  await db.transaction((txn) async {
+    await txn.rawInsert('''
+      INSERT INTO products_archive (
+        id, name, price, stock, stock_unit,cost, category, barcode, 
+        low_stock_alert, description, image_path, createdAt,  
+        updated_at, deleted_at, is_synced
+      )
+       SELECT id, name, price, stock, stock_unit,cost, category, barcode, 
+        low_stock_alert, description, image_path, createdAt, 
+        updated_at, ?, 0
+      FROM products
+      WHERE id = ?
+      
+      ''',[now,productId],
     );
 
-  await db.update(
-    'products',
-    {'deleted_at': DateTime.now().toIso8601String(),
-    'is_synced': 0,},
-    where: 'id = ?',
-    whereArgs: [productId]
+    await txn.delete(
+      'products',
+      where: 'id = ?',
+      whereArgs: [productId],
+    );
 
-  );
-
+    });
 
   }
 

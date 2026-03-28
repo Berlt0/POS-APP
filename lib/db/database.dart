@@ -24,26 +24,7 @@ class AppDatabase {
       onUpgrade: (db, oldVersion, newVersion) async {
       if (oldVersion < 8) {
 
-       await db.execute('''
-          CREATE TABLE IF NOT EXISTS products_archive (
-            id INTEGER PRIMARY KEY,
-            name TEXT NOT NULL,
-            price REAL NOT NULL,
-            stock INTEGER NOT NULL,
-            stock_unit TEXT DEFAULT 'pcs',
-            cost REAL,
-            category TEXT,
-            barcode TEXT UNIQUE,
-            low_stock_alert INTEGER DEFAULT 5,
-            description TEXT,
-            image_path TEXT,
-            createdAt TEXT,
-            is_synced INTEGER DEFAULT 0,
-            updated_at TEXT,
-            deleted_at TEXT
-        )
-        ''');
-      
+
        print("Offline-first columns added");
       }
     },
@@ -109,15 +90,15 @@ class AppDatabase {
       CREATE TABLE sale_items (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         sale_id INTEGER NOT NULL,
-        product_id INTEGER NOT NULL,
+        product_id INTEGER,
         product_name TEXT NOT NULL,
         price REAL NOT NULL,
         quantity INTEGER NOT NULL,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
         is_synced INTEGER DEFAULT 0,
       
-        FOREIGN KEY (sale_id) REFERENCES sales(id) ON DELETE CASCADE,
-        FOREIGN KEY (product_id) REFERENCES products(id)
+        FOREIGN KEY (sale_id) REFERENCES sales(id) ON DELETE CASCADE
+        
       )
 
     ''');

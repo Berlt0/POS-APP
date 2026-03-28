@@ -153,18 +153,21 @@ Future<void> _pickImage(void Function(void Function()) modalSetState) async {
 
 
 
-void _loadProducts() {
-   _productsFuture = ProductDB.getAllActiveProducts();
-  _productsFuture.then((list) {
-    print("Products loaded: ${list.length}");
-    
-    final Set<String> uniqueCategories = list
-        .map((p) => p.category ?? 'Others')
-        .toSet(); 
-        final List<String> sortedCategories = uniqueCategories.toList()..sort();
-    setState(() {
-      _categories = ['All', ...uniqueCategories];
-    });
+Future<void> _loadProducts() async {
+  _productsFuture = ProductDB.getAllActiveProducts();
+  
+  final list = await _productsFuture;
+
+  print("Products loaded: ${list.length}");
+
+  final Set<String> uniqueCategories = list
+      .map((p) => p.category ?? 'Others')
+      .toSet();
+
+  final List<String> sortedCategories = uniqueCategories.toList()..sort();
+
+  setState(() {
+    _categories = ['All', ...uniqueCategories];
   });
 }
 
@@ -188,12 +191,14 @@ Future<void> _saveEditedProduct(Product originalProduct) async {
       id: originalProduct.id,
       name: _productNameController.text.trim(),
       category: _productCategoryController.text.trim(),
-      price: double.tryParse(
-            _priceController.text.replaceAll('₱', '').trim(),
-          ) ?? 0,
-      cost: double.tryParse(
-            _costController.text.replaceAll('₱', '').trim(),
-          ) ?? 0,
+      price: double.parse(
+        (double.tryParse(_priceController.text.replaceAll('₱', '').trim()) ?? 0)
+          .toStringAsFixed(2)
+        ),
+        cost: double.parse(
+          (double.tryParse(_costController.text.replaceAll('₱', '').trim()) ?? 0)
+              .toStringAsFixed(2)
+      ),
       stock: originalProduct.stock, // inventory stock is separate
       lowStockAlert: int.tryParse(_stockAlertController.text),
       description: _descriptionController.text.trim(),
@@ -382,7 +387,8 @@ void _openDeleteConfirmationModal(int productId) async {
   if (confirmed == true) {
     
     await ProductDB.archiveProduct(productId);
-    // await _loadProducts();
+    await _loadProducts();
+    await syncProducts();
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -402,8 +408,8 @@ void _openEditModal(Product product){
 
   _productNameController.text = capitalizeEachWord(product.name);
   _productCategoryController.text = product.category ?? "";
-  _priceController.text = product.price.toString();
-  _costController.text = product.cost.toString();
+  _priceController.text = product.price.toStringAsFixed(2);
+  _costController.text = (product.cost ?? 0).toStringAsFixed(2);
   _stockAlertController.text = product.lowStockAlert.toString();
   _descriptionController.text = product.description ?? "";
 
