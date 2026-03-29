@@ -62,7 +62,7 @@ Future<List<Map<String, dynamic>>> fetchTransactions({
 
 
 
-  Future<int> countTransactions({
+Future<int> countTransactions({
     DateTime? startDate,
     DateTime? endDate,
   })async {
@@ -89,7 +89,7 @@ Future<List<Map<String, dynamic>>> fetchTransactions({
 
 
 
-  Future<List<Map<String, dynamic>>> fetchTransactionDetails(int transactionId) async {
+Future<List<Map<String, dynamic>>> fetchTransactionDetails(int transactionId) async {
     final db = await AppDatabase.database;
 
     final query = '''
@@ -106,24 +106,55 @@ Future<List<Map<String, dynamic>>> fetchTransactions({
         s.payment_type,
         s.amount_received,
         s.change_amount,
+        s.status,
+        
 
         si.product_name,
         si.price,
         si.quantity,
 
-        u.username
+        u.username AS processed_by
 
       FROM transaction_history t
-      LEFT JOIN users u
-        ON u.id = t.user_id
-      LEFT JOIN sales s 
+      LEFT JOIN sales s
         ON s.id = t.entity_id
+      LEFT JOIN users u
+        ON u.id = s.user_id
       LEFT JOIN sale_items si
         ON si.sale_id = s.id
       WHERE t.id = ?
     ''';
-
+  
     final result = await db.rawQuery(query, [transactionId]);
 
     return result;
   }
+
+
+Future<void> voidSale( int saleId,String voidedById, String reason,) async {
+
+  try {
+    
+    final db = await AppDatabase.database;
+
+    await db.update(
+      'sales', 
+      {'status': 'voided',
+      'voided_at': DateTime.now().toIso8601String(),
+      'voided_by': voidedById,
+      'reason': reason ,
+      'is_synced': 0},
+        
+      where: 'id = ?',
+      whereArgs: [saleId]);
+
+    print('Successfully voided sale with ID: $saleId');
+
+  } catch (error) {
+    
+    print('Error voiding sale: $error');
+
+  }
+
+}
+

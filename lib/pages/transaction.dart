@@ -171,6 +171,7 @@ class _TransactionPageState extends State<TransactionPage> {
           'created_at': t['created_at'],
           'processed_by': t['username'],
           'payment_type': t['payment_type'],
+          'status': t['status'],
           'total_amount': t['total_amount'],
           'change_amount': t['change_amount'],
           'amount_received': t['amount_received'],
@@ -191,7 +192,6 @@ class _TransactionPageState extends State<TransactionPage> {
   }
 
   
-
     return Scaffold(
       appBar: AppBar(
          backgroundColor: Colors.grey[100],

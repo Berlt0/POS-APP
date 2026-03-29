@@ -76,6 +76,10 @@ class AppDatabase {
         total_amount REAL NOT NULL,
         amount_received REAL NOT NULL,
         change_amount REAL NOT NULL,
+        status TEXT,
+        voided_at TEXT,
+        voided_by TEXT,
+        reason TEXT,
         payment_type TEXT DEFAULT 'cash',
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
         is_synced INTEGER DEFAULT 0,
@@ -101,6 +105,10 @@ class AppDatabase {
         
       )
 
+    ''');
+
+    await db.execute('''
+      CREATE INDEX idx_sales_status ON sales(status)
     ''');
 
 
