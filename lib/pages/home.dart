@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pos_app/db/debug.dart';
 import 'package:pos_app/utils/responsive.dart';
 import 'package:pos_app/widgets/footer.dart';
 import 'package:pos_app/services/session_service.dart';
@@ -52,6 +53,7 @@ class _MyWidgetState extends State<Home>  {
     _fetchRecentSales();
     _fetchLowStockProducts();
     _chartFuture = _fetchChartData();
+    printTables();
     // _verifyToken(); // prints tokens to console when Home opens
   }
 

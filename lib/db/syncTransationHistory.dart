@@ -80,19 +80,24 @@ Future<void> fetchTransactionRecordsFromDB () async {
 
     for(var tnx in serverTransaction){
 
+     final existing = await db.query(
+      'transaction_history',
+      where: 'id = ?',
+      whereArgs: [tnx['id']],
+    );
+
+    if (existing.isEmpty) {
       await db.insert('transaction_history', {
         'id': tnx['id'],
-          'user_id': tnx['user_id'],
-          'action': tnx['action'],
-          'entity_type': tnx['entity_type'],
-          'entity_id': tnx['entity_id'],
-          'description': tnx['description'],
-          'created_at': tnx['created_at'],
-          'is_synced': 1,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace
-      
-      );
+        'user_id': tnx['user_id'],
+        'action': tnx['action'],
+        'entity_type': tnx['entity_type'],
+        'entity_id': tnx['entity_id'],
+        'description': tnx['description'],
+        'created_at': tnx['created_at'],
+        'is_synced': 1,
+      });
+    }
     }
 
      print("Transactions synced from server to local DB");

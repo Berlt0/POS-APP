@@ -39,7 +39,7 @@ class ProductDB {
 
     return await db.update(
       'products',
-      updatedStock, 
+      updatedStock,   
       where: 'id = ?',
       whereArgs: [id],
     );

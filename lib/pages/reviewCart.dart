@@ -483,13 +483,13 @@ void dispose() {
                   if (transId <= 0) return;
                   await printTables();
 
-                   try {
-                    await syncSales();
-                    await syncTransaction(); 
-                    debugPrint("Transaction synced successfully!");
-                  } catch (e) {
-                    debugPrint("Sync failed, will retry later: $e");
-                  }
+                  //  try {
+                  //   await syncSales();
+                  //   await syncTransaction(); 
+                  //   debugPrint("Transaction synced successfully!");
+                  // } catch (e) {
+                  //   debugPrint("Sync failed, will retry later: $e");
+                  // }
 
                   setState(() {
                     items.clear();
@@ -512,6 +512,7 @@ void dispose() {
                   );
 
                   
+
                   Navigator.pop(context, transId );
                 }
               },

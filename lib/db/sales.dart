@@ -10,7 +10,7 @@ class Sales{
 
     final result = await db.rawQuery('''
       SELECT COUNT(*) as count FROM sales
-      WHERE DATE(created_at) = DATE('now', 'localtime')
+      WHERE DATE(datetime(created_at, 'localtime')) = DATE('now', 'localtime')
     ''');
 
     return Sqflite.firstIntValue(result) ?? 0;
@@ -25,7 +25,7 @@ class Sales{
 
     final result = await db.rawQuery('''
       SELECT SUM(total_amount) as total FROM sales
-      WHERE DATE(created_at) = DATE('now', 'localtime')
+      WHERE DATE(datetime(created_at, 'localtime')) = DATE('now', 'localtime')
     ''');
 
     return result.first['total'] != null ? (result.first['total'] as num).toDouble() : 0.0;
@@ -64,10 +64,10 @@ class Sales{
 
     final result = await db.rawQuery('''
       SELECT 
-        DATE(created_at, 'localtime') AS sale_date,
+        DATE(datetime(created_at, 'localtime')) AS sale_date,
         COUNT(*) AS total_sales
       FROM sales
-      WHERE DATE(created_at, 'localtime') >= DATE('now', '-6 days', 'localtime')
+      WHERE DATE(datetime(created_at, 'localtime')) >= DATE('now', 'localtime', '-6 days')
       GROUP BY sale_date
       ORDER BY sale_date ASC;
     ''');

@@ -302,12 +302,68 @@ Future<void> syncSales() async {
 
 
 
-Future<void> fetchSalesFromServer() async {
+// Future<void> fetchSalesFromServer() async {
 
+//   if (!(await hasInternet())) return;
+
+//   try {
+    
+//     final db = await AppDatabase.database;
+
+//     print("Fetching sales from server");
+
+//     final serverSales = await ApiService.get('/sync/sales');
+
+//     for (var sale in serverSales){
+
+//       await db.insert('sales', {
+
+//         'id': sale['id'],
+//         'user_id': sale['user_id'],
+//         'total_amount': sale['total_amount'],
+//         'amount_received': sale['amount_received'],
+//         'change_amount': sale['change_amount'],
+//         'payment_type': sale['payment_type'],
+//         'created_at': sale['created_at'],
+//         'is_synced': 1,
+
+//       },
+//         conflictAlgorithm: ConflictAlgorithm.replace,
+//       );
+
+//       final items = sale['items'] as List;
+
+//       for(var item in items){
+
+//         await db.insert('sale_items', {
+//            'id': item['id'],
+//             'sale_id': item['sale_id'],
+//             'product_id': item['product_id'],
+//             'product_name': item['product_name'],
+//             'price': item['price'],
+//             'quantity': item['quantity'],
+//             'created_at': item['created_at'],
+//             'is_synced': 1,
+//         },
+//         conflictAlgorithm: ConflictAlgorithm.replace
+//         );
+//       }
+//     }
+
+//     print("Sales synced from server to local DB");
+
+//   } catch (error) {
+    
+//     print("Error fetching sales $error");
+
+//   }
+// }
+
+
+Future<void> fetchSalesFromServer() async {
   if (!(await hasInternet())) return;
 
   try {
-    
     final db = await AppDatabase.database;
 
     print("Fetching sales from server");
@@ -316,46 +372,57 @@ Future<void> fetchSalesFromServer() async {
 
     for (var sale in serverSales){
 
-      await db.insert('sales', {
-
-        'id': sale['id'],
-        'user_id': sale['user_id'],
-        'total_amount': sale['total_amount'],
-        'amount_received': sale['amount_received'],
-        'change_amount': sale['change_amount'],
-        'payment_type': sale['payment_type'],
-        'created_at': sale['created_at'],
-        'is_synced': 1,
-
-      },
-        conflictAlgorithm: ConflictAlgorithm.replace,
+    
+      final existingSale = await db.query(
+        'sales',
+        where: 'id = ?',
+        whereArgs: [sale['id']],
       );
 
+      if (existingSale.isEmpty) {
+      
+        await db.insert('sales', {
+          'id': sale['id'],
+          'user_id': sale['user_id'],
+          'total_amount': sale['total_amount'],
+          'amount_received': sale['amount_received'],
+          'change_amount': sale['change_amount'],
+          'payment_type': sale['payment_type'],
+          'created_at': DateTime.parse(sale['created_at']).toLocal().toIso8601String(),
+          'is_synced': 1,
+        });
+      }
+
+      // 🔧 SAME FIX FOR sale_items
       final items = sale['items'] as List;
 
       for(var item in items){
 
-        await db.insert('sale_items', {
-           'id': item['id'],
+        final existingItem = await db.query(
+          'sale_items',
+          where: 'id = ?',
+          whereArgs: [item['id']],
+        );
+
+        if (existingItem.isEmpty) {
+          await db.insert('sale_items', {
+            'id': item['id'],
             'sale_id': item['sale_id'],
             'product_id': item['product_id'],
             'product_name': item['product_name'],
             'price': item['price'],
             'quantity': item['quantity'],
-            'created_at': item['created_at'],
+            'created_at': DateTime.parse(item['created_at']).toLocal().toIso8601String(),
             'is_synced': 1,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace
-        );
+          });
+        }
       }
     }
 
     print("Sales synced from server to local DB");
 
   } catch (error) {
-    
     print("Error fetching sales $error");
-
   }
 }
 

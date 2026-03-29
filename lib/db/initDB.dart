@@ -51,7 +51,7 @@ Future<void> initializeDatabaseAndSync() async {
   }
 
   
-  Timer.periodic(Duration(seconds: 60), (timer) {
+  Timer.periodic(Duration(seconds: 10), (timer) {
     syncAllDataOnAuto();
   });
 }
