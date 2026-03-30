@@ -252,8 +252,6 @@ Future<void> syncProducts() async {
 
 Future<void> syncSales() async {
 
- 
-
 
   if (!(await hasInternet())) {
     print("No internet");
@@ -266,6 +264,35 @@ Future<void> syncSales() async {
 
   for (var sale in sales) {
     try {
+
+      if((sale['status'] as String?)?.toLowerCase() == 'voided'){
+
+        final res = await ApiService.put('/sync/sales/status', {
+          'id': sale['id'],
+          'status': sale['status'],
+          'voided_at': sale['voided_at'],
+          'voided_by': sale['voided_by'],
+          'reason': sale['reason'],
+        });
+
+        if (res.statusCode == 200) {
+          await db.update(
+            'sales',
+            {'is_synced': 1},
+            where: 'id = ?',
+            whereArgs: [sale['id']],
+          );
+
+          print("Voided sale ${sale['id']} synced");
+        } else {
+          print("Failed syncing voided sale ${sale['id']}");
+          print("Response: $res.body");
+        }
+
+
+
+      }else{
+
       final res = await ApiService.post('/sync/sales', sale);
       
 
@@ -291,7 +318,7 @@ Future<void> syncSales() async {
       } else {
         print("Failed syncing sale ${sale['id']}");
       }
-
+      }
     } catch (e) {
       print("Error syncing sale ${sale['id']}: $e");
     }
@@ -299,6 +326,8 @@ Future<void> syncSales() async {
 
 
 }
+
+
 
 
 

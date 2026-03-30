@@ -104,6 +104,22 @@ Future<void> _loadSaleStatus(int saleId) async {
   });
 }
 
+
+bool canVoidSale() {
+  if (transaction == null) return false;
+
+  final createdAt = DateTime.tryParse(transaction!['created_at'] ?? '');
+  if (createdAt == null) return false;
+
+  final now = DateTime.now();
+
+ 
+  return createdAt.year == now.year &&
+         createdAt.month == now.month &&
+         createdAt.day == now.day;
+}
+
+
   @override
   Widget build(BuildContext context) {
     
@@ -463,52 +479,61 @@ Future<void> _loadSaleStatus(int saleId) async {
                 ),
               ),
               SizedBox(height: 80,),
-              saleStatus == "voided" 
-              ? Center(
-                  child: Column(
-                    children: [
-                      Text(
-                        'This sale is voided.',
-                        style: GoogleFonts.kameron(
-                          color: Colors.redAccent,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
+              saleStatus == 'voided'
+                ? Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'This sale is voided.',
+                          style: GoogleFonts.kameron(
+                            color: Colors.redAccent,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
                         ),
-                      ),
-
-                      Text(
-                        'The operation has been cancelled.',
-                        style: GoogleFonts.kameron(
-                          color: const Color.fromARGB(232, 255, 82, 82),
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16,
+                        SizedBox(height: 5),
+                        Text(
+                          'The operation has been cancelled.',
+                          style: GoogleFonts.kameron(
+                            color: const Color.fromARGB(232, 255, 82, 82),
+                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                          ),
                         ),
+                      ],
+                    ),
+                  )
+                : canVoidSale()
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        actionButton(
+                          value: 'Print',
+                          color: const Color.fromARGB(255, 38, 116, 41),
+                          onPressed: () {},
+                          width: 120,
+                          height: 45,
+                        ),
+                        SizedBox(width: 20),
+                        actionButton(
+                          value: 'Void',
+                          color: const Color.fromARGB(255, 180, 37, 27),
+                          onPressed: () { _showVoidConfirmation(context); },
+                          width: 120,
+                          height: 45,
+                        ),
+                      ],
+                    )
+                  : Center(
+                      child: actionButton(
+                        value: 'Print',
+                        color: const Color.fromARGB(255, 38, 116, 41),
+                        onPressed: () {},
+                        width: 120,
+                        height: 45,
                       ),
-                    ],
-                  ),
-                )
-              :Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  actionButton(
-                    value: 'Print',
-                    color: const Color.fromARGB(255, 38, 116, 41),
-                    onPressed: () {
-                      // Implement print functionality
-                    },
-                    width: 120,
-                    height: 45,
-                  ),
-                  SizedBox(width: 20),
-                  actionButton(
-                    value:  'Void',
-                    color: const Color.fromARGB(255, 180, 37, 27),
-                    onPressed: () { _showVoidConfirmation(context); },
-                    width: 120,
-                    height: 45,
-                  ),
-                ],
-              )
+                    )
             ],
           ),
         ),
