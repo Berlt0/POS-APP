@@ -108,15 +108,19 @@ Future<void> _loadSaleStatus(int saleId) async {
 bool canVoidSale() {
   if (transaction == null) return false;
 
+
   final createdAt = DateTime.tryParse(transaction!['created_at'] ?? '');
   if (createdAt == null) return false;
 
   final now = DateTime.now();
+  final isToday = createdAt.year == now.year &&
+                  createdAt.month == now.month &&
+                  createdAt.day == now.day;
 
- 
-  return createdAt.year == now.year &&
-         createdAt.month == now.month &&
-         createdAt.day == now.day;
+
+  final isVoided = (saleStatus ?? '').toLowerCase() == 'voided';
+
+  return isToday && !isVoided;
 }
 
 
@@ -479,8 +483,9 @@ bool canVoidSale() {
                 ),
               ),
               SizedBox(height: 80,),
-              saleStatus == 'voided'
-                ? Center(
+              Builder(builder: (_) {
+                if (saleStatus == 'voided') {
+                  return Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -503,37 +508,40 @@ bool canVoidSale() {
                         ),
                       ],
                     ),
-                  )
-                : canVoidSale()
-                  ? Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        actionButton(
-                          value: 'Print',
-                          color: const Color.fromARGB(255, 38, 116, 41),
-                          onPressed: () {},
-                          width: 120,
-                          height: 45,
-                        ),
-                        SizedBox(width: 20),
-                        actionButton(
-                          value: 'Void',
-                          color: const Color.fromARGB(255, 180, 37, 27),
-                          onPressed: () { _showVoidConfirmation(context); },
-                          width: 120,
-                          height: 45,
-                        ),
-                      ],
-                    )
-                  : Center(
-                      child: actionButton(
+                  );
+                } else if (canVoidSale()) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      actionButton(
                         value: 'Print',
                         color: const Color.fromARGB(255, 38, 116, 41),
                         onPressed: () {},
                         width: 120,
                         height: 45,
                       ),
-                    )
+                      SizedBox(width: 20),
+                      actionButton(
+                        value: 'Void',
+                        color: const Color.fromARGB(255, 180, 37, 27),
+                        onPressed: () => _showVoidConfirmation(context),
+                        width: 120,
+                        height: 45,
+                      ),
+                    ],
+                  );
+                } else {
+                  return Center(
+                    child: actionButton(
+                      value: 'Print',
+                      color: const Color.fromARGB(255, 38, 116, 41),
+                      onPressed: () {},
+                      width: 120,
+                      height: 45,
+                    ),
+                  );
+                }
+              })
             ],
           ),
         ),

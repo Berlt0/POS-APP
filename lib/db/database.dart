@@ -107,9 +107,6 @@ class AppDatabase {
 
     ''');
 
-    await db.execute('''
-      CREATE INDEX idx_sales_status ON sales(status)
-    ''');
 
 
     await db.execute('''
@@ -159,6 +156,33 @@ class AppDatabase {
         deleted_at TEXT
       )'''
       );
+
+      // Sales
+      await db.execute('CREATE INDEX idx_sales_status ON sales(status)');
+      await db.execute('CREATE INDEX idx_sales_created_status ON sales(created_at, status)');
+      await db.execute('CREATE INDEX idx_sales_user_id ON sales(user_id)');
+
+      // Sale Items
+      await db.execute('CREATE INDEX idx_sale_items_sale_id ON sale_items(sale_id)');
+      await db.execute('CREATE INDEX idx_sale_items_product_id ON sale_items(product_id)');
+
+      // Products
+      await db.execute('CREATE INDEX idx_products_category ON products(category)');
+      await db.execute('CREATE INDEX idx_products_name ON products(name)');
+      await db.execute('CREATE INDEX idx_products_barcode ON products(barcode)');
+      await db.execute('CREATE INDEX idx_products_deleted_at ON products(deleted_at)');
+
+      // Transaction History
+      await db.execute('CREATE INDEX idx_transaction_created_at ON transaction_history(created_at)');
+      await db.execute('CREATE INDEX idx_transaction_user_id ON transaction_history(user_id)');
+      await db.execute('CREATE INDEX idx_transaction_entity_type ON transaction_history(entity_type)');
+
+      // Users
+      await db.execute('CREATE INDEX idx_users_username ON users(username)');
+
+      // Products Archive
+      await db.execute('CREATE INDEX idx_archive_deleted_at ON products_archive(deleted_at)');
+      await db.execute('CREATE INDEX idx_archive_barcode ON products_archive(barcode)');
 
 
     print("SQLite tables created");

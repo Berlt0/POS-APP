@@ -131,11 +131,36 @@ Future<List<Map<String, dynamic>>> fetchTransactionDetails(int transactionId) as
   }
 
 
+
 Future<void> voidSale( int saleId,String voidedById, String reason,) async {
 
   try {
     
     final db = await AppDatabase.database;
+
+    await db.transaction((tnx) async {
+
+       final items = await tnx.query(
+        'sale_items',
+        where: 'sale_id = ?',
+        whereArgs: [saleId],
+       );
+
+       for(var item in items){
+        
+        await tnx.rawUpdate(
+          '''
+            UPDATE products
+            SET stock = stock + ?
+            WHERE id = ?
+           ''',
+           [item['quantity'], item['product_id']]
+
+        );
+       }
+
+    });
+
 
     await db.update(
       'sales', 
@@ -147,6 +172,7 @@ Future<void> voidSale( int saleId,String voidedById, String reason,) async {
         
       where: 'id = ?',
       whereArgs: [saleId]);
+
 
     print('Successfully voided sale with ID: $saleId');
 

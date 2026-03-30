@@ -122,6 +122,7 @@ Future<void> _countTodaySales() async {
   });
 }
 
+
 Future <void> _countLowStockProducts() async {
 
   final products = await ProductDB.getAllActiveProducts();
@@ -131,8 +132,8 @@ Future <void> _countLowStockProducts() async {
    
   });
 
-  
 } 
+
 
 Future <void> _todaysRevenue() async {
 
@@ -669,7 +670,7 @@ int _currentIndex = 0;
                                       ),
                                       SizedBox(width: 8),                               
                                       Text(
-                                      "Recent Sales",
+                                      "Recent Sold Products",
                                       style: GoogleFonts.kameron(
                                       fontSize: Responsive.font(
                                         context,

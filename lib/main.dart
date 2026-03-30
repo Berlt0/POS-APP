@@ -17,7 +17,6 @@ import 'package:pos_app/pages/reviewCart.dart';
 import 'package:pos_app/services/session_service.dart';
 import 'pages/receipt.dart';
 import 'pages/transaction.dart';
-import 'package:pos_app/db/sync.dart';
 import 'dart:async';
 
 Future<void> deleteOldDatabase() async {
@@ -31,7 +30,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
 
-  // await deleteOldDatabase();
+  await deleteOldDatabase();
 
   await AppDatabase.database;
 
