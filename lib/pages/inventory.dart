@@ -195,64 +195,109 @@ void _openUpdateModal(SomeProductData product){
     ),
     builder: (context){
 
-      return Padding(
-        padding: EdgeInsets.only(
-          left: 16,
-          right: 16,
-          top: 16,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 70,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              "Update Product",
-              style: GoogleFonts.kameron(
-                fontSize: 18,
-                fontWeight: FontWeight.bold
-              ),
-            ),
-            SizedBox(height: 15,),
+      String? _errorText;
 
-              TextFormField(
-                controller: _stockController,
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly
-                ],
-                decoration: InputDecoration(
-                  labelText: 'Stock',
-                  errorText: _stockController.text.isEmpty ? 'Required' : null,
-                  border: OutlineInputBorder(),
+      return StatefulBuilder(
+        builder: (context, setStateDialog) {
+
+          final isMobile = Responsive.isMobile(context);
+          final isTablet = Responsive.isTablet(context);
+          final isDesktop = Responsive.isDesktop(context);
+
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 70,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(height: 10,),
+              Text(
+                "Update Product",
+                style: GoogleFonts.kameron(
+                  fontSize: Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
+                  fontWeight: FontWeight.bold
                 ),
-                onChanged: (value) {
+              ),
+              SizedBox(height: 15,),
+        
+                TextFormField(
+                  controller: _stockController,
+                  style: GoogleFonts.kameron( 
+                    fontSize: Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
+                  ),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
+                  decoration: InputDecoration(
+                    errorText: _errorText,
+                    errorStyle: GoogleFonts.kameron( 
+                    fontSize: Responsive.font(context, mobile: 13, tablet: 15, desktop: 17),
+                    color: Colors.red,
+                    fontWeight: FontWeight.w500,
+                  ),
+                    labelText: 'Stock',
+                    labelStyle: GoogleFonts.kameron(
+                              fontSize: Responsive.font(context, mobile: 21, tablet: 23, desktop: 25)
+                    ),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
+                    contentPadding: EdgeInsets.symmetric(vertical: 22,horizontal: 20),
+                  ),
                   
-              },
-            ),
-
-            SizedBox(height: 20),
-
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-              minimumSize: Size(200,40),
-              backgroundColor: Colors.green,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                ),
-                shadowColor: Colors.grey[800]
+                  onChanged: (value) {
+                    if (_errorText != null) {
+                        setStateDialog(() => _errorText = null);
+                    }
+                },
               ),
-              
-              onPressed: () => _updateStock(product),
-              child: Text('Save',
-              style: GoogleFonts.kameron(
-                fontSize: 17,
-                fontWeight: FontWeight.w500,
-                color: Colors.white
-              ),),
-            ),
+        
+              SizedBox(height: 20),
+        
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                // minimumSize: Size(200,40),
+                minimumSize: Size(200, isDesktop ? 55 : isTablet ? 50 : 45),
+                backgroundColor: Color(0xFF00C853),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  ),
+                  shadowColor: Colors.grey[800]
+                ),
+                
+                onPressed: () {
 
-          ],
-        ),
+                  final value = _stockController.text;
+
+                    setStateDialog(() {
+                      if (value.isEmpty) {
+                        _errorText = 'Stock is required';
+                      } else if (int.tryParse(value) == null) {
+                        _errorText = 'Invalid number';
+                      } else {
+                        _errorText = null;
+                      }
+                    });
+
+                    if (_errorText != null) return;
+
+                  _updateStock(product);
+                  },
+                child: Text('Save',
+                style: GoogleFonts.kameron(
+                  fontSize: Responsive.font(context, mobile: 17, tablet: 19, desktop: 21),
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black
+                ),),
+              ),
+        
+            ],
+          ),
+        );
+        }
       );
 
 
@@ -299,6 +344,11 @@ void _openUpdateModal(SomeProductData product){
 
   @override
   Widget build(BuildContext context) {
+
+    final isMobile = Responsive.isMobile(context);
+    final isTablet = Responsive.isTablet(context);
+    final isDesktop = Responsive.isDesktop(context);
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.grey[100],
@@ -307,6 +357,7 @@ void _openUpdateModal(SomeProductData product){
         automaticallyImplyLeading: false,
         backgroundColor: Colors.grey[100],
         elevation: 5,
+        toolbarHeight: isDesktop ? 80 : isTablet ? 70 : 60,
         title: Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
           child: Text(
@@ -383,157 +434,192 @@ void _openUpdateModal(SomeProductData product){
                  _selectedCategory == 'All'
                     ? 'Complete Inventory'
                     : '$_selectedCategory' ,
-                style: GoogleFonts.kameron(fontSize: 17, fontWeight: FontWeight.w500),
+                style: GoogleFonts.kameron(fontSize: Responsive.font(context, mobile: 17, tablet: 19, desktop: 21), fontWeight: FontWeight.w500),
               ),
 
               SizedBox(height: 20),
-              FutureBuilder(
-                future: _futureProductDatas,
-                builder: (context, snapshot) {
-                  if (_futureProductDatas == null) {
-                    return const SizedBox();
-                  }
-
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text(
-                        'Error loading inventory',
-                        style: GoogleFonts.kameron(color: Colors.black),
-                      ),
-                    );
-                  }
-
-                  final products = snapshot.data ?? [];
-
-
-                  if (products.isEmpty) {
-
-                    final isSearching = _searchText.trim().isNotEmpty;
-                    
-                      return SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.5, // helps vertical centering
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon( isSearching
-                                ? Icons.search_off
-                                :Icons.inventory_2_outlined,
-                                size: 45 ,
-                                color: Colors.grey[500],
-                              ),
-                              SizedBox(height: 15),
-                              Text(
-                                _searchText.isNotEmpty
-                                    ? 'No results found'
-                                    : 'No products found',
-                                style: GoogleFonts.kameron(
-                                  fontSize: 16,
-                                  color: Colors.grey[700],
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
+                Container(
+                  width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.3),
+                          spreadRadius: 2,
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
                         ),
-                      );
-                    }
-
-                
-
-                  return SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: DataTable(
-                        columnSpacing: 30,
-                        headingRowColor: MaterialStateProperty.all(const Color(0xFF6FE5F2)),
-                        columns: [
-                          DataColumn(label: Text('Product', style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.bold))),
-                          DataColumn(label: Text('Category', style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.bold))),
-                          DataColumn(label: Text('Stock', style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.bold))),
-                          DataColumn(label: Text('Status', style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.bold))),
-                          DataColumn(label: Text('Update', style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.bold))),
-                        ],
-                        rows: products.map((product) {
-                          
-                          return DataRow(cells: [
-                            DataCell(Text(capitalizeEachWord(product.name), style: tableTextStyle(fontSize: 14))),
-
-                            DataCell(Text(capitalizeEachWord(product.category ?? 'Uncategorized'), style: tableTextStyle(fontSize: 14))),
-
-                            DataCell( Text(product.stock.toString(), style: tableTextStyle(fontSize: 14))),   
-
-                            DataCell(
-                              
-                                Text(
-                                  product.stock == 0 ? 'Out of Stock' : product.stock <= product.low_stock_alert! ? 'Low Stock' : 'In Stock',
-                                  style: tableTextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: product.stock == 0 ? Colors.red : product.stock <= product.low_stock_alert! ? const Color.fromARGB(255, 255, 165, 0) : const Color.fromARGB(255, 34, 141, 38),
-                                  ),
-                                ),
-                                
-                              
-                            ),
-
-                            DataCell(
-                                InkWell(
-                                  onTap: (_isLoadingRole || _userRole == 'admin') 
-                                  ? () => _openUpdateModal(product)
-                                  : () {
-                                      
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text('Only admin can update stock'),
-                                          backgroundColor: Colors.red,
-                                        ),
-                                      );
-                                  },
-                                  borderRadius: BorderRadius.circular(6),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
+                      ],
+                    ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: LayoutBuilder(
+                        builder: (context, constraints){
+                    
+                        final tableWidth = constraints.maxWidth -32;
+                    
+                      return FutureBuilder(
+                        future: _futureProductDatas,
+                        builder: (context, snapshot) {
+                      
+                          if (_futureProductDatas == null) {
+                            return const SizedBox();
+                          }
+                      
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const Center(child: CircularProgressIndicator());
+                          }
+                      
+                          if (snapshot.hasError) {
+                            return Center(
+                              child: Text(
+                                'Error loading inventory',
+                                style: GoogleFonts.kameron(color: Colors.black),
+                              ),
+                            );
+                          }
+                      
+                          final products = snapshot.data ?? [];
+                      
+                      
+                          if (products.isEmpty) {
+                      
+                            final isSearching = _searchText.trim().isNotEmpty;
+                            
+                              return SizedBox(
+                                height: MediaQuery.of(context).size.height * 0.5, // helps vertical centering
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Icon(
-                                        Icons.edit,
-                                        size: 18,
-                                        color: _userRole == 'admin'
-                                        ? const Color.fromARGB(255, 1, 68, 122)
-                                        : Colors.grey,
+                                      Icon( isSearching
+                                        ? Icons.search_off
+                                        :Icons.inventory_2_outlined,
+                                        size: 45 ,
+                                        color: Colors.grey[500],
                                       ),
-                                      SizedBox(width: 5),
+                                      SizedBox(height: 15),
                                       Text(
-                                        "Update",
-                                        style: tableTextStyle(
-                                          fontSize: 14,
-                                          color: _userRole == 'admin'
-                                          ? const Color.fromARGB(255, 1, 68, 122)
-                                          : Colors.grey
+                                        _searchText.isNotEmpty
+                                            ? 'No results found'
+                                            : 'No products found',
+                                        style: GoogleFonts.kameron(
+                                          fontSize: 16,
+                                          color: Colors.grey[700],
+                                          fontWeight: FontWeight.w500,
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
+                              );
+                            }
+                      
+                        
+                      
+                          return SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                              child: SizedBox(
+                                width: constraints.maxWidth,
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.vertical,
+                                    child: DataTable(
+                                      columnSpacing: isDesktop ? 60 : isTablet ? 50 : 30,
+                                      headingRowHeight: isTablet ? 50 : 56,
+                                      dataRowHeight:  isDesktop ? 60 : isTablet ? 55 : 50,
+                                      headingRowColor:MaterialStateProperty.all(const Color.fromARGB(164, 224, 224, 224)),
+                                      columns: [
+                                        DataColumn(label: Text('Product', style: tableTextStyle(fontSize: isDesktop ? 21 : isTablet ? 18 : 15, fontWeight: FontWeight.w500))),
+                                        DataColumn(label: Text('Category', style: tableTextStyle(fontSize: isDesktop ? 21 : isTablet ? 18 : 15, fontWeight: FontWeight.w500))),
+                                        DataColumn(label: Text('Stock', style: tableTextStyle(fontSize: isDesktop ? 21 : isTablet ? 18 : 15, fontWeight: FontWeight.w500))),
+                                        DataColumn(label: Text('Status', style: tableTextStyle(fontSize: isDesktop ? 21 : isTablet ? 18 : 15, fontWeight: FontWeight.w500))),
+                                        DataColumn(label: Text('Update', style: tableTextStyle(fontSize: isDesktop ? 21 : isTablet ? 18 : 15, fontWeight: FontWeight.w500))),
+                                      ],
+                                      rows: products.map((product) {
+                                        
+                                        return DataRow(cells: [
+                                          DataCell(Text(capitalizeEachWord(product.name), style: tableTextStyle(fontSize:  isDesktop ? 21 : isTablet ? 18 : 14))),
+                                                    
+                                          DataCell(Text(capitalizeEachWord(product.category ?? 'Uncategorized'), style: tableTextStyle(fontSize:  isDesktop ? 21 : isTablet ? 18 : 14))),
+                                                    
+                                          DataCell( Text(product.stock.toString(), style: tableTextStyle(fontSize:  isDesktop ? 21 : isTablet ? 18 : 14))),   
+                                                    
+                                          DataCell(
+                                            
+                                              Text(
+                                                product.stock == 0 ? 'Out of Stock' : product.stock <= product.low_stock_alert! ? 'Low Stock' : 'In Stock',
+                                                style: tableTextStyle(
+                                                  fontSize: isDesktop ? 21 : isTablet ? 18 : 14,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: product.stock == 0 ? Colors.red : product.stock <= product.low_stock_alert! ? const Color.fromARGB(255, 255, 165, 0) : const Color.fromARGB(255, 34, 141, 38),
+                                                ),
+                                              ),
+                                              
+                                            
+                                          ),
+                                                    
+                                          DataCell(
+                                              InkWell(
+                                                onTap: (_isLoadingRole || _userRole == 'admin') 
+                                                ? () => _openUpdateModal(product)
+                                                : () {
+                                                    
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      SnackBar(
+                                                        content: Text('Only admin can update stock'),
+                                                        backgroundColor: Colors.red,
+                                                      ),
+                                                    );
+                                                },
+                                                borderRadius: BorderRadius.circular(6),
+                                                child: Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.edit,
+                                                      size:  isDesktop ? 22 : isTablet ? 20 : 18,
+                                                      color: _userRole == 'admin'
+                                                      ? const Color.fromARGB(255, 1, 68, 122)
+                                                      : Colors.grey,
+                                                    ),
+                                                    SizedBox(width: 5),
+                                                    Text(
+                                                      "Update",
+                                                      style: tableTextStyle(
+                                                        fontSize:isDesktop ? 19 : isTablet ? 17 : 14,
+                                                        color: _userRole == 'admin'
+                                                        ? const Color.fromARGB(255, 1, 68, 122)
+                                                        : Colors.grey
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          
+                                        ]);
+                                      }).toList(),
+                                    ),
+                                ),
                               ),
-                            
-                          ]);
-                        }).toList(),
-                      ),
+                            ),
+                          );
+                        },
+                      );
+                      }
                     ),
-                  );
-                },
-              ),
+                  ),
+                ),
+              
               SizedBox(height: 25),
               if(_totalItems > 1) 
               
-              Column(
-                children: [
-                  Center(
+              Container(
+                color: Colors.grey[100], // optional background
+                padding: const EdgeInsets.symmetric(vertical: 10),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -563,9 +649,7 @@ void _openUpdateModal(SomeProductData product){
                               : null,
                         )
                       ],
-                    ),
-                  ),
-                ],
+                    ), 
               )
             ],
           ),

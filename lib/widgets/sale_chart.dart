@@ -66,7 +66,7 @@ if (widget.selectedFilter == 'Today') {
                         return Text(
                           '${value.toStringAsFixed(0)}',
                           style: TextStyle(
-                            color: Colors.blue,
+                            color: Colors.black,
                             fontWeight: FontWeight.w500,
                             fontSize: 12,
                           ),
@@ -82,7 +82,7 @@ if (widget.selectedFilter == 'Today') {
                         return Text(
                           '${value.toStringAsFixed(0)}',
                           style: TextStyle(
-                            color: Colors.blue,
+                            color: Colors.black,
                             fontWeight: FontWeight.w500,
                             fontSize: 12,
                           ),
@@ -106,11 +106,11 @@ if (widget.selectedFilter == 'Today') {
                           if (widget.selectedFilter == 'Today') {
                            
                             final hour = DateFormat('ha').format(dateTime); 
-                            return Text(hour, style: TextStyle(fontSize: 10));
+                            return Text(hour, style: TextStyle(fontSize: 10, color: Colors.black, fontWeight: FontWeight.w500));
                           } else {
                            
                             final date = DateFormat('MM/dd').format(dateTime);
-                            return Text(date, style: TextStyle(fontSize: 10));
+                            return Text(date, style: TextStyle(fontSize: 10, color: Colors.black, fontWeight: FontWeight.w500));
                           }
                         }
                         return const Text('');

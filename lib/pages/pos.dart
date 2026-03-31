@@ -9,6 +9,7 @@ import 'package:pos_app/db/pos.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pos_app/models/cartItem.dart';
 import 'package:flutter/services.dart';
+import 'package:pos_app/utils/responsive.dart';
 
 
 class POS extends StatefulWidget {
@@ -20,6 +21,8 @@ class POS extends StatefulWidget {
 
 
 class ProductCard extends StatelessWidget {
+  final double width;
+  final double height; 
   final String name;
   final double price;
   final int stock;
@@ -30,6 +33,8 @@ class ProductCard extends StatelessWidget {
 
   const ProductCard({
     super.key,
+    required this.width,   
+    required this.height,
     required this.name,
     required this.price,
     required this.stock,
@@ -44,118 +49,135 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final isDesktop = Responsive.isDesktop(context);
+    final isTablet = Responsive.isTablet(context);
+    final isMobile = Responsive.isMobile(context);
     
-    return Card(
-      elevation: 3,
-      color: quantity > 0 ? const Color(0xFF00E6FF)  : stock == 0 ?  Color.fromARGB(221, 238, 85, 87) : Colors.grey[200],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            //Buttons (Top)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _circleButton(
-                  icon: Icons.remove,
-                  onTap: quantity > 0 ? onRemove : null,
-                ),
-                Text(
-                  quantity.toString(),
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                _circleButton(
-                  icon: Icons.add,
-                  onTap: stock > quantity ? onAdd : null,
-                ),
-              ],
-            ),
 
-            const SizedBox(height: 6),
-
-            //Product Image
-            Expanded(
-                child: Stack(
-                  children: [ 
-                  ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
-                  child: imagePath.isNotEmpty && File(imagePath).existsSync()
-                      ? Image.file(
-                          File(imagePath),
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                        )
-                      : Image.asset(
-                          'assets/Legendaries.png',
-                          fit: BoxFit.cover,
-                          width: double.infinity,
+    final double borderRadius = Responsive.spacing(context, mobile: 14, tablet: 16, desktop: 18);
+    
+    return SizedBox(
+      width: width,
+      height: height,
+      child: Card(
+        elevation: 3,
+        color: quantity > 0 ? const Color(0xFF00E6FF)  : stock == 0 ?  Color.fromARGB(221, 238, 85, 87) : Colors.grey[200],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              //Buttons (Top)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _circleButton(
+                    icon: Icons.remove,
+                    onTap: quantity > 0 ? onRemove : null,
+                    size: isDesktop ? 35 : isTablet ? 30 : 22,
+                    
+                  ),
+                  Text(
+                    quantity.toString(),
+                    style: GoogleFonts.kameron(fontWeight: FontWeight.bold, fontSize: isDesktop ? 22 : isTablet ? 20 : 18),
+                  ),
+                  _circleButton(
+                    icon: Icons.add,
+                    onTap: stock > quantity ? onAdd : null,
+                    size: isDesktop ? 35 : isTablet ? 30 : 22,
+                  ),
+                ],
+              ),
+      
+              const SizedBox(height: 15),
+      
+              //Product Image
+              Expanded(
+                  child: Stack(
+                    children: [ 
+                    ClipRRect(
+                    borderRadius: BorderRadius.circular(borderRadius - 2),
+                    child: imagePath.isNotEmpty && File(imagePath).existsSync()
+                        ? Image.file(
+                            File(imagePath),
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                          )
+                        : Image.asset(
+                            'assets/Legendaries.png',
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                          ),
                         ),
-                      ),
-
-
-
-                      if (stock == 0)
-                        Positioned.fill(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.5),
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              "OUT OF STOCK",
-                              style: GoogleFonts.kameron(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+      
+      
+      
+                        if (stock == 0)
+                          Positioned.fill(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.5),
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                "OUT OF STOCK",
+                                style: GoogleFonts.kameron(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-              ],
-              ), 
-            ),
-
-            const SizedBox(height: 6),
-
-            //Product Info
-            Text(
-              capitalizeEachWord(name),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.kameron(
-                fontWeight: FontWeight.bold,
-                fontSize: 15,
+                ],
+                ), 
               ),
-            ),
-            Text(
-              '₱${price.toStringAsFixed(2)}',
-              style: GoogleFonts.kameron(
-                fontSize: 13,
-                color: const Color.fromARGB(255, 57, 148, 60),
-                fontWeight: FontWeight.w600,
+      
+              const SizedBox(height: 6),
+      
+              //Product Info
+              Text(
+                capitalizeEachWord(name),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.kameron(
+                  fontWeight: FontWeight.bold,
+                  fontSize: isDesktop ? 22 : isTablet ? 19 : 16,
+                ),
               ),
-            ),
-            Text(
-              'Stock: $stock',
-              style: GoogleFonts.kameron(
-                fontSize: 12.5,
-                color: const Color.fromARGB(255, 68, 67, 67),
+              Text(
+                '₱${price.toStringAsFixed(2)}',
+                style: GoogleFonts.kameron(
+                  fontSize: isDesktop ? 21 : isTablet ? 18 : 15,
+                  color: const Color.fromARGB(255, 57, 148, 60),
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-
-
-          ],
+              Text(
+                'Stock: $stock',
+                style: GoogleFonts.kameron(
+                  fontSize: isDesktop ? 20.5 : isTablet ? 17.5 : 13.5,
+                  color: const Color.fromARGB(255, 68, 67, 67),
+                ),
+              ),
+      
+      
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _circleButton({required IconData icon, VoidCallback? onTap}) {
+  Widget _circleButton({required IconData icon, VoidCallback? onTap, double size = 20}) {
+    
+    
+    
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
@@ -165,7 +187,7 @@ class ProductCard extends StatelessWidget {
           shape: BoxShape.circle,
           color: onTap == null ? Colors.grey[300] : Colors.black,
         ),
-        child: Icon(icon, size: 20, color: Colors.white),
+        child: Icon(icon, size: size, color: Colors.white),
       ),
     );
   }
@@ -275,7 +297,19 @@ class _POSState extends State<POS> {
   @override
   Widget build(BuildContext context) {
 
-    // compute filtered products here
+
+    final isDesktop = Responsive.isDesktop(context);
+    final isTablet = Responsive.isTablet(context);
+    final isMobile = Responsive.isMobile(context);
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+
+    final crossAxisCount = isDesktop ? 4 : isTablet ? 3 : 2;
+    final cardWidth = (screenWidth - 16 * (crossAxisCount + 1)) / crossAxisCount;
+    final cardHeight = cardWidth * 1.35; // adjust as needed
+
 
     final filteredProducts = products.where((p) {
 
@@ -291,6 +325,9 @@ class _POSState extends State<POS> {
       );
     }
 
+    
+        
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.grey[100],
@@ -298,10 +335,16 @@ class _POSState extends State<POS> {
         backgroundColor: Colors.grey[100],
         shadowColor: Colors.grey.withOpacity(0.5),
         elevation: 3,
+       toolbarHeight: isDesktop ? 80 : isTablet ? 70 : 60,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context,true),
-        ),
+            icon: Icon(Icons.arrow_back_ios_new_sharp),   // or Icons.arrow_back
+            iconSize: Responsive.spacing(context, mobile: 28, tablet: 32, desktop: 36), 
+            color: Colors.black,
+            onPressed: () => Navigator.pop(context),
+            tooltip: 'Back',
+          ),
+      
+          leadingWidth: 65,  
         title: Padding(
           padding: const EdgeInsets.fromLTRB(1, 0, 0, 0),
           child: Text(
@@ -399,7 +442,7 @@ class _POSState extends State<POS> {
               /// CATEGORIES
               if(products.isNotEmpty)
               SizedBox(
-                height: 40,
+                height: isDesktop ? 55 : isTablet ? 50 : 45,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: categories.length,
@@ -427,7 +470,7 @@ class _POSState extends State<POS> {
                       child: Text(
                         category,
                         style: GoogleFonts.kameron(
-                          fontSize: 15,
+                          fontSize: isDesktop ? 20 : isTablet ? 18 : 15,
                           color: Colors.black,
                           fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                         ),
@@ -468,9 +511,9 @@ class _POSState extends State<POS> {
                     )
                   : GridView.builder(
                   padding: const EdgeInsets.all(12),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.7,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    childAspectRatio: cardWidth / cardHeight,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
                   ),
@@ -479,6 +522,8 @@ class _POSState extends State<POS> {
                     final item = filteredProducts[index];
         
                     return ProductCard(
+                      width: cardWidth,
+                      height: cardHeight,
                       name: item.product.name,
                       price: item.product.price,
                       stock: item.product.stock ?? 0,
@@ -504,6 +549,8 @@ class _POSState extends State<POS> {
               /// CART SUMMARY
               Center(
                 child: Container(
+                  width: isDesktop ? 580 : isTablet ? 530 : double.infinity,
+                  height: isDesktop ? 150 : isTablet ? 140 : 130,
                   padding: const EdgeInsets.all(3),
                   decoration: BoxDecoration(
                       color: const Color(0xFF00E6FF),
@@ -524,14 +571,14 @@ class _POSState extends State<POS> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 _rowText(
-                                    "Total Quantity", getTotalQuantity().toString()),
-                                _rowText("Subtotal", "₱${getSubTotal().toStringAsFixed(2)}"),
-                                const SizedBox(height: 6),
+                                    "Total Quantity", getTotalQuantity().toString(), fontSize: isDesktop ? 20 : isTablet ? 18 : 15),
+                                _rowText("Subtotal", "₱${getSubTotal().toStringAsFixed(2)}",fontSize: isDesktop ? 20 : isTablet ? 18 : 15),
+                                const SizedBox(height: 2),
                                 _rowText(
                                   "Total",
                                   "₱${getTotal().toStringAsFixed(2)}",
                                   isBold: true,
-                                  fontSize: 16,
+                                  fontSize: isDesktop ? 22 : isTablet ? 20 : 16,
                                 ),
                               ],
                             ),
@@ -553,7 +600,7 @@ class _POSState extends State<POS> {
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF6FE5F2),
-                                    minimumSize: const Size(double.infinity, 36),
+                                    minimumSize: const Size(double.infinity, 45),
                                   ),
                                   onPressed: () async{
                                     
@@ -620,28 +667,31 @@ class _POSState extends State<POS> {
                                   },
         
                                   child: Center(
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Icon(Icons.shopping_cart_checkout_outlined,
-                                            color: Colors.black,
-                                            size: 18,),
-                                        SizedBox(width: 2,),
-                                        Text(
-                                          "Checkout",
-                                          style: GoogleFonts.kameron(
+                                    child: SizedBox(
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                           Icon(Icons.shopping_cart_checkout_outlined,
                                               color: Colors.black,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                      ],
+                                              size: isDesktop ? 26 : isTablet ? 23 : 20),
+                                          SizedBox(width: 5,),
+                                          Text(
+                                            "Checkout",
+                                            style: GoogleFonts.kameron(
+                                                color: Colors.black,
+                                                fontSize: isDesktop ? 20 : isTablet ? 18 : 16,
+                                                fontWeight: FontWeight.w500),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
+                                SizedBox(height: 10,),
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFEE5558),
-                                    minimumSize: const Size(double.infinity, 36),
+                                    minimumSize: const Size(double.infinity, 45),
                                   ),
                                   onPressed: () {
                                     if (!mounted) return;
@@ -655,13 +705,13 @@ class _POSState extends State<POS> {
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        const Icon(Icons.remove_shopping_cart_outlined, color: Colors.black,size: 18,),
-                                        SizedBox(width: 2,),
+                                        Icon(Icons.remove_shopping_cart_outlined, color: Colors.black,size: isDesktop ? 26 : isTablet ? 23 : 20,),
+                                        SizedBox(width: 5,),
                                         Text(
                                           "Clear Cart",
                                           style: GoogleFonts.kameron(
                                               color: Colors.black,
-                                              fontSize: 15,
+                                              fontSize: isDesktop ? 20 : isTablet ? 18 : 16,
                                               fontWeight: FontWeight.w500),
                                         ),
                                       ],

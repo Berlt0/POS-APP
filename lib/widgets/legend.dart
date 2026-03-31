@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pos_app/utils/responsive.dart';
 
 
 
@@ -14,7 +15,7 @@ class LegendItem extends StatelessWidget {
       children: [
         Container(width: 12, height: 12, color: color),
         const SizedBox(width: 4),
-        Text(text, style: TextStyle(fontSize: 12)),
+        Text(text, style: TextStyle(fontSize: Responsive.font(context, mobile: 13, tablet: 13, desktop: 14),fontWeight: FontWeight.w500)),
       ],
     );
   }

@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:pos_app/db/transaction.dart';
 import 'package:pos_app/db/database.dart';
+import 'package:pos_app/utils/responsive.dart';
 
 
 class ViewReceipt extends StatefulWidget {
@@ -67,6 +68,58 @@ class _ViewReceiptState extends State<ViewReceipt> {
     }
     }
   }
+
+
+  
+
+    Widget actionButton({
+      required String value,
+      required Color color,
+      required VoidCallback onPressed,
+      double width = 100,
+      double height = 40,
+    }) {
+
+      final isDesktop = Responsive.isDesktop(context);
+      final isTablet = Responsive.isTablet(context);
+
+      return Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: ElevatedButton(
+          onPressed: onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: color,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            elevation: 1, 
+          ),
+          child: Text(
+            value,
+            style: GoogleFonts.kameron(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: isDesktop ? 19 : isTablet ? 17 : 15,
+              
+            ),
+          ),
+        ),
+      );
+    }
+
+
 
    @override
     void initState() {
@@ -241,15 +294,22 @@ bool canVoidSale() {
   }
 }
 
-
-
-
-    
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Receipt'),
+        title: Text('Receipt',style: GoogleFonts.kameron(fontWeight: FontWeight.bold,fontSize: Responsive.font(context, mobile: 18, tablet: 21, desktop: 23))),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_sharp),   // or Icons.arrow_back
+          iconSize: Responsive.spacing(context, mobile: 28, tablet: 32, desktop: 36), 
+          color: Colors.black,
+          onPressed: () => Navigator.pop(context),
+          tooltip: 'Back',
+        ),
+    
+        leadingWidth: 65,   
+
+            
       ),
+      
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -517,16 +577,16 @@ bool canVoidSale() {
                         value: 'Print',
                         color: const Color.fromARGB(255, 38, 116, 41),
                         onPressed: () {},
-                        width: 120,
-                        height: 45,
+                        width: Responsive.spacing(context, mobile: 120, tablet: 140, desktop: 160),
+                        height: Responsive.spacing(context, mobile: 45, tablet: 50, desktop: 55),
                       ),
                       SizedBox(width: 20),
                       actionButton(
                         value: 'Void',
                         color: const Color.fromARGB(255, 180, 37, 27),
                         onPressed: () => _showVoidConfirmation(context),
-                        width: 120,
-                        height: 45,
+                        width: Responsive.spacing(context, mobile: 120, tablet: 140, desktop: 160),
+                        height: Responsive.spacing(context, mobile: 45, tablet: 50, desktop: 55),
                       ),
                     ],
                   );
@@ -536,8 +596,8 @@ bool canVoidSale() {
                       value: 'Print',
                       color: const Color.fromARGB(255, 38, 116, 41),
                       onPressed: () {},
-                      width: 120,
-                      height: 45,
+                      width: Responsive.spacing(context, mobile: 120, tablet: 140, desktop: 160),
+                      height: Responsive.spacing(context, mobile: 45, tablet: 50, desktop: 55),
                     ),
                   );
                 }
@@ -553,48 +613,6 @@ bool canVoidSale() {
 
 
 
-
-
-Widget actionButton({
-  required String value,
-  required Color color,
-  required VoidCallback onPressed,
-  double width = 100,
-  double height = 40,
-}) {
-  return Container(
-    width: width,
-    height: height,
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(12),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.grey.withOpacity(0.3),
-          spreadRadius: 2,
-          blurRadius: 5,
-          offset: const Offset(0, 3),
-        ),
-      ],
-    ),
-    child: ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        elevation: 1, 
-      ),
-      child: Text(
-        value,
-        style: GoogleFonts.kameron(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    ),
-  );
-}
 
 
 

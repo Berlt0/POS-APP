@@ -5,6 +5,9 @@ class Responsive {
   static double width(BuildContext context) =>
       MediaQuery.of(context).size.width;
 
+  static double height(BuildContext context) =>
+    MediaQuery.sizeOf(context).height;
+
   // Breakpoints
   static bool isMobile(BuildContext context) =>
       width(context) < 600;
@@ -15,27 +18,34 @@ class Responsive {
   static bool isDesktop(BuildContext context) =>
       width(context) >= 1024;
 
-  // Font scaling
+  
+  
   static double font(
     BuildContext context, {
     required double mobile,
     double? tablet,
     double? desktop,
   }) {
-    if (isDesktop(context)) return desktop ?? tablet ?? mobile;
-    if (isTablet(context)) return tablet ?? mobile;
-    return mobile;
+   final w = width(context);
+
+  if (w >= 1024) return desktop ?? tablet ?? mobile;
+  if (w >= 600) return tablet ?? mobile;
+  return mobile;
   }
 
-  // Spacing / padding scaling
+
+
+  
   static double spacing(
     BuildContext context, {
     required double mobile,
     double? tablet,
     double? desktop,
   }) {
-    if (isDesktop(context)) return desktop ?? tablet ?? mobile;
-    if (isTablet(context)) return tablet ?? mobile;
-    return mobile;
+     final w = width(context);
+
+  if (w >= 1024) return desktop ?? tablet ?? mobile;
+  if (w >= 600) return tablet ?? mobile;
+  return mobile;
   }
 }

@@ -9,6 +9,7 @@ import 'package:pos_app/db/sync.dart';
 import 'package:pos_app/models/products.dart';
 import 'package:flutter/services.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:pos_app/utils/responsive.dart';
 
 class Addproduct extends StatefulWidget {
   const Addproduct({super.key});
@@ -657,18 +658,27 @@ Widget productFormWidget(int index) {
 
   @override
   Widget build(BuildContext context) {
+
+    final isMobile = Responsive.isMobile(context);
+    final isTablet = Responsive.isTablet(context);
+    final isDesktop = Responsive.isDesktop(context);
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
+        toolbarHeight: isDesktop ? 80 : isTablet ? 70 : 60,
         backgroundColor: Colors.grey[100],
         shadowColor: Colors.grey.withOpacity(0.5),
         elevation: 3,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+            icon: Icon(Icons.arrow_back_ios_new_sharp),   // or Icons.arrow_back
+            iconSize: Responsive.spacing(context, mobile: 28, tablet: 32, desktop: 36), 
+            color: Colors.black,
+            onPressed: () => Navigator.pop(context),
+            tooltip: 'Back',
+          ),
+      
+          leadingWidth: 65,
         title:Padding(
           padding: const EdgeInsets.fromLTRB(1,0,0,0),
           child: Text(

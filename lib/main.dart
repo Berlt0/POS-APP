@@ -30,7 +30,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
 
-  await deleteOldDatabase();
+  // await deleteOldDatabase();
 
   await AppDatabase.database;
 

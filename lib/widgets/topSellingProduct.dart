@@ -20,10 +20,15 @@ class TopProductWidget extends StatefulWidget {
 class _TopProductWidgetState extends State<TopProductWidget> {
   @override
   Widget build(BuildContext context) {
+
+    final isDesktop = Responsive.isDesktop(context);
+    final isTablet = Responsive.isTablet(context);
+    final isMobile = Responsive.isMobile(context);
+
     return  DataTable(
             headingRowColor: MaterialStateProperty.all(Colors.blue.shade100),
-            headingRowHeight: 45,
-            dataRowHeight: 40,  
+            headingRowHeight:isDesktop ? 57 : isTablet ? 52 : 47,
+            dataRowHeight:  isDesktop ? 55 : isTablet ? 50 : 45, 
             columnSpacing: 50,
             columns: [
               DataColumn(label: Center(child:Text('Product ID', style: GoogleFonts.kameron(fontSize: Responsive.font(context, mobile: 15, tablet: 18, desktop: 21), fontWeight: FontWeight.w500)))),

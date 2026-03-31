@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/db/transaction.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_app/pages/receipt.dart';
+import 'package:pos_app/utils/responsive.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 
 class TransactionPage extends StatefulWidget {
@@ -192,16 +194,26 @@ class _TransactionPageState extends State<TransactionPage> {
   }
 
   
+  final isDesktop = Responsive.isDesktop(context);
+  final isTablet = Responsive.isTablet(context);
+  final isMobile = Responsive.isMobile(context);
+
     return Scaffold(
       appBar: AppBar(
          backgroundColor: Colors.grey[100],
         shadowColor: Colors.grey.withOpacity(0.5),
         automaticallyImplyLeading: false,
         elevation: 3,
+        toolbarHeight: isDesktop ? 80 : isTablet ? 70 : 60,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context,true),
-        ),
+            icon: Icon(Icons.arrow_back_ios_new_sharp),   // or Icons.arrow_back
+            iconSize: Responsive.spacing(context, mobile: 28, tablet: 32, desktop: 36), 
+            color: Colors.black,
+            onPressed: () => Navigator.pop(context),
+            tooltip: 'Back',
+          ),
+      
+          leadingWidth: 65,   
         title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -226,7 +238,7 @@ class _TransactionPageState extends State<TransactionPage> {
                 Text(
                   'Date Range',
                   style: GoogleFonts.kameron(
-                    fontSize: 17,
+                    fontSize: Responsive.font(context, mobile: 16, tablet: 20, desktop: 24),
                     fontWeight: FontWeight.bold,
                     color: Colors.black
                   )
@@ -256,7 +268,7 @@ class _TransactionPageState extends State<TransactionPage> {
                                       ' - '
                                       '${DateFormat('MM/dd/yyyy').format(selectedRange!.end)}',
                                 style: GoogleFonts.kameron(
-                                  fontSize: 15,
+                                  fontSize: Responsive.font(context, mobile: 15, tablet: 17, desktop: 19),
                                   color: Colors.black87,
                                   fontWeight: FontWeight.w500
                                 ),
@@ -304,97 +316,130 @@ class _TransactionPageState extends State<TransactionPage> {
                   ],
                   ),
                   SizedBox(height: 15,),
-                  FutureBuilder<List<Map<String, dynamic>>>(
-                    future: _transactionDatas,
-                    builder: (context, snapshot){
-                    
-
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    if (snapshot.hasError) {
-                      return Center(
-                        child: Text(
-                          'Error loading transactions records',
-                          style: GoogleFonts.kameron(color: Colors.black),
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.3),
+                          spreadRadius: 2,
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
                         ),
-                      );
-                    }
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                        return FutureBuilder<List<Map<String, dynamic>>>(
+                          future: _transactionDatas,
+                          builder: (context, snapshot){
+                          
+                            final isDesktop = Responsive.isDesktop(context);
+                            final isTablet = Responsive.isTablet(context);
+                            final isMobile = Responsive.isMobile(context);
 
-                    final transactions = snapshot.data ?? [];
-
-                   if (transactions.isEmpty) {
-                      return SizedBox(
-                        height: MediaQuery.of(context).size.height - 400, // adjust for AppBar & padding
-                        child: Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.receipt_long, // or Icons.shopping_cart_outlined
-                                size: 55,
-                                color: Colors.grey[400],
+                                                
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const Center(child: CircularProgressIndicator());
+                          }
+                        
+                          if (snapshot.hasError) {
+                            return Center(
+                              child: Text(
+                                'Error loading transactions records',
+                                style: GoogleFonts.kameron(color: Colors.black),
                               ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'No transactions found',
-                                style: GoogleFonts.kameron(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.grey[600],
+                            );
+                          }
+                        
+                          final transactions = snapshot.data ?? [];
+                        
+                         if (transactions.isEmpty) {
+                            return SizedBox(
+                              height: MediaQuery.of(context).size.height - 400, // adjust for AppBar & padding
+                              child: Center(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.receipt_long, // or Icons.shopping_cart_outlined
+                                      size: 55,
+                                      color: Colors.grey[400],
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      'No transactions found',
+                                      style: GoogleFonts.kameron(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }
-
-                  final groupedTransactions = groupTransactionsBySale(transactions);
-
-                  return SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: Material(
-                        color: Colors.transparent,
-                        child: DataTable(
-                            showCheckboxColumn:false,
-                            headingRowColor: MaterialStateProperty.all(const Color.fromARGB(164, 224, 224, 224)),
-                            dataRowHeight: 50,
-                              columns: [
-                                DataColumn(label: Text('ID',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
-                                DataColumn(label: Text('Processed By',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
-                                DataColumn(label: Text('Date',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
-                                DataColumn(label: Text('Action',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
-                                DataColumn(label: Text('Payment Method',style: tableTextStyle(fontSize: 15, fontWeight: FontWeight.w500),)),
-                              ],
-                              
-                              rows: groupedTransactions.map((transaction) {
-
-                                // final products = transaction['products'] as List;
-
-                                return DataRow(
-                                  onSelectChanged: (selected) {
-                                    print(transaction);
-                                    Navigator.push(context,MaterialPageRoute(builder: (context) => ViewReceipt(transaction: transaction
-                                    )));
-                                  },
-                                  cells: [
-                                    DataCell(Text(transaction['id'].toString())),
-                                    DataCell(Text(capitalizeEachWord(transaction['processed_by'].toString()))),
-                                    DataCell(Text(DateFormat('MM/dd/yyyy').format(DateTime.parse(transaction['created_at'])))),
-                                    DataCell(Text(transaction['action'])),
-                                    DataCell(Text(capitalizeEachWord(transaction['payment_type']))),
-                                ]);
-                              }).toList(),
+                            );
+                          }
+                        
+                          final groupedTransactions = groupTransactionsBySale(transactions);
+                        
+                          return SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                              child: SizedBox(
+                                width: constraints.maxWidth,
+                                child: SingleChildScrollView(
+                                 scrollDirection: Axis.vertical,
+                                  child: Material(
+                                   color: Colors.transparent,
+                                    child: DataTable(
+                                      showCheckboxColumn:false,
+                                      headingRowColor: MaterialStateProperty.all(const Color.fromARGB(164, 224, 224, 224)),
+                                      dataRowHeight:  isDesktop ? 55 : isTablet ? 55 : 45, 
+                                      headingRowHeight:isDesktop ? 60 : isTablet ? 57 : 50,
+                                        columns: [
+                                          DataColumn(label: Text('ID',style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 15, fontWeight: FontWeight.w500),)),
+                                          DataColumn(label: Text('Processed By',style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 15, fontWeight: FontWeight.w500),)),
+                                          DataColumn(label: Text('Date',style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 15, fontWeight: FontWeight.w500),)),
+                                          DataColumn(label: Text('Action',style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 15, fontWeight: FontWeight.w500),)),
+                                          DataColumn(label: Text('Payment Method',style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 15, fontWeight: FontWeight.w500),)),
+                                        ],
+                                        
+                                        rows: groupedTransactions.map((transaction) {
+                                                        
+                                          // final products = transaction['products'] as List;
+                                                        
+                                          return DataRow(
+                                            onSelectChanged: (selected) {
+                                              print(transaction);
+                                              Navigator.push(context,MaterialPageRoute(builder: (context) => ViewReceipt(transaction: transaction
+                                              )));
+                                            },
+                                            cells: [
+                                              DataCell(Text(transaction['id'].toString(),style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14, fontWeight: FontWeight.normal, color: Colors.black),)),
+                                              DataCell(Text(capitalizeEachWord(transaction['processed_by'].toString()),style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14, fontWeight: FontWeight.normal, color: Colors.black),)),
+                                              DataCell(Text(DateFormat('MM/dd/yyyy').format(DateTime.parse(transaction['created_at'])),style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14, fontWeight: FontWeight.normal, color: Colors.black),)),
+                                              DataCell(Text(transaction['action'],style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14, fontWeight: FontWeight.normal, color: Colors.black),)),
+                                              DataCell(Text(capitalizeEachWord(transaction['payment_type']),style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14, fontWeight: FontWeight.normal, color: Colors.black),)),
+                                          ]);
+                                        }).toList(),
+                                      ),
+                                ),       
+                                                          ),
+                              ),
                             ),
-                      ),       
+                        );
+                        }
+                        );
+                        }
+                      ),
                     ),
-                  );
-                }
-              ),
+                  ),
 
               SizedBox(height: 30,),
               if (_totalRows > 0) 
@@ -437,19 +482,6 @@ class _TransactionPageState extends State<TransactionPage> {
   }
 }
 
-
-
-TextStyle tableTextStyle({
-  double fontSize = 16,
-  FontWeight fontWeight = FontWeight.normal,
-  Color color = Colors.black,
-}) {
-  return GoogleFonts.kameron(
-    fontSize: fontSize,
-    fontWeight: fontWeight,
-    color: color,
-  );
-}
 
 
 String capitalizeEachWord(String text) {

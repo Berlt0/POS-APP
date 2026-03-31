@@ -201,6 +201,11 @@ String _valueOrLoading(String key, {bool peso = false}) {
 
   @override
   Widget build(BuildContext context) {
+
+    final isMobile = Responsive.isMobile(context);
+    final isTablet = Responsive.isTablet(context);
+    final isDesktop = Responsive.isDesktop(context);
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -208,6 +213,7 @@ String _valueOrLoading(String key, {bool peso = false}) {
         shadowColor: Colors.grey.withOpacity(0.5),
         automaticallyImplyLeading: false,
         elevation: 5,
+        toolbarHeight: isDesktop ? 80 : isTablet ? 70 : 60,
         title:Padding(
           padding: const EdgeInsets.fromLTRB(20,0,0,0),
           child: Row(
@@ -225,23 +231,30 @@ String _valueOrLoading(String key, {bool peso = false}) {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     
-                    Material(
-                      color: Color(0xFF3CE7FA), 
-                      borderRadius: BorderRadius.circular(8),
-                      child: InkWell(
+                    SizedBox(
+                      width: Responsive.spacing(context, mobile: 150, tablet: 180, desktop: 220),
+                      height: Responsive.spacing(context, mobile: 40, tablet: 45, desktop: 50),
+                      child: Material(
+                        color: Color(0xFF3CE7FA), 
                         borderRadius: BorderRadius.circular(8),
-                        onTap: () {
-                          print("Transaction Records tapped");
-                          Navigator.pushNamed(context, '/transaction');
-                        },
-                        child: Padding(
-                          padding: EdgeInsets.all(10),
-                          child: Text(
-                            'Transaction Records',
-                            style: GoogleFonts.kameron(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black87,
+                        elevation: 4,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(8),
+                          onTap: () {
+                            print("Transaction Records tapped");
+                            Navigator.pushNamed(context, '/transaction');
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.all(10),
+                            child: Center(
+                              child: Text(
+                                'Transaction Records',
+                                style: GoogleFonts.kameron(
+                                  fontSize: isDesktop ? 18 : isTablet ? 15 : 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black,
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -265,7 +278,7 @@ String _valueOrLoading(String key, {bool peso = false}) {
               Text(
                 'Date Range',
                 style: GoogleFonts.kameron(
-                  fontSize: 16,
+                  fontSize: Responsive.font(context, mobile: 16,tablet: 21, desktop: 24 ),
                   fontWeight: FontWeight.bold,
                   color: Colors.black
                 )
@@ -295,7 +308,7 @@ String _valueOrLoading(String key, {bool peso = false}) {
                                     ' - '
                                     '${DateFormat('MM/dd/yyyy').format(selectedRange!.end)}',
                               style: GoogleFonts.kameron(
-                                fontSize: 15,
+                                fontSize: Responsive.font(context, mobile: 15, tablet: 17, desktop: 19),
                                 color: Colors.black87,
                                 fontWeight: FontWeight.w500
                               ),
@@ -421,9 +434,9 @@ String _valueOrLoading(String key, {bool peso = false}) {
                     Container(
                       height: Responsive.spacing(
                         context,
-                        mobile: 250,
-                        tablet: 300,
-                        desktop: 350,),
+                        mobile: 300,
+                        tablet: 350,
+                        desktop: 400,),
                       margin: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -470,14 +483,22 @@ String _valueOrLoading(String key, {bool peso = false}) {
                     Container(
                       height: Responsive.spacing(
                         context,
-                        mobile: 250,
-                        tablet: 300,
-                        desktop: 350,
+                        mobile: 300,
+                        tablet: 350,
+                        desktop: 400,
                       ),
                       margin: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                            color: Colors.grey.withOpacity(0.3),
+                            spreadRadius: 4,
+                            blurRadius: 6,
+                            offset: const Offset(0, 3),
+                          ),
+                          ]
                         ),
                        child: isRCOGSPLoading
                         ? Center(child: CircularProgressIndicator.adaptive(
@@ -560,12 +581,16 @@ String _valueOrLoading(String key, {bool peso = false}) {
                                           scrollDirection: Axis.vertical,
                                           child: ConstrainedBox(
                                             constraints:
-                                                BoxConstraints(minWidth: constraints.maxWidth),
+                                                BoxConstraints(
+                                                  minWidth: constraints.maxWidth),
                                             child: SingleChildScrollView(
                                               scrollDirection: Axis.horizontal,
-                                              child: TopProductWidget(
-                                                products: topProducts,
-                                                isLoading: isTopProductsLoading,
+                                              child: SizedBox(
+                                                width: constraints.maxWidth,
+                                                child: TopProductWidget(
+                                                  products: topProducts,
+                                                  isLoading: isTopProductsLoading,
+                                                ),
                                               ),
                                             ),
                                           ),

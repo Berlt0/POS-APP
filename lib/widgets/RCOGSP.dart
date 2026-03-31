@@ -29,7 +29,7 @@ class _RcogspState extends State<RcogspChartWidget> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: const [
-              LegendItem(color: Colors.blue, text: 'Revenue'),
+              LegendItem(color: Colors.blue, text: 'Revenue',),
               SizedBox(width: 12),
               LegendItem(color: Colors.red, text: 'COGS'),
               SizedBox(width: 12),
@@ -43,16 +43,18 @@ class _RcogspState extends State<RcogspChartWidget> {
             child: BarChart(
             BarChartData(
               alignment: BarChartAlignment.spaceAround,
+              groupsSpace: 20,
               barGroups: List.generate(widget.rcogsp.length, (index) {
                 final item = widget.rcogsp[index];
             
             return BarChartGroupData(
                   x: index,
+                  groupVertically: false,
                   barRods: [
                     
                     BarChartRodData(
                       toY: item['revenue'],
-                      width: 8,
+                      width: 10,
                       color: Colors.blue,
                       borderRadius: BorderRadius.circular(4),
                     ),
@@ -60,7 +62,7 @@ class _RcogspState extends State<RcogspChartWidget> {
                     
                     BarChartRodData(
                       toY: item['cogs'],
-                      width: 8,
+                      width: 10,
                       color: Colors.red,
                       borderRadius: BorderRadius.circular(4),
                     ),
@@ -68,7 +70,7 @@ class _RcogspState extends State<RcogspChartWidget> {
                     
                     BarChartRodData(
                       toY: item['profit'],
-                      width: 8,
+                      width: 10,
                       color: Colors.green,
                       borderRadius: BorderRadius.circular(4),
                     ),
@@ -81,9 +83,9 @@ class _RcogspState extends State<RcogspChartWidget> {
                   sideTitles: SideTitles(
                     showTitles: true,
                     reservedSize: 40,
+                    interval: 50,
                     getTitlesWidget: (value, meta) {
-                      return Text('₱${value.toInt()}',
-                          style: const TextStyle(fontSize: 10));
+                      return Text('₱${value.toInt()}', style: const TextStyle(fontSize: 12,color: Colors.black, fontWeight: FontWeight.w500));
                     },
                   ),
                 ),
@@ -102,7 +104,7 @@ class _RcogspState extends State<RcogspChartWidget> {
             
                       return Padding(
                         padding: const EdgeInsets.only(top: 8),
-                        child: Text(date, style: const TextStyle(fontSize: 10)),
+                        child: Text(date, style: const TextStyle(fontSize: 12,color: Colors.black, fontWeight: FontWeight.w500)),
                       );
                     },
                   ),
@@ -118,6 +120,7 @@ class _RcogspState extends State<RcogspChartWidget> {
             
               gridData: FlGridData(show: true),
               borderData: FlBorderData(show: false),
+              maxY: null
             ),
                 ),
           ),
