@@ -1,6 +1,7 @@
 // lib/widgets/footer.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pos_app/utils/responsive.dart';
 
 class AppFooter extends StatelessWidget {
   final int currentIndex;
@@ -16,8 +17,10 @@ class AppFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // The whole bottomNavigationBar must have a definite height.
-    // We use a SizedBox so Scaffold can measure it reliably.
+
+    final isDesktop  = Responsive.isDesktop(context);
+    final isTablet  = Responsive.isTablet(context);
+
     return SizedBox(
       height: 86, // container height including space for the floating button
       child: Stack(
@@ -42,11 +45,11 @@ class AppFooter extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _navItem(Icons.dashboard_outlined, "Dashboard", 0),
-                  _navItem(Icons.inventory_2_outlined, "Inventory", 1),
+                  _navItem(Icons.dashboard_outlined, "Dashboard", 0, isDesktop,isTablet),
+                  _navItem(Icons.inventory_2_outlined, "Inventory", 1, isDesktop,isTablet),
                   const SizedBox(width: 60), // gap for center button
-                  _navItem(Icons.storefront_outlined, "Products", 2),
-                  _navItem(Icons.bar_chart_outlined, "Reports", 3),
+                  _navItem(Icons.storefront_outlined, "Products", 2, isDesktop,isTablet),
+                  _navItem(Icons.bar_chart_outlined, "Reports", 3, isDesktop,isTablet),
                 ],
               ),
             ),
@@ -57,22 +60,23 @@ class AppFooter extends StatelessWidget {
             top: -18, // raises the button above the colored bar
             left: 0,
             right: 0,
-            child: Center(child: _centerButton()),
+            child: Center(child: _centerButton(isDesktop,isTablet)),
           ),
         ],
       ),
     );
   }
 
-  Widget _centerButton() {
+  Widget _centerButton(bool isDesktop, bool isTablet) {
+    
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onCenterTap,
         customBorder: const CircleBorder(),
         child: Container(
-          height: 70,
-          width: 70,
+          height: isDesktop ? 90 : isTablet? 80 :70,
+          width: isDesktop ? 90 : isTablet? 80 :70,
           decoration: BoxDecoration(
             color: Colors.white,
             shape: BoxShape.circle,
@@ -85,9 +89,9 @@ class AppFooter extends StatelessWidget {
               ),
             ],
           ),
-          child: const Icon(
+          child:  Icon(
             Icons.point_of_sale,
-            size: 30,
+            size: isDesktop ? 50 : isTablet? 40 : 30,
             color: Color(0xFF248994),
           ),
         ),
@@ -95,7 +99,7 @@ class AppFooter extends StatelessWidget {
     );
   }
 
-  Widget _navItem(IconData icon, String label, int index) {
+  Widget _navItem(IconData icon, String label, int index, bool isDesktop, bool isTablet) {
     final bool isActive = currentIndex == index;
 
     return InkWell(
@@ -105,16 +109,16 @@ class AppFooter extends StatelessWidget {
         children: [
           Icon(
             icon,
-            color: isActive ? Colors.black : const Color.fromARGB(202, 0, 0, 0),
-            size: 22,
+            color: Colors.black,
+            size: isDesktop ? 29 : isTablet? 26 : 23,
           ),
           const SizedBox(height: 4),
           Text(
             label,
             style: GoogleFonts.kameron(
-              fontSize: 12,
-              fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-              color: isActive ? Colors.black : const Color.fromARGB(202, 0, 0, 0),
+              fontSize: isDesktop ? 15 : isTablet? 14 :13,
+              fontWeight:  FontWeight.w500,
+              color:  Colors.black,
             ),
           ),
         ],
