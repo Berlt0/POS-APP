@@ -209,6 +209,8 @@ Future<List<SaleChart>> _fetchChartData() async {
 
 int _currentIndex = 0;
 
+
+
   @override
   Widget build(BuildContext context) {
 
@@ -253,6 +255,8 @@ int _currentIndex = 0;
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                SizedBox(height: 10,),
+                
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -267,20 +271,21 @@ int _currentIndex = 0;
                       ).createShader(bounds),
                       child: Text(
                         "Leo and Mae",
-                        style: GoogleFonts.kronaOne(
+                        style: GoogleFonts.kameron(
                           fontSize: Responsive.font(
                             context,
-                            mobile: 18,
-                            tablet: 20,
-                            desktop: 22,
+                            mobile: 23,
+                            tablet: 28,
+                            desktop: 33,
                           ),
-                          fontWeight: FontWeight.normal,
+                          fontWeight: FontWeight.w500,
                           color: Colors.white,
                         ),
                       ),
                     ),
                     GestureDetector(
                       onTap: () async {
+
                         // Temporary logout logic
                         await SessionService.clearSession(); // clears the session
                         print("User logged out");
@@ -288,12 +293,39 @@ int _currentIndex = 0;
                         // Optional: navigate to login page if you have one
                         Navigator.pushReplacementNamed(context, '/');
                       },
-                      child: CircleAvatar(
-                        radius: 20,
-                        // backgroundImage: NetworkImage(
-                        //   'https://picsum.photos/200',
-                        // ),
-                      ),
+                      child: Container(
+                        padding: EdgeInsets.all(3), // thickness of gradient border
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            colors: [
+                              Color(0xFF3CE7FA),
+                              Color(0xFF248994),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        child: CircleAvatar(
+                          radius: Responsive.font(
+                            context,
+                            mobile: 20,
+                            tablet: 25,
+                            desktop: 30,
+                          ),
+                          backgroundColor: Colors.white, // inner color
+                          child: Icon(
+                            Icons.person,
+                            size: Responsive.font(
+                              context,
+                              mobile: 30,
+                              tablet: 35,
+                              desktop: 40,
+                            ),
+                            color: Colors.black, // icon color
+                          ),
+                        ),
+                      )
                     ),
                   ],
                 ),
@@ -303,14 +335,14 @@ int _currentIndex = 0;
                   children: [
                     Text(
                       "Dashboard",
-                      style: GoogleFonts.kronaOne(
+                      style: GoogleFonts.kameron(
                         fontSize: Responsive.font(
                           context,
-                          mobile: 15,
-                          tablet: 20,
-                          desktop: 26,
+                          mobile: 25,
+                          tablet: 30,
+                          desktop: 35,
                         ),
-                        fontWeight: FontWeight.normal,
+                        fontWeight: FontWeight.w500,
                         color: Colors.black,
                       ),
                     ),
@@ -319,12 +351,12 @@ int _currentIndex = 0;
                       style: GoogleFonts.kameron(
                         fontSize: Responsive.font(
                           context,
-                          mobile: 12,
-                          tablet: 14,
-                          desktop: 16,
+                          mobile: 13,
+                          tablet: 15,
+                          desktop: 17,
                         ),
-                        fontWeight: FontWeight.normal,
-                        color: Colors.grey,
+                        fontWeight: FontWeight.w500,
+                        color: const Color.fromARGB(255, 58, 57, 57),
                       ),
                     ),
                   ],
@@ -395,7 +427,7 @@ int _currentIndex = 0;
                      Icon(
                       Icons.stacked_line_chart_rounded, 
                       color: Colors.blue, 
-                      size: Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
+                      size: Responsive.font(context, mobile: 27, tablet: 29, desktop: 31),
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -404,7 +436,7 @@ int _currentIndex = 0;
                         fontSize: Responsive.font(
                           context,
                           mobile: 14.5,
-                          tablet: 15,
+                          tablet: 18,
                           desktop: 20,
                         ),
                         fontWeight: FontWeight.bold,
@@ -418,9 +450,9 @@ int _currentIndex = 0;
                     Container(
                         height: Responsive.spacing(
                           context,
-                          mobile: 250,
-                          tablet: 300,
-                          desktop: 350,
+                          mobile: 300,
+                          tablet: 350,
+                          desktop: 400,
                         ),
                         margin: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
@@ -438,6 +470,10 @@ int _currentIndex = 0;
                         child: FutureBuilder<List<SaleChart>>(
                               future: _chartFuture,
                               builder: (context, snapshot) {
+
+                                final isDesktop = Responsive.isDesktop(context);
+                                final isTablet = Responsive.isTablet(context);
+
                                 if (snapshot.connectionState == ConnectionState.waiting) {
                                   return const Center(child: CircularProgressIndicator());
                                 } else if (snapshot.hasError) {
@@ -455,7 +491,7 @@ int _currentIndex = 0;
                                         const SizedBox(height: 12),
                                         Text("No sales data for this week",
                                         style: GoogleFonts.kameron(
-                                          fontSize: 14,
+                                          fontSize: isDesktop ? 18 : isTablet ? 16 :14,
                                           fontWeight: FontWeight.w500,
                                           color: Colors.black,
                                         ),
@@ -492,12 +528,12 @@ int _currentIndex = 0;
                                         bottomTitles: AxisTitles(
                                           sideTitles: SideTitles(
                                           showTitles: true,
-                                          reservedSize: 16,
+                                          reservedSize: 14,
                                           interval: 1,
                                           getTitlesWidget: (value,meta) {
                                             final index = value.toInt();
                                             if (index >= 0 && index < titles.length) {
-                                              return  Text(titles[index], style: const TextStyle(fontSize: 10,fontWeight: FontWeight.w500));
+                                              return  Text(titles[index], style: const TextStyle(fontSize: 12,fontWeight: FontWeight.w500));
                                             }
                                             return const Text('');
                                           },
@@ -508,11 +544,11 @@ int _currentIndex = 0;
                                           sideTitles: SideTitles(
                                           reservedSize: 20,
                                           showTitles: true,
-                                          interval: 1,
+                                          interval: 5,
                                            getTitlesWidget: (value, meta) {
                                             return Text(
                                                 '${value.toInt()}',
-                                                style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w500, fontSize: 14)
+                                                style: TextStyle(fontSize: 12, color: Colors.black, fontWeight: FontWeight.w500)
                                               );
                                           },
                                         ),
@@ -521,10 +557,11 @@ int _currentIndex = 0;
                                         sideTitles: SideTitles(
                                         showTitles: true,
                                         reservedSize: 20,
+                                        interval: 5,
                                         getTitlesWidget: (value, meta) {
                                             return Text(
                                                 '${value.toInt()}',
-                                                style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w500, fontSize: 14)
+                                                style: TextStyle(fontSize: 12, color: Colors.black, fontWeight: FontWeight.w500)
                                               );
                                           },
                                         
@@ -571,7 +608,7 @@ int _currentIndex = 0;
                     
                           
           
-                const SizedBox(height: 25),
+                const SizedBox(height: 35),
           // ── RESPONSIVE SECTION ──
           
                 LayoutBuilder(
@@ -579,7 +616,10 @@ int _currentIndex = 0;
                     const double breakpoint = 800.0;
                     final bool isNarrow = constraints.maxWidth < breakpoint;
 
-                    const double containerHeight = 350.0;
+                    const double containerHeight = 450;
+                    
+                    final isDesktop = Responsive.isDesktop(context);
+                    final isTablet = Responsive.isTablet(context);
 
                     // Footer for Recent Sales
                     Widget salesFooter() {
@@ -592,14 +632,14 @@ int _currentIndex = 0;
                           },
                           borderRadius: BorderRadius.circular(8), 
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
                             child:Row(
                               mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
                                 "View Sales",
                                 style: GoogleFonts.kameron(
-                                  fontSize: 15,
+                                  fontSize: isDesktop ? 19 : isTablet ? 17 : 15,
                                   fontWeight: FontWeight.w500,
                                   color: Colors.black,
                                 ),
@@ -607,7 +647,7 @@ int _currentIndex = 0;
                               Icon( 
                                 Icons.keyboard_arrow_right,
                                 color: Colors.black,
-                                size: 20,
+                                size: isDesktop ? 24 : isTablet ? 22 : 20,
                               )
                             ],
                           ),
@@ -618,6 +658,12 @@ int _currentIndex = 0;
 
                     // Footer for Low Stock Alerts
                     Widget inventoryFooter() {
+
+                      final isDesktop = Responsive.isDesktop(context);
+                      final isTablet = Responsive.isTablet(context);
+                      
+
+
                       return Align(
                         alignment: Alignment.centerLeft,
                         child: InkWell(
@@ -627,14 +673,14 @@ int _currentIndex = 0;
                           },
                           borderRadius: BorderRadius.circular(8), 
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                             child:Row(
                               mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
                                 "Manage Inventory",
                                 style: GoogleFonts.kameron(
-                                  fontSize: 15,
+                                  fontSize: isDesktop ? 19 : isTablet ? 17 : 15,
                                   fontWeight: FontWeight.w500,
                                   color: Colors.black,
                                 ),
@@ -642,7 +688,7 @@ int _currentIndex = 0;
                               Icon( 
                                 Icons.keyboard_arrow_right,
                                 color: Colors.black,
-                                size: 20,
+                                size: isDesktop ? 24 : isTablet ? 22 : 20,
                               )
                             ],
                           ),
@@ -652,6 +698,11 @@ int _currentIndex = 0;
                     }
 
                     if (isNarrow) {
+
+                      final isDesktop = Responsive.isDesktop(context);
+                      final isTablet = Responsive.isTablet(context);
+                      
+
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
@@ -667,6 +718,7 @@ int _currentIndex = 0;
                                       Icon(
                                         Icons.access_time,
                                         color: Color(0xFF074C04),
+                                         size: isDesktop ? 31 : isTablet ? 29 : 27,
                                       ),
                                       SizedBox(width: 8),                               
                                       Text(
@@ -675,7 +727,7 @@ int _currentIndex = 0;
                                       fontSize: Responsive.font(
                                         context,
                                         mobile: 14.5,
-                                        tablet: 20,
+                                        tablet: 18,
                                         desktop: 20,
                                       ),
                                       
@@ -685,7 +737,7 @@ int _currentIndex = 0;
                                       ),
                                     ],
                                   ),
-                                  SizedBox(height: 20),
+                                  SizedBox(height: 25),
                               Container(
                                 height: containerHeight,
                                 padding: const EdgeInsets.all(12),
@@ -704,6 +756,7 @@ int _currentIndex = 0;
                                 child: Column(
                                   children: [
                                     Expanded(
+                                      
                                       child: isLoading
                                           ? const Center(child: CircularProgressIndicator())
                                           : recentSales.isEmpty
@@ -716,7 +769,7 @@ int _currentIndex = 0;
                                                       Text(
                                                         "No sales today",
                                                         style: GoogleFonts.kameron(
-                                                          fontSize: 14,
+                                                          fontSize: isDesktop ? 18 : isTablet ? 16 : 14,
                                                           fontWeight: FontWeight.w500,
                                                           color: Colors.black,
                                                         ),
@@ -740,7 +793,7 @@ int _currentIndex = 0;
                               ),
                             ],
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 35),
 
                           // Low Stock Alerts
                           Column(
@@ -754,6 +807,7 @@ int _currentIndex = 0;
                                   Icon(
                                     Icons.warning_amber_rounded,
                                     color: Color(0xFFFF0000),
+                                    size: isDesktop ? 31 : isTablet ? 29 : 27,
                                     
                                   ),
                               SizedBox(width: 8),
@@ -763,7 +817,7 @@ int _currentIndex = 0;
                                   fontSize: Responsive.font(
                                     context,
                                     mobile: 14.5,
-                                    tablet: 20,
+                                    tablet: 18,
                                     desktop: 20,
                                   ),
                                   fontWeight: FontWeight.bold,
@@ -772,7 +826,7 @@ int _currentIndex = 0;
                               ),
                                ],
                               ),
-                              SizedBox(height: 20),
+                              SizedBox(height: 25),
                               Container(
                                 height: containerHeight,
                                 padding: const EdgeInsets.all(12),
@@ -1035,7 +1089,7 @@ int _currentIndex = 0;
           borderRadius: BorderRadius.circular(12),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -1047,8 +1101,8 @@ int _currentIndex = 0;
                     style: GoogleFonts.kameron(
                       fontSize: Responsive.font(
                         context,
-                        mobile: 13,
-                        tablet: 15,
+                        mobile: 14,
+                        tablet: 16,
                         desktop: 18,
                       ),
                       fontWeight: FontWeight.w500,
@@ -1061,11 +1115,12 @@ int _currentIndex = 0;
                     style: GoogleFonts.kameron(
                       fontSize: Responsive.font(
                         context,
-                        mobile: 12,
+                        mobile: 13,
                         tablet: 14,
-                        desktop: 16,
+                        desktop: 15,
                       ),
-                      color: const Color.fromARGB(255, 78, 78, 78),
+                      color: Color.fromARGB(255, 43, 42, 42),
+                      fontWeight: FontWeight.w500
                     ),
                   ),
                 ],
@@ -1075,8 +1130,8 @@ int _currentIndex = 0;
                 style: GoogleFonts.kameron(
                   fontSize: Responsive.font(
                     context,
-                    mobile: 13,
-                    tablet: 15,
+                    mobile: 14,
+                    tablet: 16,
                     desktop: 18,
                   ),
                   fontWeight: FontWeight.w500,
@@ -1106,7 +1161,7 @@ int _currentIndex = 0;
           borderRadius: BorderRadius.circular(12),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.fromLTRB(16, 15, 16, 15),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -1119,8 +1174,8 @@ int _currentIndex = 0;
                     style: GoogleFonts.kameron(
                       fontSize: Responsive.font(
                         context,
-                        mobile: 13,
-                        tablet: 15,
+                        mobile: 14,
+                        tablet: 16,
                         desktop: 18,
                       ),
                       fontWeight: FontWeight.w500,
@@ -1132,12 +1187,12 @@ int _currentIndex = 0;
                     style: GoogleFonts.kameron(
                       fontSize: Responsive.font(
                         context,
-                        mobile: 12,
+                        mobile: 13,
                         tablet: 14,
-                        desktop: 16,
+                        desktop: 15,
                       ),
                       fontWeight: FontWeight.w500,
-                      color: Colors.black,
+                      color: Color.fromARGB(255, 43, 42, 42),
                     ),
                   ),
                 ],
@@ -1145,15 +1200,15 @@ int _currentIndex = 0;
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: product.stock == 0 ? Colors.red : Color.fromARGB(255, 255, 165, 0),
-                  borderRadius: BorderRadius.circular(12),
+                  color: product.stock == 0 ? Colors.red : Color.fromARGB(237, 241, 157, 0),
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
                   product.stock == 0 ? 'Out of Stock' :  'Low Stock' ,
                   style: GoogleFonts.kameron(
                     fontSize: Responsive.font(
                       context,
-                      mobile: 12,
+                      mobile: 14,
                       tablet: 15,
                       desktop: 16,
                     ),
@@ -1234,8 +1289,8 @@ int _currentIndex = 0;
                       tablet: 15,
                       desktop: 20,
                     ),
-                    fontWeight: FontWeight.normal,
-                    color: Colors.grey,
+                    fontWeight: FontWeight.w300,
+                    color: const Color.fromARGB(255, 46, 46, 46),
                   ),
                 ),
                 Text(

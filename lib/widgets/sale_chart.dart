@@ -110,7 +110,7 @@ if (widget.selectedFilter == 'Today') {
                           } else {
                            
                             final date = DateFormat('MM/dd').format(dateTime);
-                            return Text(date, style: TextStyle(fontSize: 10, color: Colors.black, fontWeight: FontWeight.w500));
+                            return Text(date, style: TextStyle(fontSize: 12, color: Colors.black, fontWeight: FontWeight.w500));
                           }
                         }
                         return const Text('');
@@ -174,8 +174,8 @@ if (widget.selectedFilter == 'Today') {
                       ), // color with opacity
                       gradient: LinearGradient(
                         colors: [
-                          Color.fromARGB(150, 14, 68, 161), // top color
-                          Color.fromARGB(0, 14, 68, 161), // bottom color (fade)
+                          Color.fromARGB(150, 14, 68, 161), 
+                          Color.fromARGB(0, 14, 68, 161), 
                         ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
