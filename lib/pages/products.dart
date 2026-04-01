@@ -333,7 +333,7 @@ Future<bool?> showDeleteConfirmationModal(BuildContext context) {
 
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 7),
                        Text(
                         "Are you sure you want to delete this product?",
                         textAlign: TextAlign.center,
@@ -344,7 +344,7 @@ Future<bool?> showDeleteConfirmationModal(BuildContext context) {
                         ),
                       ),
                   
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 45),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
