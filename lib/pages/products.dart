@@ -315,7 +315,7 @@ Future<bool?> showDeleteConfirmationModal(BuildContext context) {
         child: Material(
           type: MaterialType.transparency,
           child: ConstrainedBox(
-            constraints:  BoxConstraints(maxWidth: isDesktop ? 380 : isTablet ? 350 : 320),
+            constraints:  BoxConstraints(maxWidth: isDesktop ? 380 : isTablet ? 350 : 270),
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -328,23 +328,23 @@ Future<bool?> showDeleteConfirmationModal(BuildContext context) {
                    Text(
                     "Delete Product?",
                     style: GoogleFonts.kameron(
-                      fontSize: isDesktop ? 21 : isTablet ? 20 : 19,
+                      fontSize: isDesktop ? 21 : isTablet ? 20 : 17,
                       fontWeight: FontWeight.bold,
 
                     ),
                   ),
-                  const SizedBox(height: 7),
+                  const SizedBox(height: 6),
                        Text(
                         "Are you sure you want to delete this product?",
                         textAlign: TextAlign.center,
                         style: GoogleFonts.kameron(
-                          fontSize: isDesktop ? 20 : isTablet ? 18 : 16,
+                          fontSize: isDesktop ? 20 : isTablet ? 18 : 14.5,
                           fontWeight: FontWeight.w500
                       
                         ),
                       ),
                   
-                  const SizedBox(height: 45),
+                  const SizedBox(height: 40),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -356,7 +356,7 @@ Future<bool?> showDeleteConfirmationModal(BuildContext context) {
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text("Cancel", style: GoogleFonts.kameron(
-                              fontSize: isDesktop ? 21 : isTablet ? 19 : 17,
+                              fontSize: isDesktop ? 21 : isTablet ? 18 : 15,
                               color: Colors.black,
                               fontWeight: FontWeight.w500
                             )),
@@ -365,14 +365,14 @@ Future<bool?> showDeleteConfirmationModal(BuildContext context) {
 
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.fromLTRB(25, 10, 25, 10),
+                          padding: EdgeInsets.fromLTRB(20, 8, 20, 8),
                           backgroundColor: Colors.red,
                         ),
                         onPressed: () {
                           Navigator.of(context).pop(true); 
                         },
                         child:  Text("Delete", style: GoogleFonts.kameron(
-                          fontSize: isDesktop ? 21 : isTablet ? 19 : 17,
+                          fontSize: isDesktop ? 21 : isTablet ? 19 : 15,
                           color: Colors.white,
                           fontWeight: FontWeight.w500
                         ),),
@@ -469,7 +469,7 @@ final autocompleteCategories = _categories.where((c) => c != 'All').toList();
                 Text(
                   "Edit Product",
                   style: GoogleFonts.kameron(
-                    fontSize: isDesktop ? 22 : isTablet ? 21 : 18,
+                    fontSize: isDesktop ? 22 : isTablet ? 21 : 17,
                     fontWeight: FontWeight.w500,
                     color: Colors.black
                   ),),
@@ -484,14 +484,14 @@ final autocompleteCategories = _categories.where((c) => c != 'All').toList();
                         child: _editedImage != null
                             ? Image.file(
                                 _editedImage!,
-                                width: isDesktop ? 250 : isTablet ? 230 : 190,
-                                height:isDesktop ? 230 : isTablet ? 200 :160,
+                                width: isDesktop ? 250 : isTablet ? 230 : 150,
+                                height:isDesktop ? 230 : isTablet ? 200 :120,
                                 fit: BoxFit.cover,
                               )
                             : Image.asset(
                                 'assets/Legendaries.png',
-                                width: isDesktop ? 250 : isTablet ? 230 : 190,
-                                height:isDesktop ? 230 : isTablet ? 200 :160,
+                                width: isDesktop ? 250 : isTablet ? 230 : 150,
+                                height:isDesktop ? 230 : isTablet ? 200 :130,
                                 fit: BoxFit.cover,
                               ),
                       ),
@@ -507,7 +507,7 @@ final autocompleteCategories = _categories.where((c) => c != 'All').toList();
                         child: Icon(
                           Icons.edit,
                           color: Colors.white,
-                          size: isDesktop ? 26 : isTablet ? 23 :20,
+                          size: isDesktop ? 26 : isTablet ? 23 :18,
                         ),
                       ),
                     ],
@@ -524,7 +524,7 @@ final autocompleteCategories = _categories.where((c) => c != 'All').toList();
                          TextFormField(
                           controller: _productNameController,
                           style: GoogleFonts.kameron(
-                            fontSize: isDesktop ? 22 : isTablet ? 20 : 18
+                            fontSize: isDesktop ? 22 : isTablet ? 20 : 16
                           ),
                           decoration: InputDecoration(
                             labelText: 'Product',
@@ -539,11 +539,11 @@ final autocompleteCategories = _categories.where((c) => c != 'All').toList();
                               fontWeight: FontWeight.w500,
                             ),
                             contentPadding: EdgeInsets.symmetric(
-                              vertical: 18,
+                              vertical:  isDesktop ? 18 : isTablet ? 15 : 10,
                               horizontal: 18
                             ),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(10),
                             ),
                           ),
                           onChanged: (_) => setState(() {}),
@@ -577,7 +577,7 @@ final autocompleteCategories = _categories.where((c) => c != 'All').toList();
                               return TextField(
                                 controller: controller,
                                 style: GoogleFonts.kameron(
-                                  fontSize: isDesktop ? 22 : isTablet ? 20 : 18
+                                  fontSize: isDesktop ? 22 : isTablet ? 20 : 16
                                 ),
                                 focusNode: focusNode,
                                 onEditingComplete: onEditingComplete,
@@ -589,16 +589,16 @@ final autocompleteCategories = _categories.where((c) => c != 'All').toList();
                                   ),
                                   errorText: _productCategoryController.text.trim().isEmpty ? 'Required' : null,
                                   errorStyle: GoogleFonts.kameron(
-                                    fontSize: Responsive.font(context, mobile: 12, tablet: 14, desktop: 16),
+                                    fontSize: Responsive.font(context, mobile: 13, tablet: 14, desktop: 16),
                                     color: Colors.red,
                                     fontWeight: FontWeight.w500,
                                   ),
                                   contentPadding: EdgeInsets.symmetric(
-                                    vertical: 18,
+                                    vertical:  isDesktop ? 18 : isTablet ? 15 : 10,
                                     horizontal: 18
                                   ),
                                   border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
                                   filled: true,
                                   fillColor: Colors.grey[100],
@@ -617,7 +617,7 @@ final autocompleteCategories = _categories.where((c) => c != 'All').toList();
                           TextFormField(
                           controller: _priceController,
                           style: GoogleFonts.kameron(
-                            fontSize: isDesktop ? 22 : isTablet ? 20 : 18
+                            fontSize: isDesktop ? 22 : isTablet ? 20 : 16
                           ),
                           inputFormatters: [
                             FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
@@ -632,16 +632,16 @@ final autocompleteCategories = _categories.where((c) => c != 'All').toList();
                             prefixText: '₱ ',
                             errorText: _priceController.text.trim().isEmpty ? 'Required' : null,
                             errorStyle: GoogleFonts.kameron(
-                              fontSize: Responsive.font(context, mobile: 12, tablet: 14, desktop: 16),
+                              fontSize: Responsive.font(context, mobile: 13, tablet: 14, desktop: 16),
                               color: Colors.red,
                               fontWeight: FontWeight.w500,
                             ),
                             contentPadding: EdgeInsets.symmetric(
-                            vertical: 18,
+                            vertical:  isDesktop ? 18 : isTablet ? 15 : 10,
                             horizontal: 18
                           ),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(10),
                             ),
                           ),
                           onChanged: (_) => setState(() {}),),
@@ -651,7 +651,7 @@ final autocompleteCategories = _categories.where((c) => c != 'All').toList();
                           TextFormField(
                           controller: _costController,
                           style: GoogleFonts.kameron(
-                            fontSize: isDesktop ? 22 : isTablet ? 20 : 18
+                            fontSize: isDesktop ? 22 : isTablet ? 20 : 16
                           ),
                          inputFormatters: [
                             FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
@@ -666,16 +666,16 @@ final autocompleteCategories = _categories.where((c) => c != 'All').toList();
                             prefixText: '₱ ',
                             errorText: _costController.text.trim().isEmpty ? 'Required' : null,
                             errorStyle: GoogleFonts.kameron(
-                              fontSize: Responsive.font(context, mobile: 12, tablet: 14, desktop: 16),
+                              fontSize: Responsive.font(context, mobile: 13, tablet: 14, desktop: 16),
                               color: Colors.red,
                               fontWeight: FontWeight.w500,
                             ),
                             contentPadding: EdgeInsets.symmetric(
-                              vertical: 18,
+                              vertical:  isDesktop ? 18 : isTablet ? 15 : 10,
                               horizontal: 18
                           ),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(10),
                             ),
                           ),
                            onChanged: (_) => setState(() {})),
@@ -685,7 +685,7 @@ final autocompleteCategories = _categories.where((c) => c != 'All').toList();
                           TextFormField(
                           controller: _stockAlertController,
                           style: GoogleFonts.kameron(
-                            fontSize: isDesktop ? 22 : isTablet ? 20 : 18
+                            fontSize: isDesktop ? 22 : isTablet ? 20 : 16
                           ),
                           keyboardType: TextInputType.number,
                           inputFormatters: [
@@ -698,11 +698,11 @@ final autocompleteCategories = _categories.where((c) => c != 'All').toList();
                               fontWeight: FontWeight.w500,
                             ),
                             contentPadding: EdgeInsets.symmetric(
-                              vertical: 18,
+                              vertical:  isDesktop ? 18 : isTablet ? 15 : 10,
                               horizontal: 18
                           ),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(10),
                             ),
         
                           ),
@@ -713,20 +713,20 @@ final autocompleteCategories = _categories.where((c) => c != 'All').toList();
                           TextFormField(
                           controller: _descriptionController, 
                           style: GoogleFonts.kameron(
-                            fontSize: isDesktop ? 22 : isTablet ? 20 : 18
+                            fontSize: isDesktop ? 22 : isTablet ? 20 : 16
                           ),   
                           decoration: InputDecoration(
-                            labelText: 'Description',
+                            labelText: 'Description...',
                             labelStyle: GoogleFonts.kameron(
                               fontSize: Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
                               fontWeight: FontWeight.w500,
                             ),
                              contentPadding: EdgeInsets.symmetric(
-                              vertical: 18,
+                              vertical:  isDesktop ? 35 : isTablet ? 30 : 10,
                               horizontal: 18
                             ),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(10),
                             ),
                           ),
                           onChanged: (value) {},),
@@ -740,7 +740,7 @@ final autocompleteCategories = _categories.where((c) => c != 'All').toList();
                 SizedBox(height: 20,),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    minimumSize: Size(200,isDesktop ? 55 : isTablet ? 50 : 45),
+                    minimumSize: Size(isDesktop ? 200 : isTablet ? 180 : 150 ,isDesktop ? 55 : isTablet ? 50 : 40),
                     backgroundColor: Color(0xFF00C853),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)
@@ -774,7 +774,7 @@ final autocompleteCategories = _categories.where((c) => c != 'All').toList();
                   child: Text(
                     "Save",
                     style: GoogleFonts.kameron(
-                      fontSize:  Responsive.font(context, mobile: 17, tablet: 19, desktop: 21),
+                      fontSize:  Responsive.font(context, mobile: 15, tablet: 19, desktop: 21),
                       fontWeight: FontWeight.w500,
                       color: Colors.black
                     ),
@@ -811,7 +811,7 @@ Widget categoryHeader(String title) {
             style: GoogleFonts.kameron(
               fontWeight: FontWeight.w700,
               color: Colors.black,
-              fontSize: Responsive.font(context, mobile: 14, tablet: 15, desktop: 16)
+              fontSize: Responsive.font(context, mobile: 12.3, tablet: 15, desktop: 16)
             ),
           ),
         ),
@@ -829,8 +829,9 @@ Widget productCard(Product product) {
     final isDesktop = Responsive.isDesktop(context);
 
   return Container(
-    margin: const EdgeInsets.only(top: 12),
-    padding: const EdgeInsets.all(12),
+    margin: const EdgeInsets.only(top: 8),
+    padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+    height: Responsive.spacing(context, mobile: 78, tablet: 95, desktop: 110),
     decoration: BoxDecoration(
       color: product.stock == 0 ? Colors.red[100] : Colors.white,
       borderRadius: BorderRadius.circular(14),
@@ -855,7 +856,7 @@ Widget productCard(Product product) {
                   ? Image.file(
                       File(product.imagePath!),
                       width: isDesktop ? 75 : isTablet ? 65 : 55,
-                     height: isDesktop ? 70 : isTablet ? 60 : 50,
+                      height: isDesktop ? 70 : isTablet ? 60 : 50,
                       fit: BoxFit.cover,
                     ): Image.asset(
                       'assets/Legendaries.png', // fallback image
@@ -873,14 +874,14 @@ Widget productCard(Product product) {
                 Text(
                   toTitleCase(product.name),
                   style: GoogleFonts.kameron(
-                    fontSize: isDesktop ? 20 : isTablet ? 18 : 16,
+                    fontSize: isDesktop ? 20 : isTablet ? 18 : 14.5,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
                   '₱${product.price.toStringAsFixed(2)}',
                   style: GoogleFonts.kameron(
-                    fontSize: isDesktop ? 19 : isTablet ? 17 : 15,
+                    fontSize: isDesktop ? 19 : isTablet ? 17 : 13.5,
                     color: Colors.grey[900],
                     fontWeight: FontWeight.w500
                   ),
@@ -888,7 +889,7 @@ Widget productCard(Product product) {
                 Text(
                   'Stock: ${product.stock}',
                   style: GoogleFonts.kameron(
-                    fontSize: isDesktop ? 18 : isTablet ? 16 : 14,
+                    fontSize: isDesktop ? 18 : isTablet ? 16 : 12.5,
                     color: Colors.grey[900],
                     fontWeight: FontWeight.w500
                   ),
@@ -903,11 +904,11 @@ Widget productCard(Product product) {
           children: [
             if (_userRole == 'admin') ...[
               IconButton(
-                icon:  Icon(Icons.edit, size: isDesktop ? 30 :isTablet ? 25 :20),
+                icon:  Icon(Icons.edit, size: isDesktop ? 30 :isTablet ? 25 :18),
                 onPressed: () => _openEditModal(product),
               ),
               IconButton(
-                icon:  Icon(Icons.delete, size: isDesktop ? 30 :isTablet ? 25 :20, color: Colors.red),
+                icon:  Icon(Icons.delete, size: isDesktop ? 30 :isTablet ? 25 :18, color: Colors.red),
                 onPressed: () =>_openDeleteConfirmationModal(product.id!),
               ),
             ],
@@ -933,13 +934,13 @@ Widget productCard(Product product) {
         shadowColor: Colors.grey.withOpacity(0.5),
         automaticallyImplyLeading: false,
         elevation: 5,
-        toolbarHeight: isDesktop ? 80 : isTablet ? 70 : 60,
+        toolbarHeight: isDesktop ? 70 : isTablet ? 60 : 50,
         title:Padding(
           padding: const EdgeInsets.fromLTRB(20,0,0,0),
           child: Text(
             "Products",
             style: GoogleFonts.kameron(
-              fontSize: 22,
+              fontSize: isDesktop ? 24 :isTablet ? 22 : 20,
               fontWeight: FontWeight.bold,
               color: Colors.black
             ),
@@ -956,55 +957,66 @@ Widget productCard(Product product) {
                 children: [
                   Expanded(
                     flex: 3,
-                    child: TextField(
-                      controller: _searchController,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')),
-                      ],
-                      decoration: InputDecoration(
-                        hintText: 'Search for...',
-                        prefixIcon: const Icon(Icons.search),
-                        hintStyle: GoogleFonts.kameron(fontSize: 16),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
+                    child: SizedBox(
+                      height: Responsive.spacing(context, mobile: 50, tablet: 55, desktop: 63),
+                      child: TextField(
+                        style: GoogleFonts.kameron(
+                          fontSize:  Responsive.font(context,mobile: 17, tablet: 20, desktop: 30)
                         ),
-                        filled: true,
-                        fillColor: Colors.grey[100]
+                        controller: _searchController,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')),
+                        ],
+                        decoration: InputDecoration(
+                          hintText: 'Search for...',
+                          prefixIcon: Icon(Icons.search, size: Responsive.font(context,mobile: 25, tablet: 28, desktop: 30),),
+                          hintStyle: GoogleFonts.kameron(fontSize: Responsive.font(context,mobile: 15, tablet: 18, desktop: 20), fontWeight: FontWeight.w500),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: BorderSide(color: Colors.black, width: 1),
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[100]
+                        ),
                       ),
                     ),
                   ),
 
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 8),
 
                   Expanded(
                     flex: 2,
-                    child: DropdownButtonFormField<String>(
-                      value: _selectedCategory,
-                      style: GoogleFonts.kameron(
-                        fontSize: 16,
-                        color: Colors.black),
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
+                    child: SizedBox(
+                      height: Responsive.spacing(context, mobile: 50, tablet: 55, desktop: 63),
+                      child: DropdownButtonFormField<String>(
+                        value: _selectedCategory,
+                        style: GoogleFonts.kameron(
+                          fontSize: Responsive.font(context,mobile: 16, tablet: 18, desktop: 20),
+                          color: Colors.black),
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: Colors.black, width: 1),
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[100]
                         ),
-                        filled: true,
-                        fillColor: Colors.grey[100]
+                        items:_categories.map((category) {
+                          return DropdownMenuItem(
+                            value: category,
+                            child: Text(category),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() => _selectedCategory = value!);
+                        },
                       ),
-                      items:_categories.map((category) {
-                        return DropdownMenuItem(
-                          value: category,
-                          child: Text(category),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() => _selectedCategory = value!);
-                      },
                     ),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 15),
+              const SizedBox(height: 10),
 
              Expanded(
               child: FutureBuilder<List<Product>>(
@@ -1111,8 +1123,8 @@ Widget productCard(Product product) {
         ),
         floatingActionButton: (_userRole != 'admin') ? SizedBox.shrink()  :  
         Container(
-          width: isDesktop ? 75 : isTablet ? 75: 60,
-          height: isDesktop ? 75  : isTablet  ? 75 : 60,
+          width: isDesktop ? 70 : isTablet ? 65: 50,
+          height: isDesktop ? 70  : isTablet  ? 65 : 50,
           child: FloatingActionButton(
             onPressed:(){
               Navigator.pushNamed(context, '/addproduct').then((_) {
@@ -1123,7 +1135,7 @@ Widget productCard(Product product) {
           
             },
             backgroundColor: Color(0xFF25FFA0), 
-            child: Icon(Icons.add, color: Colors.black, size: isDesktop ? 40 : isTablet ? 35 : 30), 
+            child: Icon(Icons.add, color: Colors.black, size: isDesktop ? 40 : isTablet ? 35 : 25), 
             ),
         ),
       bottomNavigationBar: AppFooter(

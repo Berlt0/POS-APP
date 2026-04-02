@@ -213,16 +213,16 @@ String _valueOrLoading(String key, {bool peso = false}) {
         shadowColor: Colors.grey.withOpacity(0.5),
         automaticallyImplyLeading: false,
         elevation: 5,
-        toolbarHeight: isDesktop ? 80 : isTablet ? 70 : 60,
+        toolbarHeight: isDesktop ? 70 : isTablet ? 70 : 60,
         title:Padding(
-          padding: const EdgeInsets.fromLTRB(20,0,0,0),
+          padding: const EdgeInsets.fromLTRB(10,0,0,0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 "Reports",
                 style: GoogleFonts.kameron(
-                  fontSize: 22,
+                  fontSize: isDesktop ? 24 :isTablet ? 22 : 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.black
                 ),
@@ -232,7 +232,6 @@ String _valueOrLoading(String key, {bool peso = false}) {
                   children: [
                     
                     SizedBox(
-                      width: Responsive.spacing(context, mobile: 150, tablet: 180, desktop: 220),
                       height: Responsive.spacing(context, mobile: 40, tablet: 45, desktop: 50),
                       child: Material(
                         color: Color(0xFF3CE7FA), 
@@ -245,12 +244,12 @@ String _valueOrLoading(String key, {bool peso = false}) {
                             Navigator.pushNamed(context, '/transaction');
                           },
                           child: Padding(
-                            padding: EdgeInsets.all(10),
+                            padding: EdgeInsets.all(8),
                             child: Center(
                               child: Text(
                                 'Transaction Records',
                                 style: GoogleFonts.kameron(
-                                  fontSize: isDesktop ? 18 : isTablet ? 15 : 14,
+                                  fontSize: isDesktop ? 15 : isTablet ? 14 : 13,
                                   fontWeight: FontWeight.w500,
                                   color: Colors.black,
                                 ),
@@ -278,7 +277,7 @@ String _valueOrLoading(String key, {bool peso = false}) {
               Text(
                 'Date Range',
                 style: GoogleFonts.kameron(
-                  fontSize: Responsive.font(context, mobile: 16,tablet: 21, desktop: 24 ),
+                  fontSize: Responsive.font(context, mobile: 15,tablet: 21, desktop: 24 ),
                   fontWeight: FontWeight.bold,
                   color: Colors.black
                 )
@@ -292,7 +291,7 @@ String _valueOrLoading(String key, {bool peso = false}) {
                       onTap: () => _pickDateRange(context),
                       child: Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding:  EdgeInsets.symmetric(horizontal: 16, vertical: Responsive.font(context,mobile: 12, tablet: 12, desktop: 14)),
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey.shade300),
                           borderRadius: BorderRadius.circular(12),
@@ -308,7 +307,7 @@ String _valueOrLoading(String key, {bool peso = false}) {
                                     ' - '
                                     '${DateFormat('MM/dd/yyyy').format(selectedRange!.end)}',
                               style: GoogleFonts.kameron(
-                                fontSize: Responsive.font(context, mobile: 15, tablet: 17, desktop: 19),
+                                fontSize: Responsive.font(context, mobile: 14, tablet: 17, desktop: 19),
                                 color: Colors.black87,
                                 fontWeight: FontWeight.w500
                               ),
@@ -327,7 +326,7 @@ String _valueOrLoading(String key, {bool peso = false}) {
                     child: DropdownButtonFormField<String>(
                      value: selectedFilter,
                      items: ['Today', 'Weekly', 'Custom']
-                    .map((e) => DropdownMenuItem(value: e, child: Text(e, style: GoogleFonts.kameron(fontSize: 16, color:Colors.black),)))
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e, style: GoogleFonts.kameron(fontSize:  Responsive.font(context,mobile: 14, tablet: 17, desktop: 19), color:Colors.black),)))
                     .toList(),
                       onChanged: (value) async {
                         setState(() {
@@ -344,9 +343,9 @@ String _valueOrLoading(String key, {bool peso = false}) {
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Colors.grey[100],
-                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: Responsive.font(context,mobile: 12, tablet: 12, desktop: 14)),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                     ),
@@ -573,29 +572,28 @@ String _valueOrLoading(String key, {bool peso = false}) {
                                   )
                                 : LayoutBuilder(
                                     builder: (context, constraints) {
-                                      return Scrollbar(
-                                        thumbVisibility: true,
-                                        controller: _topProductsScrollController,
-                                        child: SingleChildScrollView(
+
+                                      final bool isMobile = Responsive.isMobile(context);
+
+                                      return 
+                                        SingleChildScrollView(
                                           controller: _topProductsScrollController,
                                           scrollDirection: Axis.vertical,
-                                          child: ConstrainedBox(
-                                            constraints:
-                                                BoxConstraints(
-                                                  minWidth: constraints.maxWidth),
-                                            child: SingleChildScrollView(
-                                              scrollDirection: Axis.horizontal,
-                                              child: SizedBox(
-                                                width: constraints.maxWidth,
-                                                child: TopProductWidget(
-                                                  products: topProducts,
-                                                  isLoading: isTopProductsLoading,
-                                                ),
+                                          child: SingleChildScrollView(
+                                                scrollDirection: Axis.horizontal,
+                                                child: ConstrainedBox(
+                                                  constraints: BoxConstraints(
+                                                   minWidth: constraints.maxWidth,
+                                                   maxWidth: isMobile ? double.infinity : constraints.maxWidth,
+                                                    ),
+                                                    child: TopProductWidget(
+                                                      products: topProducts,
+                                                      isLoading: isTopProductsLoading,
+                                                  ),
                                               ),
-                                            ),
-                                          ),
-                                        ),
-                                      );
+                                        )
+                                        );
+                                      
                                     },
                                   ),
                       ),
@@ -682,7 +680,7 @@ String _valueOrLoading(String key, {bool peso = false}) {
                 color: iconColor,
                 size: Responsive.font(
                   context,
-                  mobile: 22,
+                  mobile: 21,
                   tablet: 25,
                   desktop: 32,
                 ),

@@ -100,7 +100,8 @@ void dispose() {
       showModalBottomSheet(
         context: context,
         builder: (_) => Container(
-          height: 120,
+          height: 130,
+          padding: EdgeInsetsDirectional.symmetric(horizontal: 13),
           child: Column(
             children: [
               ListTile(
@@ -232,7 +233,7 @@ Widget productFormWidget(int index) {
             children: [
               Text("Product ${index + 1}", 
               style: GoogleFonts.kameron(
-              fontSize: isDesktop ? 25 : isTablet ? 23 : 20,
+              fontSize: isDesktop ? 25 : isTablet ? 22 : 18,
               fontWeight: FontWeight.bold,
               color: Colors.black
             )),
@@ -253,7 +254,7 @@ Widget productFormWidget(int index) {
                             type: MaterialType.transparency,
                             child: ConstrainedBox(
                               constraints: BoxConstraints(
-                                maxWidth: isDesktop ? 380 : isTablet ? 350 : 320,
+                                maxWidth: isDesktop ? 380 : isTablet ? 350 : 270,
                               ),
                               child: Container(
                                 padding: const EdgeInsets.all(20),
@@ -267,7 +268,7 @@ Widget productFormWidget(int index) {
                                     Text(
                                       "Remove Product?",
                                       style: GoogleFonts.kameron(
-                                        fontSize: isDesktop ? 21 : isTablet ? 20 : 19,
+                                        fontSize: isDesktop ? 21 : isTablet ? 20 : 17,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -276,7 +277,7 @@ Widget productFormWidget(int index) {
                                       "Are you sure you want to remove this product?",
                                       textAlign: TextAlign.center,
                                       style: GoogleFonts.kameron(
-                                        fontSize: isDesktop ? 20 : isTablet ? 18 : 16,
+                                        fontSize:  isDesktop ? 20 : isTablet ? 18 : 14.5,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -292,7 +293,7 @@ Widget productFormWidget(int index) {
                                             child: Text(
                                               "Cancel",
                                               style: GoogleFonts.kameron(
-                                                fontSize: isDesktop ? 21 : isTablet ? 19 : 17,
+                                                fontSize:  isDesktop ? 21 : isTablet ? 18 : 15,
                                                 color: Colors.black,
                                                 fontWeight: FontWeight.w500,
                                               ),
@@ -302,7 +303,7 @@ Widget productFormWidget(int index) {
 
                                         ElevatedButton(
                                           style: ElevatedButton.styleFrom(
-                                            padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+                                            padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
                                             backgroundColor: Colors.red,
                                           ),
                                           onPressed: () {
@@ -314,7 +315,7 @@ Widget productFormWidget(int index) {
                                           child: Text(
                                             "Remove",
                                             style: GoogleFonts.kameron(
-                                              fontSize: isDesktop ? 21 : isTablet ? 19 : 17,
+                                              fontSize: isDesktop ? 21 : isTablet ? 19 : 15,
                                               color: Colors.white,
                                               fontWeight: FontWeight.w500,
                                             ),
@@ -355,33 +356,37 @@ Widget productFormWidget(int index) {
                       Text(
                         "Product Name",
                         style: GoogleFonts.kameron(
-                          fontSize: isDesktop ? 21 : isTablet ? 19 : 17,
-                          fontWeight: FontWeight.w400
+                          fontSize: isDesktop ? 21 : isTablet ? 19 : 15,
+                          fontWeight: FontWeight.w500
                         ),
                       ),
                       SizedBox(height: 5,),
                       TextField(
+                        style: GoogleFonts.kameron(
+                            fontSize: isDesktop ? 22 : isTablet ? 20 : 16
+                          ),  
                         controller: form.productName,
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')),
                         ],
                         decoration: InputDecoration(
                           hintText: '(ex. Nova)',
-                          hintStyle: TextStyle(fontSize: isDesktop ? 19 : isTablet ? 16 : 15 ,color: Colors.grey[700],fontStyle: FontStyle.italic),
+                          hintStyle: TextStyle(fontSize: isDesktop ? 19 : isTablet ? 16 : 14 ,color: Colors.grey[700],fontStyle: FontStyle.italic),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
+                              borderRadius: BorderRadius.circular(10),
                             ),
                             fillColor: Colors.grey[100],
                             filled: true,
-                            contentPadding: EdgeInsets.symmetric(vertical: isDesktop ? 18 : isTablet ? 16 : 13, horizontal: 13)
+                            contentPadding: EdgeInsets.symmetric(vertical: isDesktop ? 18 : isTablet ? 16 : 10, horizontal: 13)
                         ),
                         
                       ),
-                      SizedBox(height: 12,),
+                      SizedBox(height: 10,),
                       Text(
                         "Category",
                         style: GoogleFonts.kameron(
-                          fontSize:  isDesktop ? 21 : isTablet ? 19 : 17,
+                          fontSize:  isDesktop ? 21 : isTablet ? 19 : 15,
+                          fontWeight: FontWeight.w500
                         ),
                       ),
                       SizedBox(height: 5,),
@@ -407,13 +412,13 @@ Widget productFormWidget(int index) {
                             onEditingComplete: onEditingComplete,
                             decoration: InputDecoration(
                               hintText: '(ex. Snacks)',
-                              hintStyle:  TextStyle(fontSize: isDesktop ? 19 : isTablet ? 16 : 15 ,color: Colors.grey[700],fontStyle: FontStyle.italic),
+                              hintStyle:  TextStyle(fontSize: isDesktop ? 19 : isTablet ? 16 : 14 ,color: Colors.grey[700],fontStyle: FontStyle.italic),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(15),
+                                borderRadius: BorderRadius.circular(10),
                               ),
                               fillColor: Colors.grey[100],
                               filled: true,
-                              contentPadding: EdgeInsets.symmetric(vertical: isDesktop ? 18 : isTablet ? 16 : 13, horizontal: 13),
+                              contentPadding: EdgeInsets.symmetric(vertical: isDesktop ? 18 : isTablet ? 16 : 10, horizontal: 13),
                             ),
                           );
                         },
@@ -423,11 +428,12 @@ Widget productFormWidget(int index) {
                       ),
 
 
-                      SizedBox(height: 12,),
+                      SizedBox(height: 10,),
                       Text(
                         "Barcode (optional)",
                         style: GoogleFonts.kameron(
-                          fontSize: isDesktop ? 21 : isTablet ? 19 : 17,
+                          fontSize: isDesktop ? 21 : isTablet ? 19 : 15,
+                          fontWeight: FontWeight.w500
                         ),
                       ),
                       SizedBox(height: 5,),
@@ -437,29 +443,31 @@ Widget productFormWidget(int index) {
                           FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')),
                         ],
                         decoration: InputDecoration(
-                          hintStyle: GoogleFonts.kameron(fontSize: 16),
+                          hintStyle: GoogleFonts.kameron(fontSize: isDesktop ? 19 : isTablet ? 16 : 14 ,color: Colors.grey[700],fontStyle: FontStyle.italic),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
+                              borderRadius: BorderRadius.circular(10),
                             ),
                             fillColor: Colors.grey[100],
                             filled: true,
-                            contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 13),// MUST
+                            contentPadding: EdgeInsets.symmetric(vertical: isDesktop ? 18 : isTablet ? 16 : 10, horizontal: 13),// MUST
                             suffixIcon: Container(
+                              padding: EdgeInsetsDirectional.symmetric(vertical: isDesktop ? 4 : isTablet ? 3 : 2,horizontal:  isDesktop ? 10 : isTablet ? 7 : 5), 
                               decoration: BoxDecoration(
+                                
                                 color: Color(0xFF00E6FF),
                                 border: Border.all(
                                   width: 1,
                                   color: const Color.fromARGB(255, 99, 98, 98)
                                 ),
                                 borderRadius: BorderRadius.only(
-                                  topRight: Radius.circular(15),
-                                  bottomRight: Radius.circular(15)
+                                  topRight: Radius.circular(isDesktop ? 7 : isTablet ? 10 : 10),
+                                  bottomRight: Radius.circular(isDesktop ? 7 : isTablet ? 10 : 10)
                                 )
                               ),
                               child: IconButton(
                                 icon: Icon(
                                   Icons.qr_code_scanner, // or Icons.qr_code for barcode
-                                  color: Colors.black ,size: isDesktop ? 32 : isTablet ? 30 : 28,
+                                  color: Colors.black ,size: isDesktop ? 32 : isTablet ? 30 : 25,
                                 ),
                                 onPressed: () {
                                   // TODO: add your barcode generation/scanner logic here
@@ -478,14 +486,16 @@ Widget productFormWidget(int index) {
                     children: [
                       Text(
                         "Product Image",
-                        style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 19 : 17),
+                        style: GoogleFonts.kameron(
+                          fontSize:  isDesktop ? 21 : isTablet ? 19 : 15,
+                        ),
                       ),
                       const SizedBox(height: 5),
                       GestureDetector(
                         onTap: () => _pickImage(index), // open gallery when tapped
                         child: Container(
-                          width: isDesktop ? 190 : isTablet ? 180 : 150,
-                          height: isDesktop ? 170 : isTablet ? 160 : 150,
+                          width: isDesktop ? 190 : isTablet ? 180 : 130,
+                          height: isDesktop ? 170 : isTablet ? 160 : 130,
                           decoration: BoxDecoration(
                             color: Colors.grey[200],
                             borderRadius: BorderRadius.circular(15),
@@ -501,7 +511,7 @@ Widget productFormWidget(int index) {
                                 )
                               : Icon(
                                   Icons.camera_alt,
-                                  size: isDesktop ? 60 : isTablet ? 55 : 50,
+                                  size: isDesktop ? 60 : isTablet ? 55 : 45,
                                   color: Colors.grey[700],
                                 ),
                         ),
@@ -516,7 +526,7 @@ Widget productFormWidget(int index) {
                 ),
               ],
             ),
-            SizedBox(height: 12,),
+            SizedBox(height: 10,),
             Column(
               children: [
                 Row(
@@ -529,8 +539,9 @@ Widget productFormWidget(int index) {
                           Text(
                           "Price",
                           style: GoogleFonts.kameron(
-                            fontSize: isDesktop ? 21 : isTablet ? 19 : 17,
-                          ),
+                            fontSize:  isDesktop ? 21 : isTablet ? 19 : 15,
+                            fontWeight: FontWeight.w500
+                        ),
                         ),
                         SizedBox(height: 5,),
                         TextField(
@@ -540,13 +551,13 @@ Widget productFormWidget(int index) {
                           ],
                           decoration: InputDecoration(
                             hintText: '(ex. 20)',
-                            hintStyle: TextStyle(fontSize: isDesktop ? 19 : isTablet ? 16 : 15 ,color: Colors.grey[700],fontStyle: FontStyle.italic), 
+                            hintStyle: TextStyle(fontSize: isDesktop ? 19 : isTablet ? 16 : 14 ,color: Colors.grey[700],fontStyle: FontStyle.italic), 
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(15),
+                                borderRadius: BorderRadius.circular(10),
                               ),
                               fillColor: Colors.grey[100],
                               filled: true,
-                              contentPadding: EdgeInsets.symmetric(vertical: isDesktop ? 18 : isTablet ? 16 : 13, horizontal: 13)
+                              contentPadding: EdgeInsets.symmetric(vertical: isDesktop ? 18 : isTablet ? 16 : 10, horizontal: 13)
                           ),
                         ),
                         ],
@@ -560,10 +571,11 @@ Widget productFormWidget(int index) {
                           Text(
                           "Cost (optional)",
                           style: GoogleFonts.kameron(
-                            fontSize: isDesktop ? 21 : isTablet ? 19 : 17,
-                          ),
+                            fontSize:  isDesktop ? 21 : isTablet ? 19 : 15,
+                            fontWeight: FontWeight.w500
                         ),
-                        SizedBox(height: 6,),
+                        ),
+                        SizedBox(height: 5,),
                         TextField(
                           controller: form.cost,
                           inputFormatters: [
@@ -571,13 +583,13 @@ Widget productFormWidget(int index) {
                           ],
                           decoration: InputDecoration(
                               hintText: '(ex. 15)',
-                              hintStyle: TextStyle(fontSize: isDesktop ? 19 : isTablet ? 16 : 15 ,color: Colors.grey[700],fontStyle: FontStyle.italic),
+                              hintStyle: TextStyle(fontSize: isDesktop ? 19 : isTablet ? 16 : 14 ,color: Colors.grey[700],fontStyle: FontStyle.italic),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(15),
+                                borderRadius: BorderRadius.circular(10),
                               ),
                               fillColor: Colors.grey[100],
                               filled: true,
-                              contentPadding: EdgeInsets.symmetric(vertical: isDesktop ? 18 : isTablet ? 16 : 13, horizontal: 10)
+                              contentPadding: EdgeInsets.symmetric(vertical: isDesktop ? 18 : isTablet ? 16 : 10, horizontal: 10)
                           ),
                         ),
                         ],
@@ -600,8 +612,9 @@ Widget productFormWidget(int index) {
                           Text(
                           "Stock Quantity",
                           style: GoogleFonts.kameron(
-                            fontSize: isDesktop ? 21 : isTablet ? 19 : 17,
-                          ),
+                            fontSize:  isDesktop ? 21 : isTablet ? 19 : 15,
+                            fontWeight: FontWeight.w500
+                        ),
                         ),
                         SizedBox(height: 5,),
                         TextField(
@@ -611,15 +624,15 @@ Widget productFormWidget(int index) {
                           ],
                           decoration: InputDecoration(
                             hintText: '(ex. 12)',
-                            hintStyle: TextStyle(fontSize: isDesktop ? 19 : isTablet ? 16 : 15 ,color: Colors.grey[700],fontStyle: FontStyle.italic),
+                            hintStyle: TextStyle(fontSize: isDesktop ? 19 : isTablet ? 16 : 14 ,color: Colors.grey[700],fontStyle: FontStyle.italic),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(15),
+                                borderRadius: BorderRadius.circular(10),
                               ),
                               fillColor: Colors.grey[100],
                               filled: true,
-                              contentPadding: EdgeInsets.symmetric(vertical: isDesktop ? 18 : isTablet ? 16 : 13, horizontal: 10),
+                              contentPadding: EdgeInsets.symmetric(vertical: isDesktop ? 18 : isTablet ? 16 : 10, horizontal: 10),
                               suffixIcon: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 5),
+                                padding: EdgeInsets.symmetric(horizontal: 5, vertical: isDesktop ? 3 : isTablet ? 2 : 1 ),
                                 decoration: BoxDecoration(
                                 border: Border.all(
                                   width: 1,
@@ -627,8 +640,8 @@ Widget productFormWidget(int index) {
                                 ),
                                 color: Color(0xFF00E6FF),
                                 borderRadius: BorderRadius.only(
-                                  topRight: Radius.circular(15),
-                                  bottomRight: Radius.circular(15),
+                                  topRight: Radius.circular(isDesktop ? 7 : isTablet ? 10 : 10),
+                                  bottomRight: Radius.circular(isDesktop ? 7 : isTablet ? 10 : 10),
                                 ),
                               ),
                               child: DropdownButton<String>(
@@ -643,9 +656,8 @@ Widget productFormWidget(int index) {
                                     child: Text(
                                       unit,
                                       style: GoogleFonts.kameron(
-                                        fontSize: isDesktop ? 19 : isTablet ? 16 : 15 ,
-                                        fontWeight: FontWeight.w500
-                                      ),
+                                        fontSize: isDesktop ? 19 : isTablet ? 16 : 14 ,
+                                        fontWeight: FontWeight.normal                                      ),
                                     ),
                                   );
                                 }).toList(), 
@@ -669,8 +681,9 @@ Widget productFormWidget(int index) {
                           Text(
                           "Low Stock Alert",
                           style: GoogleFonts.kameron(
-                            fontSize: isDesktop ? 21 : isTablet ? 19 : 17,
-                          ),
+                            fontSize:  isDesktop ? 21 : isTablet ? 19 : 15,
+                            fontWeight: FontWeight.w500
+                        ),
                         ),
                         SizedBox(height: 5,),
                         TextField(
@@ -680,13 +693,13 @@ Widget productFormWidget(int index) {
                           ],
                           decoration: InputDecoration(
                             hintText: '(ex. 5)',
-                            hintStyle: TextStyle(fontSize: isDesktop ? 19 : isTablet ? 16 : 15 ,color: Colors.grey[700],fontStyle: FontStyle.italic),
+                            hintStyle: TextStyle(fontSize: isDesktop ? 19 : isTablet ? 16 : 14 ,color: Colors.grey[700],fontStyle: FontStyle.italic),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(15),
+                                borderRadius: BorderRadius.circular(10),
                               ),
                               fillColor: Colors.grey[100],
                               filled: true,
-                              contentPadding: EdgeInsets.symmetric(vertical: isDesktop ? 18 : isTablet ? 16 : 13, horizontal: 10)
+                              contentPadding: EdgeInsets.symmetric(vertical: isDesktop ? 18 : isTablet ? 16 : 10, horizontal: 10)
                           ),
                         ),
                         ],
@@ -703,8 +716,9 @@ Widget productFormWidget(int index) {
                 Text(
                   "Description (optional)",
                   style: GoogleFonts.kameron(
-                  fontSize: isDesktop ? 21 : isTablet ? 19 : 17,
-                  ),
+                            fontSize:  isDesktop ? 21 : isTablet ? 19 : 15,
+                            fontWeight: FontWeight.w500
+                        ),
                   ),
                   SizedBox(height: 5,),
                   TextField(
@@ -714,16 +728,16 @@ Widget productFormWidget(int index) {
                     ],
                     keyboardType: TextInputType.multiline, 
                     minLines: 2, 
-                    maxLines: null,
+                    maxLines: 3,
                     decoration: InputDecoration(
                     hintText: 'Type here....',
-                    hintStyle: TextStyle(fontSize: isDesktop ? 19 : isTablet ? 16 : 15 ,color: Colors.grey[700],fontStyle: FontStyle.italic),
+                    hintStyle: TextStyle(fontSize: isDesktop ? 19 : isTablet ? 16 : 14 ,color: Colors.grey[700],fontStyle: FontStyle.italic),
                     border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                     fillColor: Colors.grey[100],
                     filled: true,
-                    contentPadding: EdgeInsets.symmetric(vertical: isDesktop ? 26 : isTablet ? 24 : 20, horizontal: 10)
+                    contentPadding: EdgeInsets.symmetric(vertical: isDesktop ? 26 : isTablet ? 24 : 12, horizontal: 10)
                   ),
                 ),
               ],
@@ -754,25 +768,22 @@ Widget productFormWidget(int index) {
         shadowColor: Colors.grey.withOpacity(0.5),
         elevation: 3,
         leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios_new_sharp),   // or Icons.arrow_back
+            icon: Icon(Icons.arrow_back_ios_new_sharp, size: isDesktop ? 35 : isTablet ? 30 :25,),   // or Icons.arrow_back
             iconSize: Responsive.spacing(context, mobile: 28, tablet: 32, desktop: 36), 
             color: Colors.black,
             onPressed: () => Navigator.pop(context),
             tooltip: 'Back',
           ),
       
-          leadingWidth: 65,
-        title:Padding(
-          padding: const EdgeInsets.fromLTRB(1,0,0,0),
-          child: Text(
+          leadingWidth: 50,
+        title: Text(
             "Add product",
             style: GoogleFonts.kameron(
-              fontSize: 22,
+              fontSize: isDesktop ? 22 : isTablet ? 20 :18,
               fontWeight: FontWeight.bold,
               color: Colors.black
             ),
             ),
-        ),
         
       ),
       body: 
@@ -792,7 +803,7 @@ Widget productFormWidget(int index) {
               child: ElevatedButton(
                 onPressed: forms.length >= maxProductsPerSave ? null : addNewForm ,
                 style: ElevatedButton.styleFrom(
-                   minimumSize: Size(200, 50), 
+                   minimumSize: Size(200,isDesktop ? 55 : isTablet ? 50 : 45,), 
                   backgroundColor: Color(0xFF25FFA0), 
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12), 
@@ -803,13 +814,13 @@ Widget productFormWidget(int index) {
                    mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      Icons.add_circle_outline, size: isDesktop ? 21 : isTablet ? 20 : 18 ,color: Colors.black,
+                      Icons.add_circle_outline, size: isDesktop ? 21 : isTablet ? 20 : 16 ,color: Colors.black,
                     ),
                     SizedBox(width: 5,),
                     Text(
                       "Add Another Product",
                       style: GoogleFonts.kameron(
-                        fontSize: isDesktop ? 19 : isTablet ? 17 : 15,
+                        fontSize: isDesktop ? 19 : isTablet ? 17 : 14,
                         color: Colors.black,
                         fontWeight: FontWeight.w500
                       ),),
@@ -823,7 +834,7 @@ Widget productFormWidget(int index) {
                 alignment: Alignment.bottomCenter,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                     minimumSize: Size(isDesktop ? 310 : isTablet ? 300 : 290,  60), 
+                     minimumSize: Size(isDesktop ? 290 : isTablet ? 270 : 230, isDesktop ? 70 : isTablet ? 60 : 50), 
                     backgroundColor: Color(0xFF00E6FF), 
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12), 
@@ -862,7 +873,7 @@ Widget productFormWidget(int index) {
                   Text("Save Product",
                   style: GoogleFonts.kameron(
                     color: Colors.black,
-                    fontSize: isDesktop ? 20 : isTablet ? 19 : 17,
+                    fontSize: isDesktop ? 20 : isTablet ? 19 : 15,
                     fontWeight: FontWeight.w500
               
                   )

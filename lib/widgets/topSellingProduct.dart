@@ -23,7 +23,6 @@ class _TopProductWidgetState extends State<TopProductWidget> {
 
     final isDesktop = Responsive.isDesktop(context);
     final isTablet = Responsive.isTablet(context);
-    final isMobile = Responsive.isMobile(context);
 
     return  DataTable(
             headingRowColor: MaterialStateProperty.all(Colors.blue.shade100),

@@ -52,7 +52,7 @@ class ProductCard extends StatelessWidget {
 
     final isDesktop = Responsive.isDesktop(context);
     final isTablet = Responsive.isTablet(context);
-    final isMobile = Responsive.isMobile(context);
+    
     
 
     final double borderRadius = Responsive.spacing(context, mobile: 14, tablet: 16, desktop: 18);
@@ -78,17 +78,17 @@ class ProductCard extends StatelessWidget {
                   _circleButton(
                     icon: Icons.remove,
                     onTap: quantity > 0 ? onRemove : null,
-                    size: isDesktop ? 35 : isTablet ? 30 : 22,
+                    size: isDesktop ? 35 : isTablet ? 30 : 20,
                     
                   ),
                   Text(
                     quantity.toString(),
-                    style: GoogleFonts.kameron(fontWeight: FontWeight.bold, fontSize: isDesktop ? 22 : isTablet ? 20 : 18),
+                    style: GoogleFonts.kameron(fontWeight: FontWeight.bold, fontSize: isDesktop ? 22 : isTablet ? 20 : 15),
                   ),
                   _circleButton(
                     icon: Icons.add,
                     onTap: stock > quantity ? onAdd : null,
-                    size: isDesktop ? 35 : isTablet ? 30 : 22,
+                    size: isDesktop ? 35 : isTablet ? 30 : 20,
                   ),
                 ],
               ),
@@ -147,13 +147,13 @@ class ProductCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.kameron(
                   fontWeight: FontWeight.bold,
-                  fontSize: isDesktop ? 22 : isTablet ? 19 : 16,
+                  fontSize: isDesktop ? 22 : isTablet ? 19 : 14,
                 ),
               ),
               Text(
                 '₱${price.toStringAsFixed(2)}',
                 style: GoogleFonts.kameron(
-                  fontSize: isDesktop ? 21 : isTablet ? 18 : 15,
+                  fontSize: isDesktop ? 21 : isTablet ? 18 : 13,
                   color: const Color.fromARGB(255, 57, 148, 60),
                   fontWeight: FontWeight.w600,
                 ),
@@ -161,8 +161,9 @@ class ProductCard extends StatelessWidget {
               Text(
                 'Stock: $stock',
                 style: GoogleFonts.kameron(
-                  fontSize: isDesktop ? 20.5 : isTablet ? 17.5 : 13.5,
+                  fontSize: isDesktop ? 20.5 : isTablet ? 17.5 : 12.5,
                   color: const Color.fromARGB(255, 68, 67, 67),
+                  fontWeight: FontWeight.w500
                 ),
               ),
       
@@ -337,25 +338,22 @@ class _POSState extends State<POS> {
         elevation: 3,
        toolbarHeight: isDesktop ? 80 : isTablet ? 70 : 60,
         leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios_new_sharp),   // or Icons.arrow_back
+            icon: Icon(Icons.arrow_back_ios_new_sharp,size: isDesktop ? 35 : isTablet ? 30 :25),   // or Icons.arrow_back
             iconSize: Responsive.spacing(context, mobile: 28, tablet: 32, desktop: 36), 
             color: Colors.black,
             onPressed: () => Navigator.pop(context),
             tooltip: 'Back',
           ),
       
-          leadingWidth: 65,  
-        title: Padding(
-          padding: const EdgeInsets.fromLTRB(1, 0, 0, 0),
-          child: Text(
+          leadingWidth: 50,  
+        title: Text(
             "POS",
             style: GoogleFonts.kameron(
-              fontSize: 22,
+              fontSize: isDesktop ? 22 : isTablet ? 20 :18,
               fontWeight: FontWeight.bold,
               color: Colors.black,
             ),
           ),
-        ),
       ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
@@ -381,10 +379,11 @@ class _POSState extends State<POS> {
                       },
                       decoration: InputDecoration(
                         hintText: 'Search for...',
-                        prefixIcon: const Icon(Icons.search),
+                        
+                        prefixIcon: Icon(Icons.search, size: Responsive.font(context,mobile: 25, tablet: 28, desktop: 30)),
                          suffixIcon: _searchText.isNotEmpty
                           ? IconButton(
-                              icon: const Icon(Icons.clear),
+                              icon:  Icon(Icons.clear, size: Responsive.font(context,mobile: 20, tablet: 25, desktop: 30)),
                               onPressed: () {
                                 if (!mounted) return;
                                 setState(() {
@@ -394,7 +393,7 @@ class _POSState extends State<POS> {
                               },
                             )
                           : null,
-                        hintStyle: GoogleFonts.kameron(fontSize: 16),
+                        hintStyle: GoogleFonts.kameron(fontSize: Responsive.font(context,mobile: 15, tablet: 18, desktop: 20), fontWeight: FontWeight.w500),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
                           borderSide: const BorderSide(color: Colors.black, width: 1),
@@ -426,7 +425,7 @@ class _POSState extends State<POS> {
                           Text(
                             "Scan",
                             style: GoogleFonts.kameron(
-                                fontSize: 17,
+                                fontSize: Responsive.font(context, mobile: 16, tablet: 18, desktop: 19),
                                 color: Colors.black,
                                 fontWeight: FontWeight.w500),
                           ),
@@ -442,7 +441,7 @@ class _POSState extends State<POS> {
               /// CATEGORIES
               if(products.isNotEmpty)
               SizedBox(
-                height: isDesktop ? 55 : isTablet ? 50 : 45,
+                height: isDesktop ? 55 : isTablet ? 50 : 40,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: categories.length,
@@ -470,7 +469,7 @@ class _POSState extends State<POS> {
                       child: Text(
                         category,
                         style: GoogleFonts.kameron(
-                          fontSize: isDesktop ? 20 : isTablet ? 18 : 15,
+                          fontSize: isDesktop ? 20 : isTablet ? 18 : 14,
                           color: Colors.black,
                           fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                         ),
@@ -571,14 +570,14 @@ class _POSState extends State<POS> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 _rowText(
-                                    "Total Quantity", getTotalQuantity().toString(), fontSize: isDesktop ? 20 : isTablet ? 18 : 15),
-                                _rowText("Subtotal", "₱${getSubTotal().toStringAsFixed(2)}",fontSize: isDesktop ? 20 : isTablet ? 18 : 15),
+                                    "Total Quantity", getTotalQuantity().toString(), fontSize: isDesktop ? 20 : isTablet ? 18 : 14),
+                                _rowText("Subtotal", "₱${getSubTotal().toStringAsFixed(2)}",fontSize: isDesktop ? 20 : isTablet ? 18 : 14),
                                 const SizedBox(height: 2),
                                 _rowText(
                                   "Total",
                                   "₱${getTotal().toStringAsFixed(2)}",
                                   isBold: true,
-                                  fontSize: isDesktop ? 22 : isTablet ? 20 : 16,
+                                  fontSize: isDesktop ? 22 : isTablet ? 20 : 15,
                                 ),
                               ],
                             ),
@@ -600,7 +599,7 @@ class _POSState extends State<POS> {
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF6FE5F2),
-                                    minimumSize: const Size(double.infinity, 45),
+                                    minimumSize: Size(double.infinity, isMobile ? 40 : 45),
                                   ),
                                   onPressed: () async{
                                     
@@ -673,13 +672,13 @@ class _POSState extends State<POS> {
                                         children: [
                                            Icon(Icons.shopping_cart_checkout_outlined,
                                               color: Colors.black,
-                                              size: isDesktop ? 26 : isTablet ? 23 : 20),
+                                              size: isDesktop ? 26 : isTablet ? 23 : 18),
                                           SizedBox(width: 5,),
                                           Text(
                                             "Checkout",
                                             style: GoogleFonts.kameron(
                                                 color: Colors.black,
-                                                fontSize: isDesktop ? 20 : isTablet ? 18 : 16,
+                                                fontSize: isDesktop ? 20 : isTablet ? 18 : 15,
                                                 fontWeight: FontWeight.w500),
                                           ),
                                         ],
@@ -687,11 +686,11 @@ class _POSState extends State<POS> {
                                     ),
                                   ),
                                 ),
-                                SizedBox(height: 10,),
+                                SizedBox(height: isMobile ? 3 : 8,),
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFEE5558),
-                                    minimumSize: const Size(double.infinity, 45),
+                                    minimumSize: Size(double.infinity, isMobile ? 40 : 45),
                                   ),
                                   onPressed: () {
                                     if (!mounted) return;
@@ -705,13 +704,13 @@ class _POSState extends State<POS> {
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Icon(Icons.remove_shopping_cart_outlined, color: Colors.black,size: isDesktop ? 26 : isTablet ? 23 : 20,),
+                                        Icon(Icons.remove_shopping_cart_outlined, color: Colors.black,size: isDesktop ? 26 : isTablet ? 23 : 18,),
                                         SizedBox(width: 5,),
                                         Text(
                                           "Clear Cart",
                                           style: GoogleFonts.kameron(
                                               color: Colors.black,
-                                              fontSize: isDesktop ? 20 : isTablet ? 18 : 16,
+                                              fontSize: isDesktop ? 20 : isTablet ? 18 : 15,
                                               fontWeight: FontWeight.w500),
                                         ),
                                       ],

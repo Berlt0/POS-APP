@@ -296,16 +296,16 @@ bool canVoidSale() {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Receipt',style: GoogleFonts.kameron(fontWeight: FontWeight.bold,fontSize: Responsive.font(context, mobile: 18, tablet: 21, desktop: 23))),
+        title: Text('Receipt',style: GoogleFonts.kameron(fontWeight: FontWeight.bold,fontSize: Responsive.font(context, mobile: 18, tablet: 20, desktop: 22))),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_sharp),   // or Icons.arrow_back
-          iconSize: Responsive.spacing(context, mobile: 28, tablet: 32, desktop: 36), 
+          icon: Icon(Icons.arrow_back_ios_new_sharp,size: Responsive.spacing(context, mobile: 25, tablet: 30, desktop: 35)),   // or Icons.arrow_back
+          iconSize: Responsive.spacing(context, mobile: 25, tablet: 30, desktop: 35), 
           color: Colors.black,
           onPressed: () => Navigator.pop(context),
           tooltip: 'Back',
         ),
     
-        leadingWidth: 65,   
+        leadingWidth: 50,   
 
             
       ),

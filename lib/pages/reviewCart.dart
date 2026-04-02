@@ -115,7 +115,7 @@ void dispose() {
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -123,8 +123,8 @@ void dispose() {
                       Text(
                         "Enter Amount Received",
                         style: GoogleFonts.kameron(
-                          fontSize: isDesktop ? 22 : isTablet ? 20 : 18,
-                          fontWeight: FontWeight.bold,
+                            fontSize: isDesktop ? 21 : isTablet ? 20 : 17,
+                            fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: 25),
@@ -151,14 +151,15 @@ void dispose() {
                             fontWeight: FontWeight.w500,
                           ),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(12)),
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
                           ),
                           labelText: 'Amount Received',
                           labelStyle: GoogleFonts.kameron(
-                            fontSize: isDesktop ? 19 : isTablet ? 18 : 17
+                            fontSize: isDesktop ? 19 : isTablet ? 18 : 17,
+                            color: Colors.black
                           ),
                           contentPadding: EdgeInsets.symmetric(
-                            vertical: 22,
+                            vertical: isMobile ? 12 : 18,
                             horizontal: 20
                           )
                         ),
@@ -169,7 +170,7 @@ void dispose() {
                         children: [
                           TextButton(
                             onPressed: () => Navigator.pop(context, null),
-                            child: Text("Cancel", style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 19 : 17, color: Colors.black,),),
+                            child: Text("Cancel", style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 15, color: Colors.black,fontWeight: FontWeight.w500),),
                           ),
                           const SizedBox(width: 10),
                           ElevatedButton(
@@ -197,7 +198,7 @@ void dispose() {
             
                               Navigator.pop(context, _controller.text);
                             },
-                            child: Text("Confirm", style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 19 : 17, color: Colors.black),),
+                            child: Text("Confirm", style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 19 : 15, color: Colors.black, fontWeight: FontWeight.w500),),
                           ),
                         ],
                       ),
@@ -242,24 +243,24 @@ void dispose() {
               Text(
                 "Select Payment Method",
                 style: GoogleFonts.kameron(
-                  fontSize: isDesktop ? 25 : isTablet ? 22 : 18,
+                  fontSize: isDesktop ? 25 : isTablet ? 22 : 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 20),
               ListTile(
                 leading: Icon(Icons.credit_card, size: isDesktop ? 35 : isTablet ? 30 : 25, ),
-                title: Text("Credit / Debit Card", style: GoogleFonts.kameron(fontSize: isDesktop ? 20 : isTablet ? 18 : 16, fontWeight: FontWeight.w500),),
+                title: Text("Credit / Debit Card", style: GoogleFonts.kameron(fontSize: isDesktop ? 20 : isTablet ? 18 : 15, fontWeight: FontWeight.w500),),
                 onTap: () => Navigator.pop(context,PaymentResult(method: 'card',amountReceived: null)),
               ),
               ListTile(
                 leading: Icon(Icons.account_balance_wallet,  size: isDesktop ? 35 : isTablet ? 30 : 25,),
-                title:  Text("GCash", style: GoogleFonts.kameron(fontSize: isDesktop ? 20 : isTablet ? 18 : 16, fontWeight: FontWeight.w500)),
+                title:  Text("GCash", style: GoogleFonts.kameron(fontSize: isDesktop ? 20 : isTablet ? 18 : 15, fontWeight: FontWeight.w500)),
                 onTap: () => Navigator.pop(context,PaymentResult(method: 'gcash',amountReceived: null)),
               ),
               ListTile(
                 leading: Icon(Icons.money,  size: isDesktop ? 35 : isTablet ? 30 : 25,),
-                title:  Text("Cash", style: GoogleFonts.kameron(fontSize: isDesktop ? 20 : isTablet ? 18 : 16, fontWeight: FontWeight.w500)),
+                title:  Text("Cash", style: GoogleFonts.kameron(fontSize: isDesktop ? 20 : isTablet ? 18 : 15, fontWeight: FontWeight.w500)),
                 onTap: () async {
 
                 final amountString = await _cashPaymentModal();
@@ -370,28 +371,25 @@ void dispose() {
         elevation: 5,
         toolbarHeight: isDesktop ? 80 : isTablet ? 70 : 60,
         leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios_new_sharp),   // or Icons.arrow_back
-            iconSize: Responsive.spacing(context, mobile: 28, tablet: 32, desktop: 36), 
+            icon: Icon(Icons.arrow_back_ios_new_sharp,size: isDesktop ? 35 : isTablet ? 30 :25),   // or Icons.arrow_back
+            iconSize: Responsive.spacing(context, mobile: 25, tablet: 30, desktop: 35), 
             color: Colors.black,
             onPressed: () => Navigator.pop(context),
             tooltip: 'Back',
           ),
       
-          leadingWidth: 65,
-        title: Padding(
-          padding: const EdgeInsets.fromLTRB(1, 0, 0, 0),
-          child: Text(
+          leadingWidth: 50,
+        title: Text(
             "Review Cart",
             style: GoogleFonts.kameron(
-              fontSize: 22,
+              fontSize: isDesktop ? 22 : isTablet ? 20 :18,
               fontWeight: FontWeight.bold,
               color: Colors.black,
             ),
           ),
-        ),
       ),
       body: Padding(
-        padding: const EdgeInsets.fromLTRB(10, 40, 10, 40),
+        padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
         child: Column(
           children: [
             Row(
@@ -400,13 +398,13 @@ void dispose() {
                 Icon(
                   Icons.shopping_cart,
                   color: const Color.fromARGB(255, 16, 19, 187),
-                  size: isDesktop ? 35 : isTablet ? 30 : 25,
+                  size: isDesktop ? 35 : isTablet ? 30 : 23,
                 ),
                 const SizedBox(width: 6),
                 Text(
                   'Cart Summary',
                   style: GoogleFonts.kameron(
-                    fontSize: isDesktop ? 24 : isTablet ? 22 : 18,
+                    fontSize: isDesktop ? 24 : isTablet ? 22 : 16,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -416,12 +414,12 @@ void dispose() {
             Expanded(
               child: ListView.separated(
                 itemCount: items.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 10),
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
                 itemBuilder: (context, index) {
                   final item = items[index];
 
                   return Container(
-                    padding: const EdgeInsets.fromLTRB(15,20,15,20),
+                    padding: const EdgeInsets.fromLTRB(12,12,12,12),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
@@ -441,14 +439,14 @@ void dispose() {
                           child: item.imagePath.isNotEmpty
                               ? Image.file(
                                   File(item.imagePath),
-                                  width: isDesktop ? 80 : isTablet ? 80 : 60,
-                                  height: isDesktop ? 80 : isTablet ? 70 : 60,
+                                  width: isDesktop ? 80 : isTablet ? 80 : 50,
+                                  height: isDesktop ? 80 : isTablet ? 70 : 50,
                                   fit: BoxFit.cover,
                                 )
                               : Image.asset(
                                   'assets/Legendaries.png',
-                                  width: isDesktop ? 80 : isTablet ? 80 : 60,
-                                  height: isDesktop ? 80 : isTablet ? 70 : 60,
+                                  width: isDesktop ? 80 : isTablet ? 80 : 50,
+                                  height: isDesktop ? 80 : isTablet ? 70 : 50,
                                   fit: BoxFit.cover,
                                 ),
                         ),
@@ -461,7 +459,7 @@ void dispose() {
                                 capitalizeEachWord(item.name),
                                 style: GoogleFonts.kameron(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: isDesktop ? 24 : isTablet ? 20 : 16,
+                                  fontSize: isDesktop ? 24 : isTablet ? 20 : 15,
                                 ),
                               ),
                               Text(
@@ -482,12 +480,12 @@ void dispose() {
                               'x${item.quantity}',
                               style: GoogleFonts.kameron(
                                 fontWeight: FontWeight.bold,
-                                fontSize: isDesktop ? 22 : isTablet ? 18 : 14,
+                                fontSize: isDesktop ? 22 : isTablet ? 18 : 15,
                               ),
                             ),
                             Text(
                               '₱${(item.price * item.quantity).toStringAsFixed(2)}',
-                              style: GoogleFonts.kameron(fontSize: isDesktop ? 20 : isTablet ? 17 : 13, fontWeight: FontWeight.w500),
+                              style: GoogleFonts.kameron(fontSize: isDesktop ? 20 : isTablet ? 17 : 14, fontWeight: FontWeight.w500),
                             ),
                           ],
                         ),
@@ -517,14 +515,14 @@ void dispose() {
               child: Column(
                 children: [
                   _rowText("Total Items", totalQty.toString(),
-                      fontSize: isDesktop ? 19 : isTablet ? 17 : 15,
+                      fontSize: isDesktop ? 19 : isTablet ? 17 : 14,
                     weight: FontWeight.w500),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 3),
                   _rowText("Subtotal", '₱${subtotal.toStringAsFixed(2)}',
-                      fontSize:  isDesktop ? 20 : isTablet ? 18 : 16, color:  Colors.black, weight: FontWeight.w500),
-                  const SizedBox(height: 5),
+                      fontSize:  isDesktop ? 20 : isTablet ? 18 : 15, color:  Colors.black, weight: FontWeight.w500),
+                  const SizedBox(height: 3),
                   _rowText("Total", '₱${total.toStringAsFixed(2)}',
-                      fontSize:  isDesktop ? 22 : isTablet ? 20 : 18, weight: FontWeight.bold, color: Colors.red),
+                      fontSize:  isDesktop ? 22 : isTablet ? 20 : 16, weight: FontWeight.bold, color: Colors.red),
                 ],
               ),
             ),
@@ -533,7 +531,7 @@ void dispose() {
               style: ElevatedButton.styleFrom(
                 elevation: 3,
                 backgroundColor: const Color(0xFF6FE5F2),
-                minimumSize: const Size(double.infinity, 48),
+                minimumSize:  Size(double.infinity, isMobile ? 45 : 48),
               ),
               onPressed: () async {
                   final payment = await _paymentModal();
@@ -580,7 +578,7 @@ void dispose() {
               child: Text(
                 "Proceed to Payment",
                 style: GoogleFonts.kameron(
-                  fontSize: isDesktop ? 20 : isTablet ? 18 : 16,
+                  fontSize: isDesktop ? 20 : isTablet ? 18 : 15,
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
                 ),

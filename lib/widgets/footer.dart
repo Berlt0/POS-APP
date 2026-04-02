@@ -75,8 +75,8 @@ class AppFooter extends StatelessWidget {
         onTap: onCenterTap,
         customBorder: const CircleBorder(),
         child: Container(
-          height: isDesktop ? 90 : isTablet? 80 :70,
-          width: isDesktop ? 90 : isTablet? 80 :70,
+          height: isDesktop ? 90 : isTablet? 80 :65,
+          width: isDesktop ? 90 : isTablet? 80 :65,
           decoration: BoxDecoration(
             color: Colors.white,
             shape: BoxShape.circle,
@@ -110,13 +110,13 @@ class AppFooter extends StatelessWidget {
           Icon(
             icon,
             color: Colors.black,
-            size: isDesktop ? 29 : isTablet? 26 : 23,
+            size: isDesktop ? 28 : isTablet? 25 : 21,
           ),
           const SizedBox(height: 4),
           Text(
             label,
             style: GoogleFonts.kameron(
-              fontSize: isDesktop ? 15 : isTablet? 14 :13,
+              fontSize: isDesktop ? 15 : isTablet? 14 :12,
               fontWeight:  FontWeight.w500,
               color:  Colors.black,
             ),

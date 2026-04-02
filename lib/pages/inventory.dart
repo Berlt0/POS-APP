@@ -31,10 +31,8 @@ class _InventoryState extends State<Inventory> {
   int _totalItems = 0;
   int _totalPages = 1;
 
-
   String? _userRole;
   bool _isLoadingRole = true;
-
 
   Future<List<SomeProductData>>? _futureProductDatas;
 
@@ -44,7 +42,6 @@ class _InventoryState extends State<Inventory> {
     _loadCategories();
     _loadProducts();
     _loadRole();
-  
   }
 
   @override
@@ -55,12 +52,12 @@ class _InventoryState extends State<Inventory> {
   }
 
   Future<void> _loadRole() async {
-  final role = await UserDB().getLoggedInUserRole();
-  setState(() {
-    _userRole = role;
-    _isLoadingRole = false;
-  });
-}
+    final role = await UserDB().getLoggedInUserRole();
+    setState(() {
+      _userRole = role;
+      _isLoadingRole = false;
+    });
+  }
 
   Future<void> _loadCategories() async {
     final dbCategories = await InventoryDB.getCategories();
@@ -70,8 +67,6 @@ class _InventoryState extends State<Inventory> {
   }
 
   Future<void> _loadProducts() async {
-
-    // Compute total items & pages
     _totalItems = await InventoryDB.countProductsFiltered(
       category: _selectedCategory,
       searchText: _searchText,
@@ -85,7 +80,6 @@ class _InventoryState extends State<Inventory> {
       _currentPage = 1;
     }
 
-    // Fetch products for current page
     final products = await InventoryDB.getFewProductsData(
       page: _currentPage,
       limit: _itemsPerPage,
@@ -96,215 +90,190 @@ class _InventoryState extends State<Inventory> {
     setState(() {
       _futureProductDatas = Future.value(products);
     });
-    
-}
-
-
-Future<void> _updateStock(SomeProductData product) async{
-
-  try {
-
-     if (_userRole != 'admin') {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Unauthorized action'),
-        backgroundColor: Colors.red,
-      ),
-    );
-    return;
   }
 
-    if (_stockController.text.trim().isEmpty) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text(
-              "Stock is empty."
-            ),
-            content: Text(
-              "Stock is required"
-            ),
-            actions: [
-              TextButton(onPressed:() => Navigator.pop(context), child: Text('Ok'))
-            ],
-          );
-        }
-      );
-      return;
-    }
-    
-    final newStock = int.parse(_stockController.text.trim());
+  Future<void> _updateStock(SomeProductData product) async {
+    try {
+      if (_userRole != 'admin') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Unauthorized action'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
 
-    if(newStock < 0){
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Invalid Input'),
-            content: Text('Stock cannot be negative'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
-      return;
-    }
+      if (_stockController.text.trim().isEmpty) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text("Stock is empty."),
+              content: const Text("Stock is required"),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(context), child: const Text('Ok'))
+              ],
+            );
+          },
+        );
+        return;
+      }
 
-    await ProductDB.updateStock(product.id!, newStock);
+      final newStock = int.parse(_stockController.text.trim());
 
-    Navigator.pop(context);
-    _loadProducts();
-    await syncProducts();
+      if (newStock < 0) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Invalid Input'),
+              content: const Text('Stock cannot be negative'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+        return;
+      }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+      await ProductDB.updateStock(product.id!, newStock);
+
+      Navigator.pop(context);
+      _loadProducts();
+      await syncProducts();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
           content: Text('Stock updated successfully'),
           backgroundColor: Colors.green,
           duration: Duration(seconds: 2),
-        )
-    );
-
-      } catch (error) {
-         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to update stock'),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 2),
-          ),
-        );
-        Navigator.pop(context);
+        ),
+      );
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to update stock'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      Navigator.pop(context);
+    }
   }
 
-}
+  void _openUpdateModal(SomeProductData product) {
+    _stockController.text = product.stock.toString();
 
-void _openUpdateModal(SomeProductData product){
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        String? _errorText;
 
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            final isMobile = Responsive.isMobile(context);
+            final isTablet = Responsive.isTablet(context);
+            final isDesktop = Responsive.isDesktop(context);
 
-  _stockController.text = product.stock.toString();
-
-  showModalBottomSheet(
-    context: context ,
-    isScrollControlled: true,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadiusGeometry.vertical(top: Radius.circular(20))
-    ),
-    builder: (context){
-
-      String? _errorText;
-
-      return StatefulBuilder(
-        builder: (context, setStateDialog) {
-
-          final isMobile = Responsive.isMobile(context);
-          final isTablet = Responsive.isTablet(context);
-          final isDesktop = Responsive.isDesktop(context);
-
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 16,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 70,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(height: 10,),
-              Text(
-                "Update Product",
-                style: GoogleFonts.kameron(
-                  fontSize: Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
-                  fontWeight: FontWeight.bold
-                ),
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 16,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 70,
               ),
-              SizedBox(height: 15,),
-        
-                TextFormField(
-                  controller: _stockController,
-                  style: GoogleFonts.kameron( 
-                    fontSize: Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
-                  ),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly
-                  ],
-                  decoration: InputDecoration(
-                    errorText: _errorText,
-                    errorStyle: GoogleFonts.kameron( 
-                    fontSize: Responsive.font(context, mobile: 13, tablet: 15, desktop: 17),
-                    color: Colors.red,
-                    fontWeight: FontWeight.w500,
-                  ),
-                    labelText: 'Stock',
-                    labelStyle: GoogleFonts.kameron(
-                              fontSize: Responsive.font(context, mobile: 21, tablet: 23, desktop: 25)
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 10),
+                  Text(
+                    "Update Product",
+                    style: GoogleFonts.kameron(
+                      fontSize: Responsive.font(context, mobile: 16, tablet: 20, desktop: 22),
+                      fontWeight: FontWeight.bold,
                     ),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
-                    contentPadding: EdgeInsets.symmetric(vertical: 22,horizontal: 20),
                   ),
-                  
-                  onChanged: (value) {
-                    if (_errorText != null) {
+                  const SizedBox(height: 15),
+                  TextFormField(
+                    controller: _stockController,
+                    style: GoogleFonts.kameron(
+                      fontSize: Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
+                    ),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: InputDecoration(
+                      errorText: _errorText,
+                      errorStyle: GoogleFonts.kameron(
+                        fontSize: Responsive.font(context, mobile: 13, tablet: 15, desktop: 17),
+                        color: Colors.red,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      labelText: 'Stock',
+                      labelStyle: GoogleFonts.kameron(
+                         fontSize: isDesktop ? 19 : isTablet ? 18 : 17,
+                      ),
+                      border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
+                      contentPadding:  EdgeInsets.symmetric(vertical: isMobile ? 12 : 18, horizontal: 20),
+                    ),
+                    onChanged: (value) {
+                      if (_errorText != null) {
                         setStateDialog(() => _errorText = null);
-                    }
-                },
-              ),
-        
-              SizedBox(height: 20),
-        
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                // minimumSize: Size(200,40),
-                minimumSize: Size(200, isDesktop ? 55 : isTablet ? 50 : 45),
-                backgroundColor: Color(0xFF00C853),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  ),
-                  shadowColor: Colors.grey[800]
-                ),
-                
-                onPressed: () {
-
-                  final value = _stockController.text;
-
-                    setStateDialog(() {
-                      if (value.isEmpty) {
-                        _errorText = 'Stock is required';
-                      } else if (int.tryParse(value) == null) {
-                        _errorText = 'Invalid number';
-                      } else {
-                        _errorText = null;
                       }
-                    });
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(isDesktop ? 200 : isTablet ? 180 : 150 ,isDesktop ? 55 : isTablet ? 50 : 40),
+                      backgroundColor: const Color(0xFF00C853),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      shadowColor: Colors.grey[800],
+                    ),
+                    onPressed: () {
+                      final value = _stockController.text;
 
-                    if (_errorText != null) return;
+                      setStateDialog(() {
+                        if (value.isEmpty) {
+                          _errorText = 'Stock is required';
+                        } else if (int.tryParse(value) == null) {
+                          _errorText = 'Invalid number';
+                        } else {
+                          _errorText = null;
+                        }
+                      });
 
-                  _updateStock(product);
-                  },
-                child: Text('Save',
-                style: GoogleFonts.kameron(
-                  fontSize: Responsive.font(context, mobile: 17, tablet: 19, desktop: 21),
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black
-                ),),
+                      if (_errorText != null) return;
+
+                      _updateStock(product);
+                    },
+                    child: Text(
+                      'Save',
+                      style: GoogleFonts.kameron(
+                        fontSize: Responsive.font(context, mobile: 15, tablet: 19, desktop: 21),
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-        
-            ],
-          ),
+            );
+          },
         );
-        }
-      );
-
-
-    });
-
-}
-
+      },
+    );
+  }
 
   Widget _buildPageNumbers() {
     return Row(
@@ -323,7 +292,7 @@ void _openUpdateModal(SomeProductData product){
                     _loadProducts();
                   },
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: _currentPage == page ? Colors.blue : Colors.transparent,
                 borderRadius: BorderRadius.circular(6),
@@ -344,7 +313,6 @@ void _openUpdateModal(SomeProductData product){
 
   @override
   Widget build(BuildContext context) {
-
     final isMobile = Responsive.isMobile(context);
     final isTablet = Responsive.isTablet(context);
     final isDesktop = Responsive.isDesktop(context);
@@ -357,198 +325,205 @@ void _openUpdateModal(SomeProductData product){
         automaticallyImplyLeading: false,
         backgroundColor: Colors.grey[100],
         elevation: 5,
-        toolbarHeight: isDesktop ? 80 : isTablet ? 70 : 60,
+        toolbarHeight: isDesktop ? 70 : isTablet ? 60 : 50,
         title: Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
           child: Text(
             "Inventory",
-            style: GoogleFonts.kameron(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black),
+            style: GoogleFonts.kameron(
+              fontSize: isDesktop ? 24 : isTablet ? 22 : 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: TextField(
-                      controller: _searchController,
-                      onChanged: (value) {
-                        setState(() {
-                          _searchText = value;
-                          _currentPage = 1; // reset to first page on new search
-                        });
-                        _loadProducts();
-                      },
-                      decoration: InputDecoration(
-                        hintText: 'Search for...',
-                        prefixIcon: const Icon(Icons.search),
-                        hintStyle: GoogleFonts.kameron(fontSize: 16),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: BorderSide(color: Colors.black, width: 1),
-                        ),
-                        fillColor: Colors.grey[100],
-                        filled: true,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    flex: 2,
-                    child: DropdownButtonFormField<String>(
-                      value: _selectedCategory,
-                      icon: const Icon(Icons.keyboard_arrow_down, color: Colors.black),
-                      dropdownColor: Colors.white,
-                      style: GoogleFonts.kameron(fontSize: 16, color: Colors.black),
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide(color: Colors.black, width: 1),
-                        ),
-                        fillColor: Colors.grey[100],
-                        filled: true,
-                      ),
-                      items: _categories.map((category) {
-                        return DropdownMenuItem(value: category, child: Text(category));
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedCategory = value!;
-                          _currentPage = 1; // reset to first page on category change
-                        });
-                        _loadProducts();
-                      },
-                    ),
-                  )
-                ],
-              ),
-              Divider(color: Colors.black, thickness: 1, height: 45),
-              
-              Text(
-                 _selectedCategory == 'All'
-                    ? 'Complete Inventory'
-                    : '$_selectedCategory' ,
-                style: GoogleFonts.kameron(fontSize: Responsive.font(context, mobile: 17, tablet: 19, desktop: 21), fontWeight: FontWeight.w500),
-              ),
 
-              SizedBox(height: 20),
-                Container(
-                  width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.3),
-                          spreadRadius: 2,
-                          blurRadius: 6,
-                          offset: const Offset(0, 3),
+   
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: SizedBox(
+                            height: Responsive.spacing(context, mobile: 50, tablet: 55, desktop: 63),
+                            child: TextField(
+                              style: GoogleFonts.kameron(
+                                fontSize:  Responsive.font(context,mobile: 17, tablet: 28, desktop: 30)
+                              ),
+                              controller: _searchController,
+                              onChanged: (value) {
+                                setState(() {
+                                  _searchText = value;
+                                  _currentPage = 1;
+                                });
+                                _loadProducts();
+                              },
+                               inputFormatters: [
+                                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')),
+                              ],
+                              decoration: InputDecoration(
+                                hintText: 'Search for...',
+                                prefixIcon: Icon(Icons.search, size: Responsive.font(context,mobile: 25, tablet: 28, desktop: 30),),
+                                hintStyle: GoogleFonts.kameron(fontSize: Responsive.font(context,mobile: 15, tablet: 18, desktop: 20),fontWeight: FontWeight.w500),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: BorderSide(color: Colors.black, width: 1),
+                                ),
+                                fillColor: Colors.grey[100],
+                                filled: true,
+                              ),
+                            ),
+                          ),
                         ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          flex: 2,
+                          child: SizedBox(
+                            height: Responsive.spacing(context, mobile: 50, tablet: 55, desktop: 63),
+                            child: DropdownButtonFormField<String>(
+                              value: _selectedCategory,
+                              style: GoogleFonts.kameron(fontSize: Responsive.font(context,mobile: 16, tablet: 18, desktop: 20), color: Colors.black,),
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(color: Colors.black, width: 1),
+                                ),
+                                fillColor: Colors.grey[100],
+                                filled: true,
+                              ),
+                              items: _categories.map((category) {
+                                return DropdownMenuItem(value: category, child: Text(category));
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedCategory = value!;
+                                  _currentPage = 1;
+                                });
+                                _loadProducts();
+                              },
+                            ),
+                          ),
+                        )
                       ],
                     ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: LayoutBuilder(
-                        builder: (context, constraints){
+                    Divider(color: Colors.black, thickness: .9, height: 35),
                     
-                        final tableWidth = constraints.maxWidth -32;
-                    
-                      return FutureBuilder(
-                        future: _futureProductDatas,
-                        builder: (context, snapshot) {
-                      
-                          if (_futureProductDatas == null) {
-                            return const SizedBox();
-                          }
-                      
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return const Center(child: CircularProgressIndicator());
-                          }
-                      
-                          if (snapshot.hasError) {
-                            return Center(
-                              child: Text(
-                                'Error loading inventory',
-                                style: GoogleFonts.kameron(color: Colors.black),
-                              ),
-                            );
-                          }
-                      
-                          final products = snapshot.data ?? [];
-                      
-                      
-                          if (products.isEmpty) {
-                      
-                            final isSearching = _searchText.trim().isNotEmpty;
-                            
-                              return SizedBox(
-                                height: MediaQuery.of(context).size.height * 0.5, // helps vertical centering
-                                child: Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon( isSearching
-                                        ? Icons.search_off
-                                        :Icons.inventory_2_outlined,
-                                        size: 45 ,
-                                        color: Colors.grey[500],
+                    Center(
+                      child: Text(
+                        _selectedCategory == 'All' ? 'Complete Inventory' : '$_selectedCategory',
+                        style: GoogleFonts.kameron(fontSize: Responsive.font(context, mobile: 15, tablet: 17, desktop: 19), fontWeight: FontWeight.w500),
+                      ),
+                    ),
+
+                    const SizedBox(height: 15),
+
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.3),
+                            spreadRadius: 2,
+                            blurRadius: 6,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            final bool isMobile = Responsive.isMobile(context);
+
+                            return FutureBuilder(
+                              future: _futureProductDatas,
+                              builder: (context, snapshot) {
+                                if (_futureProductDatas == null) {
+                                  return const SizedBox();
+                                }
+
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return const Center(child: CircularProgressIndicator());
+                                }
+
+                                if (snapshot.hasError) {
+                                  return Center(
+                                    child: Text(
+                                      'Error loading inventory',
+                                      style: GoogleFonts.kameron(color: Colors.black),
+                                    ),
+                                  );
+                                }
+
+                                final products = snapshot.data ?? [];
+
+                                if (products.isEmpty) {
+                                  final isSearching = _searchText.trim().isNotEmpty;
+                                  return SizedBox(
+                                    height: MediaQuery.of(context).size.height * 0.5,
+                                    child: Center(
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            isSearching ? Icons.search_off : Icons.inventory_2_outlined,
+                                            size: 45,
+                                            color: Colors.grey[500],
+                                          ),
+                                          const SizedBox(height: 15),
+                                          Text(
+                                            _searchText.isNotEmpty ? 'No results found' : 'No products found',
+                                            style: GoogleFonts.kameron(
+                                              fontSize: isDesktop ? 20 : isTablet ? 18 : 16,
+                                              color: Colors.grey[700],
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      SizedBox(height: 15),
-                                      Text(
-                                        _searchText.isNotEmpty
-                                            ? 'No results found'
-                                            : 'No products found',
-                                        style: GoogleFonts.kameron(
-                                          fontSize: 16,
-                                          color: Colors.grey[700],
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            }
-                      
-                        
-                      
-                          return SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                              child: SizedBox(
-                                width: constraints.maxWidth,
-                                child: SingleChildScrollView(
+                                    ),
+                                  );
+                                }
+
+                                return SingleChildScrollView(
                                   scrollDirection: Axis.vertical,
-                                    child: DataTable(
-                                      columnSpacing: isDesktop ? 60 : isTablet ? 50 : 30,
-                                      headingRowHeight: isTablet ? 50 : 56,
-                                      dataRowHeight:  isDesktop ? 60 : isTablet ? 55 : 50,
-                                      headingRowColor:MaterialStateProperty.all(const Color.fromARGB(164, 224, 224, 224)),
-                                      columns: [
-                                        DataColumn(label: Text('Product', style: tableTextStyle(fontSize: isDesktop ? 21 : isTablet ? 18 : 15, fontWeight: FontWeight.w500))),
-                                        DataColumn(label: Text('Category', style: tableTextStyle(fontSize: isDesktop ? 21 : isTablet ? 18 : 15, fontWeight: FontWeight.w500))),
-                                        DataColumn(label: Text('Stock', style: tableTextStyle(fontSize: isDesktop ? 21 : isTablet ? 18 : 15, fontWeight: FontWeight.w500))),
-                                        DataColumn(label: Text('Status', style: tableTextStyle(fontSize: isDesktop ? 21 : isTablet ? 18 : 15, fontWeight: FontWeight.w500))),
-                                        DataColumn(label: Text('Update', style: tableTextStyle(fontSize: isDesktop ? 21 : isTablet ? 18 : 15, fontWeight: FontWeight.w500))),
-                                      ],
-                                      rows: products.map((product) {
-                                        
-                                        return DataRow(cells: [
-                                          DataCell(Text(capitalizeEachWord(product.name), style: tableTextStyle(fontSize:  isDesktop ? 21 : isTablet ? 18 : 14))),
-                                                    
-                                          DataCell(Text(capitalizeEachWord(product.category ?? 'Uncategorized'), style: tableTextStyle(fontSize:  isDesktop ? 21 : isTablet ? 18 : 14))),
-                                                    
-                                          DataCell( Text(product.stock.toString(), style: tableTextStyle(fontSize:  isDesktop ? 21 : isTablet ? 18 : 14))),   
-                                                    
-                                          DataCell(
-                                            
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        minWidth: constraints.maxWidth,
+                                        maxWidth: isMobile ? double.infinity : constraints.maxWidth,
+                                      ),
+                                      child: DataTable(
+                                        columnSpacing: isDesktop ? 35 : isTablet ? 30 : 25,
+                                        headingRowHeight: isDesktop ? 58 : isTablet ? 55 : 50,
+                                        dataRowHeight: isDesktop ? 60 : isTablet ? 55 : 45,
+                                        headingRowColor: MaterialStateProperty.all(const Color.fromARGB(164, 224, 224, 224)),
+                                        columns: [
+                                          DataColumn(label: Text('Product', style: tableTextStyle(fontSize: isDesktop ? 21 : isTablet ? 18 : 14.5, fontWeight: FontWeight.w500))),
+                                          DataColumn(label: Text('Category', style: tableTextStyle(fontSize: isDesktop ? 21 : isTablet ? 18 : 14.5, fontWeight: FontWeight.w500))),
+                                          DataColumn(label: Text('Stock', style: tableTextStyle(fontSize: isDesktop ? 21 : isTablet ? 18 : 14.5, fontWeight: FontWeight.w500))),
+                                          DataColumn(label: Text('Status', style: tableTextStyle(fontSize: isDesktop ? 21 : isTablet ? 18 : 14.5, fontWeight: FontWeight.w500))),
+                                          DataColumn(label: Text('Update', style: tableTextStyle(fontSize: isDesktop ? 21 : isTablet ? 18 : 14.5, fontWeight: FontWeight.w500))),
+                                        ],
+                                        rows: products.map((product) {
+                                          return DataRow(cells: [
+                                            DataCell(Text(capitalizeEachWord(product.name), style: tableTextStyle(fontSize: isDesktop ? 21 : isTablet ? 18 : 14))),
+                                            DataCell(Text(capitalizeEachWord(product.category ?? 'Uncategorized'), style: tableTextStyle(fontSize: isDesktop ? 21 : isTablet ? 18 : 14))),
+                                            DataCell(Text(product.stock.toString(), style: tableTextStyle(fontSize: isDesktop ? 21 : isTablet ? 18 : 14))),
+                                            DataCell(
                                               Text(
                                                 product.stock == 0 ? 'Out of Stock' : product.stock <= product.low_stock_alert! ? 'Low Stock' : 'In Stock',
                                                 style: tableTextStyle(
@@ -557,104 +532,103 @@ void _openUpdateModal(SomeProductData product){
                                                   color: product.stock == 0 ? Colors.red : product.stock <= product.low_stock_alert! ? const Color.fromARGB(255, 255, 165, 0) : const Color.fromARGB(255, 34, 141, 38),
                                                 ),
                                               ),
-                                              
-                                            
-                                          ),
-                                                    
-                                          DataCell(
+                                            ),
+                                            DataCell(
                                               InkWell(
-                                                onTap: (_isLoadingRole || _userRole == 'admin') 
-                                                ? () => _openUpdateModal(product)
-                                                : () {
-                                                    
-                                                    ScaffoldMessenger.of(context).showSnackBar(
-                                                      SnackBar(
-                                                        content: Text('Only admin can update stock'),
-                                                        backgroundColor: Colors.red,
-                                                      ),
-                                                    );
-                                                },
+                                                onTap: (_isLoadingRole || _userRole == 'admin')
+                                                    ? () => _openUpdateModal(product)
+                                                    : () {
+                                                        ScaffoldMessenger.of(context).showSnackBar(
+                                                          const SnackBar(
+                                                            content: Text('Only admin can update stock'),
+                                                            backgroundColor: Colors.red,
+                                                          ),
+                                                        );
+                                                      },
                                                 borderRadius: BorderRadius.circular(6),
                                                 child: Row(
                                                   mainAxisSize: MainAxisSize.min,
                                                   children: [
                                                     Icon(
                                                       Icons.edit,
-                                                      size:  isDesktop ? 22 : isTablet ? 20 : 18,
+                                                      size: isDesktop ? 22 : isTablet ? 20 : 18,
                                                       color: _userRole == 'admin'
-                                                      ? const Color.fromARGB(255, 1, 68, 122)
-                                                      : Colors.grey,
+                                                          ? const Color.fromARGB(255, 1, 68, 122)
+                                                          : Colors.grey,
                                                     ),
-                                                    SizedBox(width: 5),
+                                                    const SizedBox(width: 5),
                                                     Text(
                                                       "Update",
                                                       style: tableTextStyle(
-                                                        fontSize:isDesktop ? 19 : isTablet ? 17 : 14,
+                                                        fontSize: isDesktop ? 19 : isTablet ? 17 : 14,
                                                         color: _userRole == 'admin'
-                                                        ? const Color.fromARGB(255, 1, 68, 122)
-                                                        : Colors.grey
+                                                            ? const Color.fromARGB(255, 1, 68, 122)
+                                                            : Colors.grey,
                                                       ),
                                                     ),
                                                   ],
                                                 ),
                                               ),
                                             ),
-                                          
-                                        ]);
-                                      }).toList(),
+                                          ]);
+                                        }).toList(),
+                                      ),
                                     ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                      }
-                    ),
-                  ),
-                ),
-              
-              SizedBox(height: 25),
-              if(_totalItems > 1) 
-              
-              Container(
-                color: Colors.grey[100], // optional background
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.chevron_left),
-                          onPressed: _currentPage > 1
-                              ? () {
-                                  setState(() {
-                                    _currentPage--;
-                                  });
-                                  _loadProducts();
-                                }
-                              : null,
+                                  ),
+                                );
+                              },
+                            );
+                          },
                         ),
-                        _buildPageNumbers(),
-                        IconButton(
-                          icon: Icon(Icons.chevron_right),
-                          // use computed _totalPages so '>' disables when no next page
-                          onPressed: _currentPage < _totalPages
-                              ? () {
-                                  setState(() {
-                                    _currentPage++;
-                                  });
-                                  _loadProducts();
-                                }
-                              : null,
-                        )
-                      ],
-                    ), 
-              )
-            ],
+                      ),
+                    ),
+
+                     SizedBox(height: 60), 
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
+
+          // Fixed Pagination at the bottom
+          if (_totalItems > 1)
+            Container(
+              color: Colors.grey[100],
+              padding: const EdgeInsets.symmetric(vertical: 45),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.chevron_left),
+                    onPressed: _currentPage > 1
+                        ? () {
+                            setState(() {
+                              _currentPage--;
+                            });
+                            _loadProducts();
+                          }
+                        : null,
+                  ),
+                  _buildPageNumbers(),
+                  IconButton(
+                    icon: const Icon(Icons.chevron_right),
+                    onPressed: _currentPage < _totalPages
+                        ? () {
+                            setState(() {
+                              _currentPage++;
+                            });
+                            _loadProducts();
+                          }
+                        : null,
+                  ),
+                ],
+              ),
+            ),
+        ],
       ),
+  
+
       bottomNavigationBar: AppFooter(
         currentIndex: 1,
         onTap: (index) {

@@ -255,7 +255,6 @@ int _currentIndex = 0;
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 10,),
                 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -274,9 +273,9 @@ int _currentIndex = 0;
                         style: GoogleFonts.kameron(
                           fontSize: Responsive.font(
                             context,
-                            mobile: 23,
-                            tablet: 28,
-                            desktop: 33,
+                            mobile: 20,
+                            tablet: 25,
+                            desktop: 30,
                           ),
                           fontWeight: FontWeight.w500,
                           color: Colors.white,
@@ -309,18 +308,18 @@ int _currentIndex = 0;
                         child: CircleAvatar(
                           radius: Responsive.font(
                             context,
-                            mobile: 20,
-                            tablet: 25,
-                            desktop: 30,
+                            mobile: 18,
+                            tablet: 21,
+                            desktop: 23,
                           ),
                           backgroundColor: Colors.white, // inner color
                           child: Icon(
                             Icons.person,
                             size: Responsive.font(
                               context,
-                              mobile: 30,
-                              tablet: 35,
-                              desktop: 40,
+                              mobile: 28,
+                              tablet: 32,
+                              desktop: 35,
                             ),
                             color: Colors.black, // icon color
                           ),
@@ -338,7 +337,7 @@ int _currentIndex = 0;
                       style: GoogleFonts.kameron(
                         fontSize: Responsive.font(
                           context,
-                          mobile: 25,
+                          mobile: 20,
                           tablet: 30,
                           desktop: 35,
                         ),
@@ -369,16 +368,16 @@ int _currentIndex = 0;
                     int crossAxisCount = constraints.maxWidth < 600 ? 2 : 4;
                     double cardHeight = Responsive.spacing(
                       context,
-                      mobile: 80,
-                      tablet: 100,
+                      mobile: 75,
+                      tablet: 110,
                       desktop: 120,
                     );
           
                     return GridView.builder(
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: crossAxisCount,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
                         mainAxisExtent: cardHeight,
                       ),
                       shrinkWrap: true,
@@ -427,7 +426,7 @@ int _currentIndex = 0;
                      Icon(
                       Icons.stacked_line_chart_rounded, 
                       color: Colors.blue, 
-                      size: Responsive.font(context, mobile: 27, tablet: 29, desktop: 31),
+                      size: Responsive.font(context, mobile: 25, tablet: 28, desktop: 31),
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -533,7 +532,7 @@ int _currentIndex = 0;
                                           getTitlesWidget: (value,meta) {
                                             final index = value.toInt();
                                             if (index >= 0 && index < titles.length) {
-                                              return  Text(titles[index], style: const TextStyle(fontSize: 12,fontWeight: FontWeight.w500));
+                                              return  Text(titles[index], style: TextStyle(fontSize: isDesktop ? 13 : isTablet ? 12 :  11,fontWeight: FontWeight.w500));
                                             }
                                             return const Text('');
                                           },
@@ -639,7 +638,7 @@ int _currentIndex = 0;
                               Text(
                                 "View Sales",
                                 style: GoogleFonts.kameron(
-                                  fontSize: isDesktop ? 19 : isTablet ? 17 : 15,
+                                  fontSize: isDesktop ? 19 : isTablet ? 17 : 14,
                                   fontWeight: FontWeight.w500,
                                   color: Colors.black,
                                 ),
@@ -680,7 +679,7 @@ int _currentIndex = 0;
                               Text(
                                 "Manage Inventory",
                                 style: GoogleFonts.kameron(
-                                  fontSize: isDesktop ? 19 : isTablet ? 17 : 15,
+                                  fontSize: isDesktop ? 19 : isTablet ? 17 : 14,
                                   fontWeight: FontWeight.w500,
                                   color: Colors.black,
                                 ),
@@ -718,9 +717,9 @@ int _currentIndex = 0;
                                       Icon(
                                         Icons.access_time,
                                         color: Color(0xFF074C04),
-                                         size: isDesktop ? 31 : isTablet ? 29 : 27,
+                                         size: isDesktop ? 31 : isTablet ? 28 : 25,
                                       ),
-                                      SizedBox(width: 8),                               
+                                      SizedBox(width: 6),                               
                                       Text(
                                       "Recent Sold Products",
                                       style: GoogleFonts.kameron(
@@ -807,10 +806,10 @@ int _currentIndex = 0;
                                   Icon(
                                     Icons.warning_amber_rounded,
                                     color: Color(0xFFFF0000),
-                                    size: isDesktop ? 31 : isTablet ? 29 : 27,
+                                    size: isDesktop ? 31 : isTablet ? 28 : 25,
                                     
                                   ),
-                              SizedBox(width: 8),
+                              SizedBox(width: 6),
                               Text(
                                 "Stock Alerts",
                                 style: GoogleFonts.kameron(
@@ -1089,7 +1088,7 @@ int _currentIndex = 0;
           borderRadius: BorderRadius.circular(12),
         ),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+          padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -1198,7 +1197,7 @@ int _currentIndex = 0;
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                 decoration: BoxDecoration(
                   color: product.stock == 0 ? Colors.red : Color.fromARGB(237, 241, 157, 0),
                   borderRadius: BorderRadius.circular(16),
@@ -1208,11 +1207,11 @@ int _currentIndex = 0;
                   style: GoogleFonts.kameron(
                     fontSize: Responsive.font(
                       context,
-                      mobile: 14,
+                      mobile: 13.5,
                       tablet: 15,
                       desktop: 16,
                     ),
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w600,
                     color: const Color.fromARGB(255, 255, 255, 255),
                   ),
                 ),
@@ -1233,9 +1232,9 @@ int _currentIndex = 0;
   }) {
     double iconContainerSize = Responsive.spacing(
       context,
-      mobile: 45,
-      tablet: 48,
-      desktop: 65,
+      mobile: 43,
+      tablet: 46,
+      desktop: 49,
     );
 
     return Container(
@@ -1269,7 +1268,7 @@ int _currentIndex = 0;
                   context,
                   mobile: 22,
                   tablet: 25,
-                  desktop: 32,
+                  desktop: 28,
                 ),
               ),
             ),
@@ -1287,7 +1286,7 @@ int _currentIndex = 0;
                       context,
                       mobile: 13,
                       tablet: 15,
-                      desktop: 20,
+                      desktop: 18,
                     ),
                     fontWeight: FontWeight.w300,
                     color: const Color.fromARGB(255, 46, 46, 46),
