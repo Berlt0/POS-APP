@@ -285,25 +285,14 @@ int _currentIndex = 0;
                     GestureDetector(
                       onTap: () async {
 
-                        // Temporary logout logic
-                        await SessionService.clearSession(); // clears the session
-                        print("User logged out");
+                        // await SessionService.clearSession(); 
 
-                        // Optional: navigate to login page if you have one
-                        Navigator.pushReplacementNamed(context, '/');
+                        Navigator.pushReplacementNamed(context, '/profile');
                       },
                       child: Container(
                         padding: EdgeInsets.all(3), // thickness of gradient border
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          gradient: LinearGradient(
-                            colors: [
-                              Color(0xFF3CE7FA),
-                              Color(0xFF248994),
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
                         ),
                         child: CircleAvatar(
                           radius: Responsive.font(
@@ -312,17 +301,9 @@ int _currentIndex = 0;
                             tablet: 21,
                             desktop: 23,
                           ),
-                          backgroundColor: Colors.white, // inner color
-                          child: Icon(
-                            Icons.person,
-                            size: Responsive.font(
-                              context,
-                              mobile: 28,
-                              tablet: 32,
-                              desktop: 35,
-                            ),
-                            color: Colors.black, // icon color
-                          ),
+                          backgroundColor: Colors.white,
+                          backgroundImage: const AssetImage('assets/Legendaries.png'), // inner color
+                          
                         ),
                       )
                     ),

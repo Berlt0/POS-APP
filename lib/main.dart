@@ -14,6 +14,7 @@ import 'services/auth_service.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:pos_app/pages/reviewCart.dart';
+import 'package:pos_app/pages/profile.dart';
 import 'package:pos_app/services/session_service.dart';
 import 'pages/receipt.dart';
 import 'pages/transaction.dart';
@@ -98,6 +99,7 @@ class MyApp extends StatelessWidget {
           return ViewReceipt(transaction: args);
         },  
         '/transaction': (context) => const TransactionPage(),
+        '/profile': (context) => const ProfilePage()
       },
     );
   }
