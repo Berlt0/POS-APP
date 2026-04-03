@@ -21,6 +21,8 @@ class _ProfilePageState extends State<ProfilePage> {
   int? userId;
   bool isLoading = true;
 
+  List<Map<String, dynamic>> allCashiersSummary = [];
+
 
 @override
 void initState() {
@@ -30,23 +32,29 @@ void initState() {
 
 Future<void> _loadUser() async {
   final data = await Summary().getLoggedInUserInfo();
-  print(data);
 
-   if (data != null) {
+  if (data != null) {
     final summary = await Summary().getTodaysSummary(data['user_id']);
+
+    List<Map<String, dynamic>> cashiers = [];
+    if (data['role'] == 'admin') {
+
+      cashiers = await Summary().allCashier();
+    }
 
     setState(() {
       userData = data;
       summaryData = summary;
+      allCashiersSummary = cashiers;
+      userId = data['user_id'];
+      isLoading = false;
+    });
+  } else {
+    setState(() {
+      userData = data;
       isLoading = false;
     });
   }
-
-  setState(() {
-    userData = data;
-     userId = userData?['user_id'];
-    isLoading = false;
-  });
 }
 
 
@@ -172,9 +180,17 @@ Future<void> _loadUser() async {
           
           const SizedBox(height: 15),
 
-          _saleSummary(),
+          if(userData?['role'] == 'admin')...[
 
-          const SizedBox(height: 50),
+          _salesSummaryAdmin(),
+
+          ]else...[
+
+          _saleSummaryCashier(),
+          
+          ],
+
+          const SizedBox(height: 200),
 
           _buildActionButton(icon: Icons.settings, text: 'Settings', color: const Color.fromARGB(255, 58, 58, 58), onTap: () {}),
 
@@ -184,7 +200,9 @@ Future<void> _loadUser() async {
             await SessionService.clearSession();
             Navigator.pushReplacement( context, MaterialPageRoute(builder: (context) => const LoginPage()),);
              
-          })
+          }),
+
+          const SizedBox(height: 50),
 
           ],
         ),
@@ -235,7 +253,7 @@ Future<void> _loadUser() async {
   }
 
   
-  Widget _saleSummary() {
+  Widget _saleSummaryCashier() {
 
     final isDesktop = Responsive.isDesktop(context);
     final isTablet = Responsive.isTablet(context);
@@ -261,7 +279,7 @@ Future<void> _loadUser() async {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Transaction: ', style: GoogleFonts.kameron(
-                   fontSize:  isDesktop ? 18 : isTablet ? 15 : 15,
+                   fontSize:  isDesktop ? 18 : isTablet ? 17 : 15,
                    fontWeight: FontWeight.w500
                 ),),
                 Text('${summaryData?['transaction_count'] ?? 0}', style: GoogleFonts.kameron(
@@ -274,7 +292,7 @@ Future<void> _loadUser() async {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Revenue: ', style: GoogleFonts.kameron(
-                   fontSize:  isDesktop ? 18 : isTablet ? 15 : 15,
+                   fontSize:  isDesktop ? 18 : isTablet ? 17 : 15,
                    fontWeight: FontWeight.w500
                 ),),
                 Text('₱${(summaryData?['total_revenue'] ?? 0).toStringAsFixed(2)}', style: GoogleFonts.kameron(
@@ -287,7 +305,7 @@ Future<void> _loadUser() async {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Items Sold: ', style: GoogleFonts.kameron(
-                   fontSize:  isDesktop ? 18 : isTablet ? 15 : 15,
+                   fontSize:  isDesktop ? 18 : isTablet ? 17 : 15,
                    fontWeight: FontWeight.w500
                 ),),
                 Text('${summaryData?['items_sold'] ?? 0}', style: GoogleFonts.kameron(
@@ -300,7 +318,7 @@ Future<void> _loadUser() async {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Average sales: ', style: GoogleFonts.kameron(
-                   fontSize:  isDesktop ? 18 : isTablet ? 15 : 15,
+                   fontSize:  isDesktop ? 18 : isTablet ? 17 : 15,
                    fontWeight: FontWeight.w500
                 ),),
                 Text('₱${((summaryData?['average_sales'] ?? 0) as num).toStringAsFixed(2)}', style: GoogleFonts.kameron(
@@ -313,6 +331,88 @@ Future<void> _loadUser() async {
       ),
     );
   }
+
+
+  Widget _salesSummaryAdmin() {
+  final isDesktop = Responsive.isDesktop(context);
+  final isTablet = Responsive.isTablet(context);
+
+  return Column(
+    children: allCashiersSummary.map((cashier) {
+      return Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 1,
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text('Cashier:', style: GoogleFonts.kameron(
+                    fontSize: isDesktop ? 20 : isTablet ? 18 : 16,
+                    fontWeight: FontWeight.bold,
+                  ),),
+                  SizedBox(width: 15,),
+                Text(
+                  capitalizeEachWord(cashier['name'] ?? cashier['username']),
+                  style: GoogleFonts.kameron(
+                    fontSize: isDesktop ? 20 : isTablet ? 18 : 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            Divider(thickness: 1,),
+            const SizedBox(height: 5),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Transactions: ', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500)),
+                Text('${cashier['transaction_count'] ?? 0}', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500)),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Revenue: ', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500)),
+                Text('₱${(cashier['total_revenue'] ?? 0).toStringAsFixed(2)}', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500)),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Items Sold: ', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500)),
+                Text('${cashier['items_sold'] ?? 0}', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500)),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Average Sales: ', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500)),
+                Text('₱${((cashier['average_sales'] ?? 0) as num).toStringAsFixed(2)}', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500)),
+              ],
+            ),
+          ],
+        ),
+      );
+    }).toList(),
+  );
+}
+
+
 
   Widget _buildActionButton({
     required IconData icon,

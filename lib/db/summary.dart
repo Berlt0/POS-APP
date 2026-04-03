@@ -47,11 +47,21 @@ class Summary {
 
       final List<Map<String, dynamic>> result = await db.rawQuery('''
         SELECT
-          (SELECT COUNT(*) FROM sales WHERE user_id = ? AND DATE(created_at) = DATE('now') AND status IS NOT 'voided') AS transaction_count,
+          (SELECT COUNT(*) FROM sales s
+          WHERE s.user_id = ? 
+            AND DATE(s.created_at) = DATE('now') 
+            AND s.status IS NOT 'voided') AS transaction_count,
   
-          (SELECT IFNULL(SUM(total_amount), 0) FROM sales WHERE user_id = ? AND DATE('now') AND status IS NOT 'voided' ) AS total_revenue,
+          (SELECT IFNULL(SUM(s.total_amount), 0) FROM sales s 
+          WHERE s.user_id = ? 
+            AND  DATE(s.created_at) = DATE('now') 
+            AND s.status IS NOT 'voided' ) AS total_revenue,
 
-          (SELECT IFNULL(SUM(si.quantity), 0) FROM sale_items si INNER JOIN sales s ON s.id = si.sale_id WHERE user_id = ? AND DATE('now') AND status IS NOT 'voided' ) AS items_sold
+          (SELECT IFNULL(SUM(si.quantity), 0) FROM sale_items si
+          INNER JOIN sales s ON s.id = si.sale_id 
+          WHERE s.user_id = ? 
+            AND  DATE(s.created_at) = DATE('now') 
+            AND s.status IS NOT 'voided' ) AS items_sold
 
         
       ''', [userId, userId, userId]);
@@ -82,6 +92,54 @@ class Summary {
     }
   }
 
+
+  Future<List<Map<String, dynamic>>> allCashier() async {
+  try {
+    final db = await AppDatabase.database;
+
+    final result = await db.rawQuery('''
+      SELECT 
+        u.id,
+        u.username,
+        u.name,
+
+       
+        COUNT(DISTINCT s.id) AS transaction_count,
+
+  
+        IFNULL(SUM(DISTINCT s.total_amount), 0) AS total_revenue,
+
+       
+        IFNULL(SUM(si.quantity), 0) AS items_sold,
+
+      
+        CASE 
+          WHEN COUNT(DISTINCT s.id) > 0 
+          THEN SUM(DISTINCT s.total_amount) / COUNT(DISTINCT s.id)
+          ELSE 0
+        END AS average_sales
+
+      FROM users u
+
+      LEFT JOIN sales s 
+        ON s.user_id = u.id 
+        AND DATE(s.created_at) = DATE('now')
+        AND s.status != 'voided'
+
+      LEFT JOIN sale_items si 
+        ON si.sale_id = s.id
+
+      WHERE u.role = ?
+
+      GROUP BY u.id
+    ''', ['cashier']);
+
+    return result;
+  } catch (error) {
+    print("Error fetching cashier summary: $error");
+    return [];
+  }
+}
 
 
 }
