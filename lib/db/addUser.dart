@@ -22,6 +22,10 @@ class UserSeed {
       'username': 'admin',
       'password': PasswordHelper.hashPassword('admin21034'),
       'role': 'admin',
+      'name': 'Admin Kuno',
+      'email': 'admin21@gmail.com',
+      'contact_number': '09123456789',
+      'address': 'Zamboanga del Sur, Pagadian City',
       'createdAt': now,
     });
 
@@ -29,6 +33,10 @@ class UserSeed {
       'username': 'john',
       'password': PasswordHelper.hashPassword('johnpass21'),
       'role': 'cashier',
+      'name': 'John Erps',
+      'email': 'johny2@gmail.com',
+      'contact_number': '0922435010',
+      'address': 'Zamboanga del Sur, Pagadian City',
       'createdAt': now,
     });
 

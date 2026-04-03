@@ -3,6 +3,15 @@ import 'package:pos_app/db/database.dart';
   Future<void> printTables() async {
   final db = await AppDatabase.database;
 
+print('----------Users----------');
+
+  // Print sales table
+  final users = await db.query('users');
+  print('--- users ---');
+  for (var row in users) {
+    print(row);
+  }
+
 print('----------Sales----------');
 
   // Print sales table
@@ -37,4 +46,14 @@ print('----------Sales----------');
   for (var row in archives) {
     print(row);
   }
+
+   print('----------Session----------');
+
+  final session = await db.query('session');
+  print('--- Session ---');
+  for (var row in session) {
+    print(row);
+  }
+
+
 }

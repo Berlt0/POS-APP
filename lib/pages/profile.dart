@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pos_app/pages/login.dart';
 import 'package:pos_app/utils/responsive.dart';
 import 'package:pos_app/pages/home.dart';
 import 'package:pos_app/services/session_service.dart';
@@ -16,6 +17,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
 
   Map<String, dynamic>? userData;
+  Map<String, dynamic>? summaryData;
+  int? userId;
   bool isLoading = true;
 
 
@@ -27,9 +30,21 @@ void initState() {
 
 Future<void> _loadUser() async {
   final data = await Summary().getLoggedInUserInfo();
+  print(data);
+
+   if (data != null) {
+    final summary = await Summary().getTodaysSummary(data['user_id']);
+
+    setState(() {
+      userData = data;
+      summaryData = summary;
+      isLoading = false;
+    });
+  }
 
   setState(() {
     userData = data;
+     userId = userData?['user_id'];
     isLoading = false;
   });
 }
@@ -93,7 +108,7 @@ Future<void> _loadUser() async {
 
             // User Name
             Text(
-              userData?['username'] ?? 'User',
+              capitalizeEachWord(userData?['username'] ?? 'User',),
               style: GoogleFonts.kameron(
                 fontSize: isDesktop ? 28 : isTablet ? 24 : 21,
                 fontWeight: FontWeight.bold,
@@ -120,7 +135,7 @@ Future<void> _loadUser() async {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                userData?['role'] ?? 'Cashier',
+                capitalizeEachWord(userData?['role'] ?? 'Cashier'),
                 style: GoogleFonts.kameron(
                   fontSize: isDesktop ? 16 : isTablet ? 15 : 14,
                   fontWeight: FontWeight.w600,
@@ -167,7 +182,7 @@ Future<void> _loadUser() async {
 
           _buildActionButton(icon: Icons.logout, text: 'Logout', color: Colors.red, onTap: () async {
             await SessionService.clearSession();
-            Navigator.pushReplacement( context, MaterialPageRoute(builder: (context) => const Home()),);
+            Navigator.pushReplacement( context, MaterialPageRoute(builder: (context) => const LoginPage()),);
              
           })
 
@@ -249,7 +264,7 @@ Future<void> _loadUser() async {
                    fontSize:  isDesktop ? 18 : isTablet ? 15 : 15,
                    fontWeight: FontWeight.w500
                 ),),
-                Text('25', style: GoogleFonts.kameron(
+                Text('${summaryData?['transaction_count'] ?? 0}', style: GoogleFonts.kameron(
                    fontSize:  isDesktop ? 18 : isTablet ? 17 : 15,
                    fontWeight: FontWeight.w500
                 ),)
@@ -262,7 +277,7 @@ Future<void> _loadUser() async {
                    fontSize:  isDesktop ? 18 : isTablet ? 15 : 15,
                    fontWeight: FontWeight.w500
                 ),),
-                Text('₱500.00', style: GoogleFonts.kameron(
+                Text('₱${(summaryData?['total_revenue'] ?? 0).toStringAsFixed(2)}', style: GoogleFonts.kameron(
                    fontSize:  isDesktop ? 18 : isTablet ? 17 : 15,
                    fontWeight: FontWeight.w500
                 ),)
@@ -275,7 +290,7 @@ Future<void> _loadUser() async {
                    fontSize:  isDesktop ? 18 : isTablet ? 15 : 15,
                    fontWeight: FontWeight.w500
                 ),),
-                Text('22', style: GoogleFonts.kameron(
+                Text('${summaryData?['items_sold'] ?? 0}', style: GoogleFonts.kameron(
                    fontSize:  isDesktop ? 18 : isTablet ? 17 : 15,
                    fontWeight: FontWeight.w500
                 ),)
@@ -288,7 +303,7 @@ Future<void> _loadUser() async {
                    fontSize:  isDesktop ? 18 : isTablet ? 15 : 15,
                    fontWeight: FontWeight.w500
                 ),),
-                Text('₱250.00', style: GoogleFonts.kameron(
+                Text('₱${((summaryData?['average_sales'] ?? 0) as num).toStringAsFixed(2)}', style: GoogleFonts.kameron(
                    fontSize:  isDesktop ? 18 : isTablet ? 17 : 15,
                    fontWeight: FontWeight.w500
                 ),)
@@ -346,4 +361,12 @@ Future<void> _loadUser() async {
 
 
 
+}
+
+String capitalizeEachWord(String text) {
+  return text
+      .split(' ')
+      .map((word) =>
+          word.isNotEmpty ? '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}' : '')
+      .join(' ');
 }

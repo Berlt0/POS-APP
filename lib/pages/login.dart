@@ -36,17 +36,7 @@ class _LoginPageState extends State<LoginPage> {
     ScaffoldMessenger.of(context).clearSnackBars();
 
     if (result != null) {
-      // Save session (AuthService writes to secure storage)
-      await AuthService.saveSession(
-        result['userId'], 
-        result['token']);
-
-      await SessionService.saveSession(
-        userId: result['userId'],
-        username: result['username'],
-        role: result['role'],
-      );
-
+    
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           behavior: SnackBarBehavior.floating,

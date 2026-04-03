@@ -24,17 +24,7 @@ class UserDB {
     final userId = user['id'];
     if (userId == null) return null;
 
-    // Generate raw token and store hashed version in DB
-    final rawToken = TokenHelper.generateRawToken(userId as int);
-    final hashedToken = TokenHelper.hashToken(rawToken);
-
-    await db.update(
-      'users',
-      {'token': hashedToken},
-      where: 'id = ?',
-      whereArgs: [userId],
-    );
-
+    
     final now = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
 
     await db.delete('session');
@@ -52,7 +42,6 @@ class UserDB {
       'userId': userId,
       'username': user['username'],
       'role': user['role'],
-      'token': rawToken,
     };
     
   }
