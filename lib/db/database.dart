@@ -40,6 +40,9 @@ class AppDatabase {
         username TEXT UNIQUE,
         password TEXT,
         role TEXT,
+        email TEXT,
+        contact_number TEXT,
+        address TEXT,
         token TEXT,
         createdAt TEXT,
         is_synced INTEGER DEFAULT 0

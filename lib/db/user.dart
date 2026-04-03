@@ -4,10 +4,8 @@ import 'package:pos_app/utils/hash_token.dart';
 import 'package:intl/intl.dart';
 
 class UserDB {
-  static Future<Map<String, dynamic>?> login(
-    String username,
-    String password,
-  ) async {
+  static Future<Map<String, dynamic>?> login(String username,String password,) async {
+    
     final db = await AppDatabase.database;
 
     final hashedPassword = PasswordHelper.hashPassword(password);

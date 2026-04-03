@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/utils/responsive.dart';
+import 'package:pos_app/pages/home.dart';
+import 'package:pos_app/services/session_service.dart';
+import 'package:pos_app/db/summary.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -11,11 +14,26 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
 
-  // You can later connect this with real user data
-  final String userName = "John Doe";
-  final String userEmail = "john.doe@posapp.com";
-  final String userRole = "Admin";
-  final String joinDate = "March 2025";
+
+  Map<String, dynamic>? userData;
+  bool isLoading = true;
+
+
+@override
+void initState() {
+  super.initState();
+  _loadUser();
+}
+
+Future<void> _loadUser() async {
+  final data = await Summary().getLoggedInUserInfo();
+
+  setState(() {
+    userData = data;
+    isLoading = false;
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -31,65 +49,78 @@ class _ProfilePageState extends State<ProfilePage> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            const SizedBox(height: 25),
+            const SizedBox(height: 50),
 
-            // Profile Picture
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+
+                InkWell(
+                  
+                  onTap: () => Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Home()),
+                  ),
+                  child: Icon(
+                    Icons.arrow_back, size: isDesktop ? 37 : isTablet ? 32 : 27,
+                  ),
+                ),
+                Text('Profile',style: GoogleFonts.kameron(
+                  fontSize: isDesktop ? 23 : isTablet ? 21 : 18,
+                  fontWeight: FontWeight.bold
+                ),),
+                InkWell(
+                  onTap: () {},
+                  child: Icon(
+                    Icons.edit_note, size: isDesktop ? 37 : isTablet ? 32 : 27,
+                  ),
+                ),
+              ],
+            ),
+            
+            SizedBox(height: 20,),
+
             Center(
-              child: Stack(
-                children: [
-                  CircleAvatar(
-                    radius: isDesktop ? 65 : isTablet ? 60 : 50,
-                    backgroundColor: Colors.grey[300],
-                    backgroundImage: const AssetImage('assets/Legendaries.png'),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 3),
-                      ),
-                      child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
-                    ),
-                  ),
-                ],
+              child:CircleAvatar(
+                radius: isDesktop ? 60 : isTablet ? 50 : 40,
+                backgroundColor: Colors.grey[300],
+                backgroundImage: const AssetImage('assets/Legendaries.png'),
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 14),
 
             // User Name
             Text(
-              userName,
+              userData?['username'] ?? 'User',
               style: GoogleFonts.kameron(
-                fontSize: isDesktop ? 28 : isTablet ? 24 : 22,
+                fontSize: isDesktop ? 28 : isTablet ? 24 : 21,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
             ),
 
-            const SizedBox(height: 8),
+            
 
             // Email & Role
             Text(
-              userEmail,
+              userData?['email'] ?? '',
               style: GoogleFonts.kameron(
                 fontSize: isDesktop ? 18 : isTablet ? 17 : 15,
                 color: Colors.grey[700],
+                fontWeight: FontWeight.w500
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 5),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
                 color: Colors.blue.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                userRole,
+                userData?['role'] ?? 'Cashier',
                 style: GoogleFonts.kameron(
                   fontSize: isDesktop ? 16 : isTablet ? 15 : 14,
                   fontWeight: FontWeight.w600,
@@ -100,83 +131,55 @@ class _ProfilePageState extends State<ProfilePage> {
 
             const SizedBox(height: 30),
 
-            // Info Cards
-            _buildInfoCard(
-              icon: Icons.calendar_today,
-              title: "Joined",
-              value: joinDate,
-              isResponsive: true,
-            ),
+          Align(
+            alignment: AlignmentGeometry.topLeft,
+            child: Text('Personal Information',
+            style: GoogleFonts.kameron(
+              fontSize: isDesktop ? 20 : isTablet ? 18 : 16,
+              fontWeight: FontWeight.bold
+            ),),
+          ),
 
-            const SizedBox(height: 12),
+          const SizedBox(height: 15),
 
-            _buildInfoCard(
-              icon: Icons.phone,
-              title: "Phone",
-              value: "+63 912 345 6789",
-              isResponsive: true,
-            ),
+            _buildInfoCard(),
 
-            const SizedBox(height: 12),
+          const SizedBox(height: 15),
 
-            _buildInfoCard(
-              icon: Icons.store,
-              title: "Branch",
-              value: "Davao Main Store",
-              isResponsive: true,
-            ),
+          Align(
+            alignment: AlignmentGeometry.topLeft,
+            child: Text("Today's Summary",
+            style: GoogleFonts.kameron(
+              fontSize: isDesktop ? 20 : isTablet ? 18 : 16,
+              fontWeight: FontWeight.bold
+            ),),
+          ),
+          
+          const SizedBox(height: 15),
 
-            const SizedBox(height: 40),
+          _saleSummary(),
 
-            // Action Buttons
-            _buildActionButton(
-              icon: Icons.edit,
-              text: "Edit Profile",
-              color: Colors.blue,
-              onTap: () {
-                // TODO: Open edit profile
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Edit Profile clicked")),
-                );
-              },
-            ),
+          const SizedBox(height: 50),
 
-            const SizedBox(height: 12),
+          _buildActionButton(icon: Icons.settings, text: 'Settings', color: const Color.fromARGB(255, 58, 58, 58), onTap: () {}),
 
-            _buildActionButton(
-              icon: Icons.lock,
-              text: "Change Password",
-              color: Colors.orange,
-              onTap: () {
-                // TODO: Change password
-              },
-            ),
+          const SizedBox(height: 10),
 
-            const SizedBox(height: 12),
+          _buildActionButton(icon: Icons.logout, text: 'Logout', color: Colors.red, onTap: () async {
+            await SessionService.clearSession();
+            Navigator.pushReplacement( context, MaterialPageRoute(builder: (context) => const Home()),);
+             
+          })
 
-            _buildActionButton(
-              icon: Icons.logout,
-              text: "Logout",
-              color: Colors.red,
-              onTap: () {
-                // TODO: Logout logic
-              },
-            ),
-
-            const SizedBox(height: 40),
           ],
         ),
       ),
     );
   }
 
-  // Reusable Info Card
-  Widget _buildInfoCard({
-    required IconData icon,
-    required String title,
-    required String value,
-    required bool isResponsive,
-  }) {
+
+
+  Widget _buildInfoCard() {
     final isDesktop = Responsive.isDesktop(context);
     final isTablet = Responsive.isTablet(context);
 
@@ -195,37 +198,107 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment:CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: isDesktop ? 28 : isTablet ? 26 : 24, color: Colors.grey[700]),
-          const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: GoogleFonts.kameron(
-                  fontSize: isDesktop ? 16 : isTablet ? 15 : 14,
-                  color: Colors.grey[600],
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                style: GoogleFonts.kameron(
-                  fontSize: isDesktop ? 19 : isTablet ? 18 : 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black,
-                ),
-              ),
-            ],
-          ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Contact Number:', style: GoogleFonts.kameron(
+                   fontSize:  isDesktop ? 18 : isTablet ? 15 : 15,
+                   fontWeight: FontWeight.w500
+                ),),
+                Text(userData?['contact_number'] ?? 'N/A', style: GoogleFonts.kameron(
+                   fontSize:  isDesktop ? 18 : isTablet ? 17 : 15,
+                   fontWeight: FontWeight.w500
+                ),)
+              ],
+            )
         ],
       ),
     );
   }
 
-  // Reusable Action Button
+  
+  Widget _saleSummary() {
+
+    final isDesktop = Responsive.isDesktop(context);
+    final isTablet = Responsive.isTablet(context);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 1,
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Transaction: ', style: GoogleFonts.kameron(
+                   fontSize:  isDesktop ? 18 : isTablet ? 15 : 15,
+                   fontWeight: FontWeight.w500
+                ),),
+                Text('25', style: GoogleFonts.kameron(
+                   fontSize:  isDesktop ? 18 : isTablet ? 17 : 15,
+                   fontWeight: FontWeight.w500
+                ),)
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Revenue: ', style: GoogleFonts.kameron(
+                   fontSize:  isDesktop ? 18 : isTablet ? 15 : 15,
+                   fontWeight: FontWeight.w500
+                ),),
+                Text('₱500.00', style: GoogleFonts.kameron(
+                   fontSize:  isDesktop ? 18 : isTablet ? 17 : 15,
+                   fontWeight: FontWeight.w500
+                ),)
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Items Sold: ', style: GoogleFonts.kameron(
+                   fontSize:  isDesktop ? 18 : isTablet ? 15 : 15,
+                   fontWeight: FontWeight.w500
+                ),),
+                Text('22', style: GoogleFonts.kameron(
+                   fontSize:  isDesktop ? 18 : isTablet ? 17 : 15,
+                   fontWeight: FontWeight.w500
+                ),)
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Average sales: ', style: GoogleFonts.kameron(
+                   fontSize:  isDesktop ? 18 : isTablet ? 15 : 15,
+                   fontWeight: FontWeight.w500
+                ),),
+                Text('₱250.00', style: GoogleFonts.kameron(
+                   fontSize:  isDesktop ? 18 : isTablet ? 17 : 15,
+                   fontWeight: FontWeight.w500
+                ),)
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildActionButton({
     required IconData icon,
     required String text,
@@ -270,4 +343,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
+
+
+
 }

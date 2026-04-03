@@ -54,7 +54,6 @@ class _MyWidgetState extends State<Home>  {
     _fetchLowStockProducts();
     _chartFuture = _fetchChartData();
     printTables();
-    // _verifyToken(); // prints tokens to console when Home opens
   }
 
   void _refreshDashboard() {
@@ -67,24 +66,6 @@ class _MyWidgetState extends State<Home>  {
   _fetchChartData();
 }
 
-
-// Future<void> _verifyToken() async {
-//   final userId = await AuthService.getUserId();
-//   final rawToken = await AuthService.getToken() ?? 'No token found';
-
-//   String dbToken = 'No DB token';
-//   if (userId != null) {
-//     final db = await AppDatabase.database;
-//     final result = await db.query('users', where: 'id = ?', whereArgs: [userId]);
-//     if (result.isNotEmpty) {
-//       dbToken = (result.first['token'] as String ?)?? 'No DB token found';
-//     } else {
-//       dbToken = 'User not found in DB';
-//     }
-//   }
-
-//   print('Raw token in secure storage: $rawToken');
-//   print('Hashed token in database: $dbToken');
 
 Future<void> _loadSession() async {
   final session = await SessionService.getSession();
@@ -285,7 +266,7 @@ int _currentIndex = 0;
                     GestureDetector(
                       onTap: () async {
 
-                        // await SessionService.clearSession(); 
+                        
 
                         Navigator.pushReplacementNamed(context, '/profile');
                       },
