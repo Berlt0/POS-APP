@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/pages/login.dart';
 import 'package:pos_app/utils/responsive.dart';
 import 'package:pos_app/pages/home.dart';
 import 'package:pos_app/services/session_service.dart';
 import 'package:pos_app/db/summary.dart';
+import 'package:pos_app/models/addCashier.dart';
+import 'package:pos_app/utils/password_hashed.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -23,11 +26,35 @@ class _ProfilePageState extends State<ProfilePage> {
 
   List<Map<String, dynamic>> allCashiersSummary = [];
 
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController contactController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
+
+  String? nameError;
+  String? usernameError;
+  String? emailError;
+  String? contactError;
+  String? addressError;
+  String? passwordError;
 
 @override
 void initState() {
   super.initState();
   _loadUser();
+}
+
+@override
+void dispose() {
+  usernameController.dispose();
+  passwordController.dispose();
+  nameController.dispose();
+  emailController.dispose();
+  contactController.dispose();
+  addressController.dispose();
+  super.dispose();
 }
 
 Future<void> _loadUser() async {
@@ -41,6 +68,8 @@ Future<void> _loadUser() async {
 
       cashiers = await Summary().allCashier();
     }
+
+    if (!mounted) return;
 
     setState(() {
       userData = data;
@@ -57,12 +86,65 @@ Future<void> _loadUser() async {
   }
 }
 
+Future<bool> _handleCashierInsertion() async {
+
+  try {
+
+          final hashedPassword = PasswordHelper.hashPassword(passwordController.text.trim());
+
+          final cashier = Addcashier(
+            name: nameController.text.trim(),
+            username: usernameController.text.trim(),
+            email: emailController.text.trim(),
+            contactNo: contactController.text.trim(),
+            address: addressController.text.trim(),
+            password: hashedPassword,
+          );
+
+          await Summary().insertCashier(cashier); 
+
+          if (!mounted) return false;
+  
+            await _loadUser();
+     
+          return true;
+
+        } catch (e) {
+
+          if (!mounted) return false;
+
+          String message = "Failed to add cashier. Please try again.";
+
+          if (e.toString().contains("UNIQUE constraint failed")) {
+            message = "This username or email already exists.";
+          } else if (e.toString().contains("DatabaseException")) {
+            message = "Database error occurred. Please check your input.";
+          }
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(message),
+              backgroundColor: Colors.red,
+            ),
+          );
+
+          
+          return false;
+        }
+}
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = Responsive.isMobile(context);
     final isTablet = Responsive.isTablet(context);
     final isDesktop = Responsive.isDesktop(context);
+
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -155,7 +237,7 @@ Future<void> _loadUser() async {
             const SizedBox(height: 30),
 
           Align(
-            alignment: AlignmentGeometry.topLeft,
+            alignment: Alignment.topLeft,
             child: Text('Personal Information',
             style: GoogleFonts.kameron(
               fontSize: isDesktop ? 20 : isTablet ? 18 : 16,
@@ -170,7 +252,7 @@ Future<void> _loadUser() async {
           const SizedBox(height: 15),
 
           Align(
-            alignment: AlignmentGeometry.topLeft,
+            alignment: Alignment.topLeft,
             child: Text("Today's Summary",
             style: GoogleFonts.kameron(
               fontSize: isDesktop ? 20 : isTablet ? 18 : 16,
@@ -183,11 +265,43 @@ Future<void> _loadUser() async {
           if(userData?['role'] == 'admin')...[
 
           _salesSummaryAdmin(),
+          SizedBox(height: 2,),
+        Align(
+        alignment: Alignment.bottomRight,
+        child: ElevatedButton.icon(
+          icon: Icon(
+            Icons.person_add_rounded,
+            size: isDesktop ? 24 : isTablet ? 22 : 19,
+            color: Colors.black,
+          ),
+          label: Text(
+            "Add Cashier",
+            style: GoogleFonts.kameron(
+              fontSize: isDesktop ? 20 : isTablet ? 17 : 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF30DD04),
+            foregroundColor: Colors.black,
+            elevation: 5,
+            padding: EdgeInsets.symmetric(
+              horizontal: isDesktop ? 34 : isTablet ? 30 : 26,
+              vertical: isDesktop ? 15 : isTablet ? 13 : 12,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          onPressed: _showAddCashierModal,
+        ),
+      ),
 
           ]else...[
 
           _saleSummaryCashier(),
-          
+         
           ],
 
           const SizedBox(height: 200),
@@ -209,6 +323,367 @@ Future<void> _loadUser() async {
       ),
     );
   }
+
+
+Future<void> _showAddCashierModal() async {
+  
+  bool modalLoading = false;
+
+  final isDesktop = Responsive.isDesktop(context);
+  final isTablet = Responsive.isTablet(context);
+
+    nameController.clear();
+    usernameController.clear();
+    emailController.clear();
+    contactController.clear();
+    addressController.clear();
+    passwordController.clear();
+
+    nameError = null;
+    usernameError = null;
+    emailError = null;
+    contactError = null;
+    addressError = null;
+    passwordError = null;
+
+  await showGeneralDialog(
+    context: context,
+    barrierLabel: "Add Cashier",
+    barrierDismissible: true,
+    barrierColor: Colors.black.withOpacity(0.5),
+    transitionDuration: const Duration(milliseconds: 300),
+    pageBuilder: (context, anim1, anim2) {
+      return Center(
+        child: Material(
+          type: MaterialType.transparency,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: isDesktop ? 420 : isTablet ? 380 : 340,
+              maxHeight: MediaQuery.of(context).size.height * 0.85, // Prevent too tall modal
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: StatefulBuilder(
+                builder: (context, setDialogState) {
+
+                  return SingleChildScrollView(    
+                    scrollDirection: Axis.vertical,    
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Add New Cashier",
+                          style: GoogleFonts.kameron(
+                            fontSize: isDesktop ? 22 : isTablet ? 20 : 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+               
+                        TextField(
+                          controller: nameController,
+                          obscureText: false,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+                            LengthLimitingTextInputFormatter(60)
+                          ],
+                          style: GoogleFonts.kameron(fontSize: isDesktop ? 22 : isTablet ? 20 : 16),
+                          decoration: InputDecoration(
+                            labelText: "Full Name",
+                            labelStyle: GoogleFonts.kameron(
+                              fontSize: isDesktop ? 19 : isTablet ? 17 : 15,
+                              color: Colors.grey[900],
+                              fontWeight: FontWeight.w500,
+                            ),
+                            errorText: nameError,
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                            filled: true,
+                            fillColor: Colors.grey[100],
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: isDesktop ? 18 : isTablet ? 16 : 10,
+                              horizontal: 13,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        TextField(
+                          controller: usernameController,
+                          obscureText: false,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')),
+                            LengthLimitingTextInputFormatter(30),
+                          ],
+                          style: GoogleFonts.kameron(fontSize: isDesktop ? 22 : isTablet ? 20 : 16),
+                          decoration: InputDecoration(
+                            labelText: "Username",
+                            labelStyle: GoogleFonts.kameron(
+                              fontSize: isDesktop ? 19 : isTablet ? 17 : 15,
+                              color: Colors.grey[900],
+                              fontWeight: FontWeight.w500,
+                            ),
+                            errorText: usernameError,
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                            filled: true,
+                            fillColor: Colors.grey[100],
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: isDesktop ? 18 : isTablet ? 16 : 10,
+                              horizontal: 13,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+
+                        TextField(
+                        style: GoogleFonts.kameron(
+                            fontSize: isDesktop ? 22 : isTablet ? 20 : 16
+                          ),
+                        controller: emailController,
+                        obscureText: false,
+                        inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9@._-]')),
+                          ],
+                        decoration: InputDecoration(
+                          labelText: "Email Address",
+                          labelStyle: GoogleFonts.kameron(fontSize: isDesktop ? 19 : isTablet ? 17: 15 ,color: Colors.grey[900], fontWeight: FontWeight.w500),  
+                          errorText: emailError,
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                          contentPadding: EdgeInsets.symmetric(vertical: isDesktop ? 18 : isTablet ? 16 : 10, horizontal: 13)
+                        ),
+                      ),
+
+                    const SizedBox(height: 12),
+
+                      TextField(
+                        style: GoogleFonts.kameron(
+                            fontSize: isDesktop ? 22 : isTablet ? 20 : 16
+                          ),
+                        controller: contactController,
+                        obscureText: false,
+                        inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'[0-9+\s-]')),
+                            LengthLimitingTextInputFormatter(15),
+                          ],
+                        decoration: InputDecoration(
+                          labelText: "Contact Number",
+                          labelStyle: GoogleFonts.kameron(fontSize: isDesktop ? 19 : isTablet ? 17: 15 ,color: Colors.grey[900], fontWeight: FontWeight.w500),  
+                          errorText: contactError,
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                          contentPadding: EdgeInsets.symmetric(vertical: isDesktop ? 18 : isTablet ? 16 : 10, horizontal: 13)
+                        ),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      TextField(
+                        style: GoogleFonts.kameron(
+                            fontSize: isDesktop ? 22 : isTablet ? 20 : 16
+                          ),
+                        controller: addressController,
+                        inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s,.-]')),
+                          ],
+                        obscureText: false,
+                        decoration: InputDecoration(
+                          labelText: "Address",
+                          labelStyle: GoogleFonts.kameron(fontSize: isDesktop ? 19 : isTablet ? 17: 15 ,color: Colors.grey[900], fontWeight: FontWeight.w500),  
+                          errorText: addressError,
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                          contentPadding: EdgeInsets.symmetric(vertical: isDesktop ? 18 : isTablet ? 16 : 10, horizontal: 13)
+                        ),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                        TextField(
+                          controller: passwordController,
+                          obscureText: true,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.deny(RegExp(r'[\s]')),
+                          ],
+                          style: GoogleFonts.kameron(fontSize: isDesktop ? 22 : isTablet ? 20 : 16),
+                          decoration: InputDecoration(
+                            labelText: "Password",
+                            labelStyle: GoogleFonts.kameron(fontSize: isDesktop ? 19 : isTablet ? 17: 15 ,color: Colors.grey[900], fontWeight: FontWeight.w500),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                            errorText: passwordError,
+                            filled: true,
+                            fillColor: Colors.grey[100],
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: isDesktop ? 18 : isTablet ? 16 : 10,
+                              horizontal: 13,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 30),
+
+                        // Buttons
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                  Navigator.pop(context);
+                                  // Clear controllers & errors on cancel
+                                  nameController.clear();
+                                  usernameController.clear();
+                                  emailController.clear();
+                                  contactController.clear();
+                                  addressController.clear();
+                                  passwordController.clear();
+
+                                  if(!mounted) return;
+
+                                  setState(() {
+                                    nameError = null;
+                                    usernameError = null;
+                                    emailError = null;
+                                    contactError = null;
+                                    addressError = null;
+                                    passwordError = null;
+                                  });
+                                },
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  "Cancel",
+                                  style: GoogleFonts.kameron(
+                                    fontSize: isDesktop ? 21 : isTablet ? 18 : 15,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF30DD04),
+                                elevation: 4,
+                                padding: EdgeInsets.symmetric(
+                                  vertical: isDesktop ? 12 : isTablet ? 10 : 8,
+                                  horizontal: isDesktop ? 32 : isTablet ? 28 : 24,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              onPressed: modalLoading
+                                  ? null
+                                  : () async {
+                                    
+                                    setDialogState(() {
+                         
+                                      nameError = nameController.text.trim().isEmpty
+                                              ? "Full name is required"
+                                              : null;
+                                          usernameError = usernameController.text.trim().isEmpty
+                                              ? "Username is required"
+                                              : null;
+                                          emailError = emailController.text.trim().isEmpty
+                                              ? "Email is required"
+                                              : null;
+                                          contactError = contactController.text.trim().isEmpty
+                                              ? "Contact number is required"
+                                              : null;
+                                          addressError = addressController.text.trim().isEmpty
+                                              ? "Address is required"
+                                              : null;
+                                          passwordError = passwordController.text.trim().isEmpty
+                                              ? "Password is required"
+                                              : null;
+                                        });
+
+                                    if ([nameError, usernameError, emailError, contactError, addressError, passwordError].any((e) => e != null)) {
+                                          return;
+                                        }
+
+                                      setDialogState(() => modalLoading = true);
+
+                                      final success = await _handleCashierInsertion();
+
+                                      setDialogState(() => modalLoading = false);
+
+                                      if (!mounted) return;
+
+                                      if (success) {
+                                          Navigator.pop(context);
+
+                                          nameController.clear();
+                                          usernameController.clear();
+                                          emailController.clear();
+                                          contactController.clear();
+                                          addressController.clear();
+                                          passwordController.clear();
+
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                              content: Text("Cashier added successfully!"),
+                                              backgroundColor: Colors.green,
+                                            ),
+                                          );
+                                        }else{
+                                          setDialogState(() => modalLoading = false);
+                                        }
+
+                                    },
+                              child: modalLoading
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                    )
+                                  : Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.person_add_rounded,
+                                          size: isDesktop ? 24 : isTablet ? 22 : 20, color: Colors.black),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        "Add Cashier",
+                                        style: GoogleFonts.kameron(
+                                          fontSize: isDesktop ? 19 : isTablet ? 17 : 15,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+    },
+    transitionBuilder: (context, anim1, anim2, child) {
+      return ScaleTransition(
+        scale: CurvedAnimation(parent: anim1, curve: Curves.easeOutBack),
+        child: child,
+      );
+    },
+  );
+}
 
 
 
@@ -295,7 +770,7 @@ Future<void> _loadUser() async {
                    fontSize:  isDesktop ? 18 : isTablet ? 17 : 15,
                    fontWeight: FontWeight.w500
                 ),),
-                Text('₱${(summaryData?['total_revenue'] ?? 0).toStringAsFixed(2)}', style: GoogleFonts.kameron(
+                Text('₱${((summaryData?['total_revenue'] ?? 0) as num).toStringAsFixed(2)}', style: GoogleFonts.kameron(
                    fontSize:  isDesktop ? 18 : isTablet ? 17 : 15,
                    fontWeight: FontWeight.w500
                 ),)
@@ -388,7 +863,7 @@ Future<void> _loadUser() async {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Revenue: ', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500)),
-                Text('₱${(cashier['total_revenue'] ?? 0).toStringAsFixed(2)}', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500)),
+                Text('₱${((cashier['total_revenue'] ?? 0) as num).toStringAsFixed(2)}', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500)),
               ],
             ),
             Row(

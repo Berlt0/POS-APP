@@ -72,22 +72,7 @@ class Product {
     return 0;
   }
     return Product(
-      // id: map['id'] as int?,
-      // name: map['name'] as String,
-      // price: (map['price'] as num).toDouble(),
-      // stock: map['stock'] as int,
-      // stockUnit: map['stock_unit'] as String? ?? 'pcs',
-      // cost: map['cost'] != null ? (map['cost'] as num).toDouble() : null,
-      // category: map['category'] as String?,
-      // barcode: map['barcode'] as String?,
-      // lowStockAlert: map['low_stock_alert'] as int?,
-      // description: map['description'] as String?,
-      // imagePath: map['image_path'] as String?,
-      // createdAt: map['createdAt'] as String?,
-      // lastUpdate: map['update_at'] as String?,
-      // deletedAt: map['deleted_at'] as String?,
-      // isSync: map['is_synced'] as int? ?? 0,
-
+ 
       id: map['id'] is int ? map['id'] : int.tryParse(map['id'].toString()),
       name: map['name'] as String,
       price: parseDouble(map['price']),

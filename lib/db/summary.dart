@@ -1,5 +1,7 @@
 import 'database.dart';
 import 'package:intl/intl.dart';
+import 'package:pos_app/models/addCashier.dart';
+import 'package:sqflite/sqflite.dart';
 
 
 
@@ -141,6 +143,24 @@ class Summary {
   }
 }
 
+
+Future<int> insertCashier(Addcashier cashier) async {
+  try {
+    final db = await AppDatabase.database;
+
+    final id = await db.insert(
+      'users',
+      cashier.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.abort,
+    );
+
+    print("Cashier inserted with ID: $id");
+    return id;
+  } catch (e) {
+    print("Error inserting cashier: $e");
+    throw Exception("Failed to add cashier");
+  }
+}
 
 }
  

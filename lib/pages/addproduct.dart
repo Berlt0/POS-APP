@@ -362,7 +362,7 @@ Widget productFormWidget(int index) {
                       ),
                       SizedBox(height: 5,),
                       TextField(
-                        style: GoogleFonts.kameron(
+                         style: GoogleFonts.kameron(
                             fontSize: isDesktop ? 22 : isTablet ? 20 : 16
                           ),  
                         controller: form.productName,
