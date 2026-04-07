@@ -10,7 +10,7 @@ class Sales{
 
     final result = await db.rawQuery('''
       SELECT COUNT(*) as count FROM sales
-      WHERE DATE(datetime(created_at, 'localtime')) = DATE('now', 'localtime') AND status IS NOT 'voided'
+      WHERE DATE(created_at) = DATE('now') AND status IS NOT 'voided'
     ''');
 
     return Sqflite.firstIntValue(result) ?? 0;
@@ -25,7 +25,7 @@ class Sales{
 
     final result = await db.rawQuery('''
       SELECT SUM(total_amount) as total FROM sales
-      WHERE DATE(datetime(created_at, 'localtime')) = DATE('now', 'localtime') AND status IS NOT 'voided'
+      WHERE DATE(created_at) = DATE('now') AND status IS NOT 'voided'
     ''');
 
     return result.first['total'] != null ? (result.first['total'] as num).toDouble() : 0.0;
@@ -67,7 +67,7 @@ class Sales{
         DATE(datetime(created_at, 'localtime')) AS sale_date,
         COUNT(*) AS total_sales
       FROM sales
-      WHERE DATE(datetime(created_at, 'localtime')) >= DATE('now', 'localtime', '-6 days') AND status IS NOT 'voided'
+      WHERE DATE(created_at) >= DATE('now', '-6 days') AND status IS NOT 'voided'
       GROUP BY sale_date
       ORDER BY sale_date ASC;
     ''');
