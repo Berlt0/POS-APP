@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pos_app/db/barcode.dart';
 import 'package:pos_app/db/sync.dart';
 import 'package:pos_app/db/syncTransationHistory.dart';
 import 'package:pos_app/models/pos.dart';
@@ -10,6 +11,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pos_app/models/cartItem.dart';
 import 'package:flutter/services.dart';
 import 'package:pos_app/utils/responsive.dart';
+import 'package:pos_app/pages/barcodeScanner.dart';
 
 
 class POS extends StatefulWidget {
@@ -295,6 +297,29 @@ class _POSState extends State<POS> {
 
   double getTotal() => getSubTotal();
 
+
+
+  void addToCart(POSModel product) {
+  try {
+    // Try to find existing item
+    final existingItem = products.firstWhere(
+      (item) => item.product.id == product.id,
+    );
+
+    // Product already exists, increment qty
+    setState(() {
+      if (existingItem.qty < (product.stock ?? 0)) {
+        existingItem.qty++;
+      }
+    });
+  } catch (e) {
+    // Not found → add new
+    setState(() {
+      products.add(_POSItem(product: product, qty: 1));
+    });
+  }
+}
+
   @override
   Widget build(BuildContext context) {
 
@@ -409,7 +434,37 @@ class _POSState extends State<POS> {
                   Expanded(
                     flex: 1,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BarcodeScannerPage(
+                              onDetect: (barcode) async {
+                                debugPrint("Scanned barcode: $barcode");
+
+                              final productMap = await Barcode.getProductByBarcode(barcode);
+
+                              if (productMap != null) {
+                                
+                          
+                                final product = POSModel.fromMap(productMap);
+
+                                addToCart(product); 
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text("Added: ${product.name}")),
+                                );
+                                
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text("Product not found")),
+                                );
+                              }
+                            },
+                            ),
+                          )
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),

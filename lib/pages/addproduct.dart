@@ -10,6 +10,7 @@ import 'package:pos_app/models/products.dart';
 import 'package:flutter/services.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:pos_app/utils/responsive.dart';
+import 'package:pos_app/pages/barcodeScanner.dart';
 
 class Addproduct extends StatefulWidget {
   const Addproduct({super.key});
@@ -470,8 +471,21 @@ Widget productFormWidget(int index) {
                                   color: Colors.black ,size: isDesktop ? 32 : isTablet ? 30 : 25,
                                 ),
                                 onPressed: () {
-                                  // TODO: add your barcode generation/scanner logic here
-                                  print("Generate barcode or scan");
+                                  
+                                  Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => BarcodeScannerPage(
+                                      onDetect: (barcode) async {
+                                        form.barcode.text = barcode;
+
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text("Scanned: $barcode")),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                );
                                 },
                               ),
                             ),
