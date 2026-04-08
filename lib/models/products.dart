@@ -1,5 +1,6 @@
 class Product {
   final int? id;
+  final String globalId;
   final String name;
   final double price;
   final int stock;
@@ -17,6 +18,7 @@ class Product {
 
   Product({
     this.id,
+    required this.globalId,
     required this.name,
     required this.price,
     required this.stock,
@@ -36,6 +38,7 @@ class Product {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'global_id': globalId,
       'name': name,
       'price': price,
       'stock': stock,
@@ -74,6 +77,7 @@ class Product {
     return Product(
  
       id: map['id'] is int ? map['id'] : int.tryParse(map['id'].toString()),
+       globalId: map['global_id'] as String,
       name: map['name'] as String,
       price: parseDouble(map['price']),
       stock: parseInt(map['stock']),

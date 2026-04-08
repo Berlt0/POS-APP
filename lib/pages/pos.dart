@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pos_app/db/addUser.dart';
 import 'package:pos_app/db/barcode.dart';
 import 'package:pos_app/db/sync.dart';
 import 'package:pos_app/db/syncTransationHistory.dart';
@@ -681,6 +682,7 @@ class _POSState extends State<POS> {
                                         .where((item) => item.qty > 0)
                                         .map((item) => CartItem(
                                               productId: item.product.id!,
+                                              productGlobalId: item.product.global_id ?? uuid.v4(),
                                               name: item.product.name,
                                               price: item.product.price,
                                               quantity: item.qty,

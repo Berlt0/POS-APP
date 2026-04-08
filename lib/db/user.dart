@@ -31,6 +31,7 @@ class UserDB {
 
     await db.insert('session', {
       'user_id': userId,
+      'user_global_id': user['global_id'],
       'username': user['username'],
       'role': user['role'], 
       'login_at': now,
@@ -40,6 +41,7 @@ class UserDB {
     return {
      
       'userId': userId,
+      'user_global_id': user['global_id'],
       'username': user['username'],
       'role': user['role'],
     };
@@ -53,7 +55,7 @@ class UserDB {
 
     final List<Map<String, dynamic>> result = await db.query(
       'session',
-      columns: ['user_id','username','role'],
+      columns: ['user_id', 'user_global_id','username','role'],
       limit: 1,
     );
 
@@ -80,4 +82,21 @@ Future<String?> getLoggedInUserRole() async {
   return result.first['role']?.toString();
 }
 
+
+Future<String?> getLoggedInUserGlobalId() async {
+  final db = await AppDatabase.database;
+
+  final result = await db.query(
+    'session',
+    columns: ['user_global_id'],
+    limit: 1,
+  );
+
+  if (result.isEmpty) return null;
+
+  return result.first['user_global_id']?.toString();
 }
+
+}
+
+

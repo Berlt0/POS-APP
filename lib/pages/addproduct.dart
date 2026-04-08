@@ -11,6 +11,10 @@ import 'package:flutter/services.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:pos_app/utils/responsive.dart';
 import 'package:pos_app/pages/barcodeScanner.dart';
+import 'package:uuid/uuid.dart';
+
+var uuid = Uuid();
+String generateId() => Uuid().v4();
 
 class Addproduct extends StatefulWidget {
   const Addproduct({super.key});
@@ -189,6 +193,7 @@ Future<void> _saveProducts() async {
 
     // Create Product object
     final product = Product(
+      globalId: generateId(),
       name: productName,
       price: price,
       stock: stock,

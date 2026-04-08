@@ -3,6 +3,7 @@
 class POSModel{
 
 final int? id;
+final String? global_id;
 final String name;
 final String? category;
 final double price;
@@ -13,6 +14,7 @@ final String? image_path;
 POSModel({
 
   this.id,
+  required this.global_id,
   required this.name,
   required this.category,
   required this.price,
@@ -25,6 +27,7 @@ POSModel({
   factory POSModel.fromMap(Map<String, dynamic> map) {
     return POSModel(
       id: map['id'] as int,
+      global_id: map['global_id'] as String?,
       name: map['name'] as String,
       category: map['category'] as String?,
       price: (map['price'] as num).toDouble(),

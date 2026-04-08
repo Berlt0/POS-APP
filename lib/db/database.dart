@@ -37,6 +37,8 @@ class AppDatabase {
     await db.execute('''
       CREATE TABLE users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        global_id TEXT UNIQUE,
+
         username TEXT UNIQUE,
         password TEXT,
         role TEXT,
@@ -53,6 +55,8 @@ class AppDatabase {
     await db.execute('''
       CREATE TABLE products (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        global_id TEXT UNIQUE,
+
         name TEXT NOT NULL,
         price REAL NOT NULL,
         stock INTEGER NOT NULL,
@@ -75,7 +79,11 @@ class AppDatabase {
     await db.execute('''
       CREATE TABLE sales (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        global_id TEXT UNIQUE,
+
         user_id INTEGER NOT NULL,
+        user_global_id TEXT,
+
         total_amount REAL NOT NULL,
         amount_received REAL NOT NULL,
         change_amount REAL NOT NULL,
@@ -96,8 +104,14 @@ class AppDatabase {
     await db.execute('''
       CREATE TABLE sale_items (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        global_id TEXT UNIQUE,
+        
         sale_id INTEGER NOT NULL,
+        sale_global_id TEXT,
+
         product_id INTEGER,
+        product_global_id TEXT,
+
         product_name TEXT NOT NULL,
         price REAL NOT NULL,
         quantity INTEGER NOT NULL,
@@ -105,6 +119,7 @@ class AppDatabase {
         is_synced INTEGER DEFAULT 0,
       
         FOREIGN KEY (sale_id) REFERENCES sales(id) ON DELETE CASCADE
+       
         
       )
 
@@ -115,7 +130,11 @@ class AppDatabase {
     await db.execute('''
      CREATE TABLE transaction_history (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        global_id TEXT UNIQUE,
+        
         user_id INTEGER NOT NULL,
+        user_global_id TEXT,
+
         action TEXT NOT NULL,
         entity_type TEXT,      -- 'sale', 'product'
         entity_id INTEGER,     -- nullable
@@ -124,6 +143,7 @@ class AppDatabase {
         is_synced INTEGER DEFAULT 0,
 
         FOREIGN KEY (user_id) REFERENCES users(id)
+    
       )
     ''');
 
@@ -132,6 +152,7 @@ class AppDatabase {
       CREATE TABLE session (
         id INTEGER PRIMARY KEY,
         user_id INTEGER,
+        user_global_id,
         username TEXT,
         role TEXT,
         login_at TEXT,
@@ -143,6 +164,8 @@ class AppDatabase {
     '''
       CREATE TABLE products_archive (
         id INTEGER PRIMARY KEY,
+        global_id TEXT UNIQUE,
+
         name TEXT NOT NULL,
         price REAL NOT NULL,
         stock INTEGER NOT NULL,

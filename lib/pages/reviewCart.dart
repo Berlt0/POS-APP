@@ -11,7 +11,10 @@ import 'package:flutter/services.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:pos_app/db/sync.dart';
 import 'package:pos_app/utils/responsive.dart';
-import 'package:pos_app/utils/responsive.dart';
+import 'package:uuid/uuid.dart';
+
+var uuid = Uuid();
+String generateId() => Uuid().v4();
 
 class ReviewCart extends StatefulWidget {
   const ReviewCart({super.key});
@@ -287,6 +290,8 @@ void dispose() {
   Future<int> _saveSale(PaymentResult payment) async {
     final db = await AppDatabase.database;
     final int? userId = await UserDB().getLoggedInUserId();
+    final String? userGlobalId = await UserDB().getLoggedInUserGlobalId();
+    
 
     if(userId == null){
       debugPrint("No logged in user found.");
@@ -294,9 +299,13 @@ void dispose() {
     }
 
     final insertedTransactionId = await db.transaction((txn) async {
+
+      final saleGlobalId = generateId();
     
       final saleId = await txn.insert('sales', {
+        'global_id': saleGlobalId,
         'user_id': userId, 
+        'user_global_id': userGlobalId,
         'total_amount': total,
         'amount_received': payment.amountReceived ?? 0, 
         'change_amount': (payment.amountReceived != null) ? (payment.amountReceived! - total) : 0,
@@ -309,8 +318,11 @@ void dispose() {
       
       for (var item in items) {
         await txn.insert('sale_items', {
+          'global_id': generateId(),
           'sale_id': saleId,
+          'sale_global_id': saleGlobalId,
           'product_id': item.productId,
+          'product_global_id': item.productGlobalId,
           'product_name': item.name,
           'price': item.price,
           'quantity': item.quantity,
@@ -334,7 +346,9 @@ void dispose() {
 
        
       final transactionId = await txn.insert('transaction_history', {
+        'global_id': generateId(),
         'user_id': userId,
+        'user_global_id':userGlobalId ,
         'action': 'SALE',
         'entity_type': 'sale',
         'entity_id': saleId,

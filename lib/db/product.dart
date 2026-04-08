@@ -88,11 +88,11 @@ static Future<void> archiveProduct(int productId) async {
   await db.transaction((txn) async {
     await txn.rawInsert('''
       INSERT INTO products_archive (
-        id, name, price, stock, stock_unit,cost, category, barcode, 
+        id, global_id, name, price, stock, stock_unit,cost, category, barcode, 
         low_stock_alert, description, image_path, createdAt,  
         updated_at, deleted_at, is_synced
       )
-       SELECT id, name, price, stock, stock_unit,cost, category, barcode, 
+       SELECT id, global_id, name, price, stock, stock_unit,cost, category, barcode, 
         low_stock_alert, description, image_path, createdAt, 
         updated_at, ?, 0
       FROM products

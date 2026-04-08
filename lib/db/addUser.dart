@@ -2,6 +2,10 @@ import 'database.dart';
 import '../utils/password_hashed.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
+
+var uuid = Uuid();
+String generateId() => Uuid().v4();
 
 
 class UserSeed {
@@ -19,6 +23,7 @@ class UserSeed {
     final now = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
 
     await db.insert('users', {
+      'global_id': generateId(),
       'username': 'admin',
       'password': PasswordHelper.hashPassword('admin21034'),
       'role': 'admin',
@@ -30,6 +35,7 @@ class UserSeed {
     });
 
     await db.insert('users', {
+      'global_id':generateId(),
       'username': 'john',
       'password': PasswordHelper.hashPassword('johnpass21'),
       'role': 'cashier',
