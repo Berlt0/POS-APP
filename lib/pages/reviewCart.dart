@@ -289,10 +289,29 @@ void dispose() {
 
   Future<int> _saveSale(PaymentResult payment) async {
     final db = await AppDatabase.database;
-    final int? userId = await UserDB().getLoggedInUserId();
-    final String? userGlobalId = await UserDB().getLoggedInUserGlobalId();
-    
+    // final int? userId = await UserDB().getLoggedInUserId();
+    // final String? userGlobalId = await UserDB().getLoggedInUserGlobalId();
 
+    final currentUser = await db.rawQuery('''
+      SELECT u.id, u.global_id
+      FROM session s
+      INNER JOIN users u ON u.global_id = s.user_global_id
+      LIMIT 1
+    ''');
+
+    if (currentUser.isEmpty) {
+      debugPrint("No valid logged in user found in users table.");
+      return 0;
+    }
+
+    final int userId = currentUser.first['id'] as int;
+    final String userGlobalId = currentUser.first['global_id'] as String;
+    
+    print("++++++++++++++++++++++++++");
+    print(userId);
+    print(userGlobalId);
+
+    
     if(userId == null){
       debugPrint("No logged in user found.");
       return 0;
@@ -352,6 +371,7 @@ void dispose() {
         'action': 'SALE',
         'entity_type': 'sale',
         'entity_id': saleId,
+        'entity_global_id': saleGlobalId,
         'description': 'Sale of ${items.length} items',
         'created_at': DateTime.now().toIso8601String(),
         'is_synced': 0,
@@ -555,14 +575,6 @@ void dispose() {
                   final transId = await _saveSale(payment);
                   if (transId <= 0) return;
                   await printTables();
-
-                  //  try {
-                  //   await syncSales();
-                  //   await syncTransaction(); 
-                  //   debugPrint("Transaction synced successfully!");
-                  // } catch (e) {
-                  //   debugPrint("Sync failed, will retry later: $e");
-                  // }
 
                   setState(() {
                     items.clear();

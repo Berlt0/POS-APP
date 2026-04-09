@@ -74,7 +74,7 @@ Future<void> markProductAsSynced(int productId) async {
     {
       'is_synced': 1,  
     },
-    where: 'id = ?',
+    where: 'global_id = ?',
     whereArgs: [productId],
   );
 }
@@ -133,10 +133,36 @@ Future<List<Product>> getAllProducts() async {
 
       for(var p in serverProducts){
 
-        final product = Product.fromMap(p);
-        product.isSync = 1;
+        // final product = Product.fromMap(p);
+        // product.isSync = 1;
 
-        await db.insert('products', product.toMap(),conflictAlgorithm: ConflictAlgorithm.replace);
+        final serverProduct = Product.fromMap(p).toMap();
+        serverProduct['is_synced'] = 1;
+
+        final local = await db.query(
+          'products',
+          where: 'global_id = ?',
+          whereArgs: [serverProduct['global_id']],
+        );
+
+        
+
+       if (local.isEmpty) {
+          
+          await db.insert('products', serverProduct);
+        } else {
+          final localUpdated = DateTime.parse(local[0]['updated_at'] as String);
+          final serverUpdated = DateTime.parse(serverProduct['updated_at'] as String);
+
+          if (serverUpdated.isAfter(localUpdated)) {
+            await db.update(
+              'products',
+              serverProduct,
+              where: 'global_id = ?',
+              whereArgs: [serverProduct['global_id']],
+            );
+          }
+        }
 
       }
       print('Successfully fetched products data in server');
@@ -175,7 +201,7 @@ Future<void> markUserAsSynced(int userId) async {
   await db.update(
     'users',
     {'is_synced': 1},
-    where: 'id = ?',
+    where: 'global_id = ?',
     whereArgs: [userId],
   );
 }
@@ -193,7 +219,7 @@ Future<void> syncUsers() async {
         final res = await ApiService.post('/sync/users', user);
 
         if (res.statusCode == 200) {
-          await markUserAsSynced(user['id']);
+          await markUserAsSynced(user['global_id']);
           print("User ${user['id']} synced");
         } else {
           print("Failed to sync user ${user['id']}: ${res.statusCode}");
@@ -227,7 +253,7 @@ Future<void> syncProducts() async {
         final res = await ApiService.post('/sync/products', product);
 
         if(res.statusCode == 200){
-          await markProductAsSynced(product['id']);
+          await markProductAsSynced(product['global_id']);
 
         }else{
           print("Failed to sync product ${product['id']}: ${res.statusCode}");
@@ -268,7 +294,7 @@ Future<void> syncSales() async {
       if((sale['status'] as String?)?.toLowerCase() == 'voided'){
 
         final res = await ApiService.put('/sync/sales/status', {
-          'id': sale['id'],
+          'global_id': sale['global_id'],
           'status': sale['status'],
           'voided_at': sale['voided_at'],
           'voided_by': sale['voided_by'],
@@ -279,8 +305,8 @@ Future<void> syncSales() async {
           await db.update(
             'sales',
             {'is_synced': 1},
-            where: 'id = ?',
-            whereArgs: [sale['id']],
+            where: 'global_id = ?',
+            whereArgs: [sale['global_id']],
           );
 
           print("Voided sale ${sale['id']} synced");
@@ -301,15 +327,15 @@ Future<void> syncSales() async {
         await db.update(
           'sales',
           {'is_synced': 1},
-          where: 'id = ?',
-          whereArgs: [sale['id']],
+          where: 'global_id = ?',
+          whereArgs: [sale['global_id']],
         );
 
         await db.update(
           'sale_items',
           {'is_synced': 1},
-          where: 'sale_id = ?',
-          whereArgs: [sale['id']],
+          where: 'sale_global_id = ?',
+          whereArgs: [sale['global_id']],
         );
 
 
@@ -344,50 +370,100 @@ Future<void> fetchSalesFromServer() async {
     
       final existingSale = await db.query(
         'sales',
-        where: 'id = ?',
-        whereArgs: [sale['id']],
+        where: 'global_id = ?',
+        whereArgs: [sale['global_id']],
       );
+
+      final serverSaleUpdated = DateTime.parse(sale['updated_at']);
+
 
       if (existingSale.isEmpty) {
       
-        await db.insert('sales', {
-          'id': sale['id'],
-          'user_id': sale['user_id'],
-          'total_amount': sale['total_amount'],
-          'amount_received': sale['amount_received'],
-          'change_amount': sale['change_amount'],
-          'status': sale['status'],
-          'voided_at': sale['voided_at'],
-          'voided_by': sale['voided_by'],
-          'reason': sale['reason'],
-          'payment_type': sale['payment_type'],
+        // await db.insert('sales', {
+        //   'global_id': sale['global_id'],
+        //   'user_id': sale['user_id'],
+        //   'user_global_id': sale['user_global_id'],
+        //   'total_amount': sale['total_amount'],
+        //   'amount_received': sale['amount_received'],
+        //   'change_amount': sale['change_amount'],
+        //   'status': sale['status'],
+        //   'voided_at': sale['voided_at'],
+        //   'voided_by': sale['voided_by'],
+        //   'reason': sale['reason'],
+        //   'payment_type': sale['payment_type'],
+        //   'created_at': DateTime.parse(sale['created_at']).toLocal().toIso8601String(),
+        //   'is_synced': 1,
+        // });
+
+         await db.insert('sales', {
+          ...sale,
           'created_at': DateTime.parse(sale['created_at']).toLocal().toIso8601String(),
           'is_synced': 1,
         });
-      }
+      } else {
+          final localUpdated = DateTime.parse(existingSale[0]['updated_at'] as String);
+          if (serverSaleUpdated.isAfter(localUpdated)) {
+            await db.update(
+              'sales',
+              {
+                ...sale,
+                'created_at': DateTime.parse(sale['created_at']).toLocal().toIso8601String(),
+                'is_synced': 1,
+              },
+              where: 'global_id = ?',
+              whereArgs: [sale['global_id']],
+            );
+          }
+        }
 
-      // 🔧 SAME FIX FOR sale_items
+      
+
       final items = sale['items'] as List;
 
       for(var item in items){
 
         final existingItem = await db.query(
           'sale_items',
-          where: 'id = ?',
-          whereArgs: [item['id']],
+          where: 'global_id = ?',
+          whereArgs: [item['global_id']],
         );
 
+        final serverItemUpdated = DateTime.parse(item['updated_at']);
+
         if (existingItem.isEmpty) {
+          // await db.insert('sale_items', {
+          //   'global_id':item['global_id'],
+          //   'sale_id': item['sale_id'],
+          //   'sale_global_id':item['sale_global_id'],
+          //   'product_id': item['product_id'],
+          //   'product_global_id': item['product_global_id'],
+          //   'product_name': item['product_name'],
+          //   'price': item['price'],
+          //   'quantity': item['quantity'],
+          //   'created_at': DateTime.parse(item['created_at']).toLocal().toIso8601String(),
+          //   'is_synced': 1,
+          // });
+
           await db.insert('sale_items', {
-            'id': item['id'],
-            'sale_id': item['sale_id'],
-            'product_id': item['product_id'],
-            'product_name': item['product_name'],
-            'price': item['price'],
-            'quantity': item['quantity'],
-            'created_at': DateTime.parse(item['created_at']).toLocal().toIso8601String(),
-            'is_synced': 1,
-          });
+          ...item,
+          'created_at': DateTime.parse(item['created_at']).toLocal().toIso8601String(),
+          'is_synced': 1,
+        });
+
+        }else {
+          final localUpdated = DateTime.parse(existingItem[0]['updated_at'] as String);
+          if (serverItemUpdated.isAfter(localUpdated)) {
+            await db.update(
+              'sale_items',
+              {
+                ...item,
+                'created_at': DateTime.parse(item['created_at']).toLocal().toIso8601String(),
+                'is_synced': 1,
+              },
+              where: 'global_id = ?',
+              whereArgs: [item['global_id']],
+            );
+          }
         }
       }
     }
@@ -420,15 +496,11 @@ Future<void> syncArchives() async {
   final serverProducts = await ApiService.get('/sync/products'); 
   final serverIds = serverProducts.map((p) => p['id'] as int).toSet();
 
-  print('---------------Server product IDs: $serverIds');
-  print('---------------Datatype: ${serverIds.runtimeType}');
 
   for (var archive in archivedProducts) {
 
     final id = archive['id'] as int;
     
-    print('*******************id: $id');
-    print('*******************Datatype: ${id.runtimeType}');
 
     if (serverIds.contains(id)) {
       try {
@@ -450,8 +522,8 @@ Future<void> syncArchives() async {
         await db.update(
           'products_archive',
           {'is_synced': 1},
-          where: 'id = ?',
-          whereArgs: [archive['id']],
+          where: 'global_id = ?',
+          whereArgs: [archive['global_id']],
         );
         print("Archive ${archive['id']} synced");
       }else{

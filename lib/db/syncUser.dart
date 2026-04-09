@@ -3,7 +3,7 @@ import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 import 'database.dart';
 import '../services/api_service.dart';
-import 'dart:convert';
+
 
 
 
@@ -23,7 +23,7 @@ Future<void> fetchUserFromServer () async {
       await db.insert(
         'users',
         {
-          'id': user['id'],
+          'global_id':user['global_id'],
           'username': user['username'],
           'password': user['password'],
           'role': user['role'],

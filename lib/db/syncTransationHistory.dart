@@ -32,11 +32,13 @@ Future<void> syncTransaction () async {
     try{
 
       final res = await ApiService.post('/sync/transaction', {
-        'id': tnx['id'],                 
+        'global_id': tnx['global_id'],                 
         'user_id': tnx['user_id'],
+        'user_global_id': tnx['user_global_id'],
         'action': tnx['action'],
         'entity_type': tnx['entity_type'],
         'entity_id': tnx['entity_id'],
+        'entity_global_id': tnx['entity_global_id'],
         'description': tnx['description'],
         'created_at': tnx['created_at'],
         'is_synced': 1
@@ -46,8 +48,8 @@ Future<void> syncTransaction () async {
 
         await db.update('transaction_history', 
         {'is_synced': 1},
-        where: 'id= ?',
-        whereArgs: [tnx['id']],
+        where: 'global_id= ?',
+        whereArgs: [tnx['global_id']],
         );
         print("Transaction ${tnx['id']} synced");
       }else{
@@ -82,17 +84,19 @@ Future<void> fetchTransactionRecordsFromDB () async {
 
      final existing = await db.query(
       'transaction_history',
-      where: 'id = ?',
-      whereArgs: [tnx['id']],
+      where: 'global_id = ?',
+      whereArgs: [tnx['global_id']],
     );
 
     if (existing.isEmpty) {
       await db.insert('transaction_history', {
-        'id': tnx['id'],
+        'global_id': tnx['global_id'],
         'user_id': tnx['user_id'],
+        'user_global_id': tnx['user_global_id'],
         'action': tnx['action'],
         'entity_type': tnx['entity_type'],
         'entity_id': tnx['entity_id'],
+        'entity_global_id': tnx['entity_global_id'],
         'description': tnx['description'],
         'created_at': tnx['created_at'],
         'is_synced': 1,

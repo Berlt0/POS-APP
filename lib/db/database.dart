@@ -138,6 +138,7 @@ class AppDatabase {
         action TEXT NOT NULL,
         entity_type TEXT,      -- 'sale', 'product'
         entity_id INTEGER,     -- nullable
+        entity_global_id TEXT,
         description TEXT,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
         is_synced INTEGER DEFAULT 0,

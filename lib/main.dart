@@ -27,15 +27,19 @@ Future<void> deleteOldDatabase() async {
   print("Old database deleted");
 }
 
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
 
   // await deleteOldDatabase();
 
+
   await AppDatabase.database;
 
+
   await UserSeed.seed();
+
 
   // call isLoggedIn() defensively
   final dynamic result = await AuthService.isLoggedIn(); 
@@ -51,7 +55,6 @@ Future<void> main() async {
     print('Username: ${session?['username']}');
     print('Role: ${session?['role']}');
   }
-
 
 
   runApp(MyApp(isLoggedIn: loggedIn));

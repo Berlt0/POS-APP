@@ -13,6 +13,10 @@ import 'package:pos_app/models/cartItem.dart';
 import 'package:flutter/services.dart';
 import 'package:pos_app/utils/responsive.dart';
 import 'package:pos_app/pages/barcodeScanner.dart';
+import 'package:uuid/uuid.dart';
+
+var uuid = Uuid();
+
 
 
 class POS extends StatefulWidget {
@@ -682,7 +686,7 @@ class _POSState extends State<POS> {
                                         .where((item) => item.qty > 0)
                                         .map((item) => CartItem(
                                               productId: item.product.id!,
-                                              productGlobalId: item.product.global_id ?? uuid.v4(),
+                                              productGlobalId: item.product.global_id!,
                                               name: item.product.name,
                                               price: item.product.price,
                                               quantity: item.qty,
