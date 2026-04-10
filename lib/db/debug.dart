@@ -16,7 +16,6 @@ print('----------Users----------');
 
   // Print sales table
   final products = await db.query('products');
-  print('--- users ---');
   for (var row in products) {
     print(row);
   }

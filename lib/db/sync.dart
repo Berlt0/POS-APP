@@ -7,7 +7,7 @@ import '../services/api_service.dart';
 import '../db/product.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:pos_app/db/syncTransationHistory.dart';
-import 'package:sqflite/sqflite.dart';
+
 
 Future<List<Map<String, dynamic>>> getUnsyncedProducts() async {
   final db = await AppDatabase.database;
@@ -66,7 +66,7 @@ Future<List<Map<String, dynamic>>> getUnsyncedArchives() async {
 }
 
 
-Future<void> markProductAsSynced(int productId) async {
+Future<void> markProductAsSynced(String productId) async {
   final db = await AppDatabase.database;
 
   await db.update(
@@ -195,7 +195,7 @@ Future<List<Map<String, dynamic>>> getUnsyncedUsers() async {
 
 
 
-Future<void> markUserAsSynced(int userId) async {
+Future<void> markUserAsSynced(String userId) async {
   final db = await AppDatabase.database;
 
   await db.update(
@@ -354,127 +354,155 @@ Future<void> syncSales() async {
 }
 
 
-
 Future<void> fetchSalesFromServer() async {
   if (!(await hasInternet())) return;
 
   try {
     final db = await AppDatabase.database;
 
-    print("Fetching sales from server");
+    print("Fetching sales from server...");
 
     final serverSales = await ApiService.get('/sync/sales');
 
-    for (var sale in serverSales){
-
-    
-      final existingSale = await db.query(
-        'sales',
-        where: 'global_id = ?',
-        whereArgs: [sale['global_id']],
-      );
-
-      final serverSaleUpdated = DateTime.parse(sale['updated_at']);
+    await db.transaction((txn) async {
+      for (var sale in serverSales) {
 
 
-      if (existingSale.isEmpty) {
-      
-        // await db.insert('sales', {
-        //   'global_id': sale['global_id'],
-        //   'user_id': sale['user_id'],
-        //   'user_global_id': sale['user_global_id'],
-        //   'total_amount': sale['total_amount'],
-        //   'amount_received': sale['amount_received'],
-        //   'change_amount': sale['change_amount'],
-        //   'status': sale['status'],
-        //   'voided_at': sale['voided_at'],
-        //   'voided_by': sale['voided_by'],
-        //   'reason': sale['reason'],
-        //   'payment_type': sale['payment_type'],
-        //   'created_at': DateTime.parse(sale['created_at']).toLocal().toIso8601String(),
-        //   'is_synced': 1,
-        // });
+        final localUser = await txn.query(
+          'users',
+          where: 'global_id = ?',
+          whereArgs: [sale['user_global_id']],
+          limit: 1,
+        );
 
-         await db.insert('sales', {
-          ...sale,
-          'created_at': DateTime.parse(sale['created_at']).toLocal().toIso8601String(),
+        if (localUser.isEmpty) {
+          print("User not found: ${sale['user_global_id']}");
+          continue;
+        }
+
+        final localUserId = localUser.first['id'];
+
+  
+        final existingSale = await txn.query(
+          'sales',
+          where: 'global_id = ?',
+          whereArgs: [sale['global_id']],
+          limit: 1,
+        );
+
+        final serverUpdated = sale['updated_at'] != null
+            ? DateTime.parse(sale['updated_at'])
+            : DateTime.parse(sale['created_at']);
+
+        Map<String, dynamic> saleData = {
+          'global_id': sale['global_id'],
+          'user_id': localUserId, 
+          'user_global_id': sale['user_global_id'],
+          'total_amount': sale['total_amount'],
+          'amount_received': sale['amount_received'],
+          'change_amount': sale['change_amount'],
+          'status': sale['status'],
+          'voided_at': sale['voided_at'],
+          'voided_by': sale['voided_by'],
+          'reason': sale['reason'],
+          'payment_type': sale['payment_type'],
+          'created_at': DateTime.parse(sale['created_at'])
+              .toLocal()
+              .toIso8601String(),
           'is_synced': 1,
-        });
-      } else {
-          final localUpdated = DateTime.parse(existingSale[0]['updated_at'] as String);
-          if (serverSaleUpdated.isAfter(localUpdated)) {
-            await db.update(
+        };
+
+        int localSaleId;
+
+        if (existingSale.isEmpty) {
+        
+          localSaleId = await txn.insert('sales', saleData);
+        } else {
+          final local = existingSale.first;
+
+          final localUpdated = local['updated_at'] != null
+              ? DateTime.parse(local['updated_at'].toString())
+              : DateTime.fromMillisecondsSinceEpoch(0);
+
+          if (serverUpdated.isAfter(localUpdated)) {
+            await txn.update(
               'sales',
-              {
-                ...sale,
-                'created_at': DateTime.parse(sale['created_at']).toLocal().toIso8601String(),
-                'is_synced': 1,
-              },
+              saleData,
               where: 'global_id = ?',
               whereArgs: [sale['global_id']],
             );
           }
+
+          localSaleId = local['id'] as int;
         }
 
-      
+       
+        final items = sale['items'] as List;
 
-      final items = sale['items'] as List;
+        for (var item in items) {
 
-      for(var item in items){
+          
+          final localProduct = await txn.query(
+            'products',
+            where: 'global_id = ?',
+            whereArgs: [item['product_global_id']],
+            limit: 1,
+          );
 
-        final existingItem = await db.query(
-          'sale_items',
-          where: 'global_id = ?',
-          whereArgs: [item['global_id']],
-        );
+          final localProductId =
+              localProduct.isNotEmpty ? localProduct.first['id'] : null;
 
-        final serverItemUpdated = DateTime.parse(item['updated_at']);
+          final existingItem = await txn.query(
+            'sale_items',
+            where: 'global_id = ?',
+            whereArgs: [item['global_id']],
+            limit: 1,
+          );
 
-        if (existingItem.isEmpty) {
-          // await db.insert('sale_items', {
-          //   'global_id':item['global_id'],
-          //   'sale_id': item['sale_id'],
-          //   'sale_global_id':item['sale_global_id'],
-          //   'product_id': item['product_id'],
-          //   'product_global_id': item['product_global_id'],
-          //   'product_name': item['product_name'],
-          //   'price': item['price'],
-          //   'quantity': item['quantity'],
-          //   'created_at': DateTime.parse(item['created_at']).toLocal().toIso8601String(),
-          //   'is_synced': 1,
-          // });
+          final serverItemUpdated = item['updated_at'] != null
+              ? DateTime.parse(item['updated_at'])
+              : DateTime.parse(item['created_at']);
 
-          await db.insert('sale_items', {
-          ...item,
-          'created_at': DateTime.parse(item['created_at']).toLocal().toIso8601String(),
-          'is_synced': 1,
-        });
+          final itemData = {
+            'global_id': item['global_id'],
+            'sale_id': localSaleId, 
+            'sale_global_id': item['sale_global_id'],
+            'product_id': localProductId, 
+            'product_global_id': item['product_global_id'],
+            'product_name': item['product_name'],
+            'price': item['price'],
+            'quantity': item['quantity'],
+            'created_at': DateTime.parse(item['created_at'])
+                .toLocal()
+                .toIso8601String(),
+            'is_synced': 1,
+          };
 
-        }else {
-          final localUpdated = DateTime.parse(existingItem[0]['updated_at'] as String);
-          if (serverItemUpdated.isAfter(localUpdated)) {
-            await db.update(
-              'sale_items',
-              {
-                ...item,
-                'created_at': DateTime.parse(item['created_at']).toLocal().toIso8601String(),
-                'is_synced': 1,
-              },
-              where: 'global_id = ?',
-              whereArgs: [item['global_id']],
-            );
+          if (existingItem.isEmpty) {
+            await txn.insert('sale_items', itemData);
+          } else {
+            final localUpdated = existingItem.first['updated_at'] != null
+                ? DateTime.parse(existingItem.first['updated_at'].toString())
+                : DateTime.fromMillisecondsSinceEpoch(0);
+
+            if (serverItemUpdated.isAfter(localUpdated)) {
+              await txn.update(
+                'sale_items',
+                itemData,
+                where: 'global_id = ?',
+                whereArgs: [item['global_id']],
+              );
+            }
           }
         }
       }
-    }
+    });
 
-    print("Sales synced from server to local DB");
-
+    print("Sales synced successfully");
   } catch (error) {
-    print("Error fetching sales $error");
+    print("Error fetching sales: $error");
   }
 }
-
 
 
 Future<void> syncArchives() async {
@@ -494,21 +522,24 @@ Future<void> syncArchives() async {
 
 
   final serverProducts = await ApiService.get('/sync/products'); 
-  final serverIds = serverProducts.map((p) => p['id'] as int).toSet();
+  final serverIds = serverProducts
+    .map((p) => p['global_id'] as String)
+    .toSet();
 
 
   for (var archive in archivedProducts) {
 
-    final id = archive['id'] as int;
+    final globalId = archive['global_id'];
     
 
-    if (serverIds.contains(id)) {
+    if (serverIds.contains(archive['global_id'])) {
+
       try {
-        final res = await ApiService.delete('/sync/products/$id');
+        final res = await ApiService.delete('/sync/products/$globalId');
         if (res.statusCode == 200) 
-        print('Deleted product $id on server');
+        print('Deleted product $globalId on server');
       } catch (e) {
-        print('Failed to delete product $id on server: $e');
+        print('Failed to delete product $globalId on server: $e');
       }
     }
 }
@@ -536,6 +567,85 @@ Future<void> syncArchives() async {
 }
 
 
+Future<void> fetchArchivesFromServer() async {
+  if (!(await hasInternet())) return;
+
+  try {
+    final db = await AppDatabase.database;
+
+    print("Fetching archives from server...");
+
+    final serverArchives = await ApiService.get('/sync/archives');
+
+    await db.transaction((txn) async {
+      for (final archive in serverArchives) {
+        final globalId = archive['global_id'];
+        if (globalId == null) continue;
+
+        final existing = await txn.query(
+          'products_archive',
+          where: 'global_id = ?',
+          whereArgs: [globalId],
+          limit: 1,
+        );
+
+        final createdValue = archive['createdAt'] ?? archive['created_at'];
+        final updatedValue = archive['updated_at'];
+
+        final serverUpdated = updatedValue != null
+            ? DateTime.parse(updatedValue.toString())
+            : DateTime.parse(createdValue.toString());
+
+        final data = {
+          'global_id': globalId,
+          'name': archive['name'],
+          'price': archive['price'],
+          'stock': archive['stock'],
+          'stock_unit': archive['stock_unit'],
+          'cost': archive['cost'],
+          'category': archive['category'],
+          'barcode': archive['barcode'],
+          'low_stock_alert': archive['low_stock_alert'],
+          'description': archive['description'],
+          'image_path': archive['image_path'],
+          'createdAt': createdValue,
+          'updated_at': updatedValue,
+          'deleted_at': archive['deleted_at'],
+          'is_synced': 1,
+        };
+
+        if (existing.isEmpty) {
+          await txn.insert('products_archive', data);
+        } else {
+          final local = existing.first;
+
+          final localUpdatedValue = local['updated_at'];
+          final localUpdated = localUpdatedValue != null
+              ? DateTime.parse(localUpdatedValue.toString())
+              : DateTime.fromMillisecondsSinceEpoch(0);
+
+          if (serverUpdated.isAfter(localUpdated)) {
+            await txn.update(
+              'products_archive',
+              data,
+              where: 'global_id = ?',
+              whereArgs: [globalId],
+            );
+          }
+        }
+      }
+    });
+
+    print("Archives synced from server to local DB");
+  } catch (error) {
+    print("Error fetching archives: $error");
+  }
+}
+
+
+
+
+
 
 Future<void> syncAllDataOnAuto() async {
   final connectivityResult = await Connectivity().checkConnectivity();
@@ -557,6 +667,7 @@ Future<void> syncAllDataOnAuto() async {
       try { await getAllProducts(); } catch(e){ print('Fetch products failed: $e'); }
       try { await fetchSalesFromServer(); } catch(e){ print('Fetch sales failed: $e'); }
       try { await fetchTransactionRecordsFromDB(); } catch(e){ print('Fetch transactions failed: $e'); }
+      try { await fetchArchivesFromServer(); } catch(e){ print('Fetch archives failed: $e'); }
 
       print("Sync completed.");
     } else {

@@ -88,10 +88,25 @@ Future<void> fetchTransactionRecordsFromDB () async {
       whereArgs: [tnx['global_id']],
     );
 
-    if (existing.isEmpty) {
-      await db.insert('transaction_history', {
+    final localUser = await db.query(
+        'users',
+        where: 'global_id = ?',
+        whereArgs: [tnx['user_global_id']],
+        limit: 1,
+      );
+
+      if (localUser.isEmpty) {
+        print(
+          "Skipping transaction ${tnx['global_id']} because local user was not found: ${tnx['user_global_id']}",
+        );
+        continue;
+      }
+
+      final int localUserId = localUser.first['id'] as int;
+
+       final data = {
         'global_id': tnx['global_id'],
-        'user_id': tnx['user_id'],
+        'user_id': localUserId, // local FK id
         'user_global_id': tnx['user_global_id'],
         'action': tnx['action'],
         'entity_type': tnx['entity_type'],
@@ -100,9 +115,20 @@ Future<void> fetchTransactionRecordsFromDB () async {
         'description': tnx['description'],
         'created_at': tnx['created_at'],
         'is_synced': 1,
-      });
+      };
+
+    if (existing.isEmpty) {
+        await db.insert('transaction_history', data);
+      } else {
+        await db.update(
+          'transaction_history',
+          data,
+          where: 'global_id = ?',
+          whereArgs: [tnx['global_id']],
+        );
+      }
     }
-    }
+    
 
      print("Transactions synced from server to local DB");
 

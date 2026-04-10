@@ -19,24 +19,44 @@ Future<void> fetchUserFromServer () async {
 
   final usersServer = await ApiService.get('/sync/users');
 
-  for (var user in usersServer) {
-      await db.insert(
-        'users',
-        {
-          'global_id':user['global_id'],
+  await db.transaction((txn) async {
+
+    for (var user in usersServer) {
+        final existing = await txn.query(
+          'users',
+          where: 'global_id = ?',
+          whereArgs: [user['global_id']],
+          limit: 1,
+        );
+
+        final data = {
+          'global_id': user['global_id'],
           'username': user['username'],
           'password': user['password'],
           'role': user['role'],
           'name': user['name'],
           'email': user['email'],
-          'contact_number':user['contact_number'],
+          'contact_number': user['contact_number'],
           'address': user['address'],
           'createdAt': user['createdAt'],
           'is_synced': 1,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-    }
+        };
+
+        if (existing.isEmpty) {
+          
+          await txn.insert('users', data);
+        } else {
+          
+          await txn.update(
+            'users',
+            data,
+            where: 'global_id = ?',
+            whereArgs: [user['global_id']],
+          );
+        }
+      }
+    });
+ 
 
     print("Users synced from server to local DB");
 
