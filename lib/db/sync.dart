@@ -246,8 +246,7 @@ Future<void> syncProducts() async {
     final products = await getUnsyncedProducts();
     
     for(var product in products){
-      print(product);
-
+   
       try{
 
         final res = await ApiService.post('/sync/products', product);
