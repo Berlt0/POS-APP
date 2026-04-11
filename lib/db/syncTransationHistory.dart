@@ -68,72 +68,84 @@ Future<void> syncTransaction () async {
 
 
 
-Future<void> fetchTransactionRecordsFromDB () async {
+Future<void> fetchTransactionRecordsFromDB() async {
+  if (!(await hasInternet())) return;
 
-  if(!(await hasInternet())) return;
-
-  try{
-
+  try {
     final db = await AppDatabase.database;
 
     print("Fetching transactions from server...");
 
     final serverTransaction = await ApiService.get('/sync/transaction');
 
-    for(var tnx in serverTransaction){
-
-     final existing = await db.query(
-      'transaction_history',
-      where: 'global_id = ?',
-      whereArgs: [tnx['global_id']],
-    );
-
-    final localUser = await db.query(
-        'users',
-        where: 'global_id = ?',
-        whereArgs: [tnx['user_global_id']],
-        limit: 1,
-      );
-
-      if (localUser.isEmpty) {
-        print(
-          "Skipping transaction ${tnx['global_id']} because local user was not found: ${tnx['user_global_id']}",
-        );
-        continue;
-      }
-
-      final int localUserId = localUser.first['id'] as int;
-
-       final data = {
-        'global_id': tnx['global_id'],
-        'user_id': localUserId, // local FK id
-        'user_global_id': tnx['user_global_id'],
-        'action': tnx['action'],
-        'entity_type': tnx['entity_type'],
-        'entity_id': tnx['entity_id'],
-        'entity_global_id': tnx['entity_global_id'],
-        'description': tnx['description'],
-        'created_at': tnx['created_at'],
-        'is_synced': 1,
-      };
-
-    if (existing.isEmpty) {
-        await db.insert('transaction_history', data);
-      } else {
-        await db.update(
+    await db.transaction((txn) async {
+      for (final tnx in serverTransaction) {
+        final existing = await txn.query(
           'transaction_history',
-          data,
           where: 'global_id = ?',
           whereArgs: [tnx['global_id']],
+          limit: 1,
         );
+
+        final localUser = await txn.query(
+          'users',
+          where: 'global_id = ?',
+          whereArgs: [tnx['user_global_id']],
+          limit: 1,
+        );
+
+        if (localUser.isEmpty) {
+          print(
+            "Skipping transaction ${tnx['global_id']} because local user was not found: ${tnx['user_global_id']}",
+          );
+          continue;
+        }
+
+        final localSale = await txn.query(
+          'sales',
+          where: 'global_id = ?',
+          whereArgs: [tnx['entity_global_id']],
+          limit: 1,
+        );
+
+        if (localSale.isEmpty) {
+          print(
+            "Skipping transaction ${tnx['global_id']} because local sale was not found: ${tnx['entity_global_id']}",
+          );
+          continue;
+        }
+
+        final int localUserId = localUser.first['id'] as int;
+        final int localSaleId = localSale.first['id'] as int;
+
+        final data = {
+          'global_id': tnx['global_id'],
+          'user_id': localUserId,
+          'user_global_id': tnx['user_global_id'],
+          'action': tnx['action'],
+          'entity_type': tnx['entity_type'],
+          'entity_id': localSaleId, 
+          'entity_global_id': tnx['entity_global_id'],
+          'description': tnx['description'],
+          'created_at': tnx['created_at'],
+          'is_synced': 1,
+        };
+
+        if (existing.isEmpty) {
+          await txn.insert('transaction_history', data);
+        } else {
+          await txn.update(
+            'transaction_history',
+            data,
+            where: 'global_id = ?',
+            whereArgs: [tnx['global_id']],
+          );
+        }
       }
-    }
-    
+    });
 
-     print("Transactions synced from server to local DB");
-
-  }catch(error){
+    print("Transactions synced from server to local DB");
+  } catch (error) {
     print("Error fetching transactions: $error");
   }
-
 }

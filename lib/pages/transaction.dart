@@ -384,11 +384,34 @@ class _TransactionPageState extends State<TransactionPage> {
                                                 );
                                               },
                                               cells: [
-                                                DataCell(Text(transaction['id'].toString(), style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14, fontWeight: FontWeight.normal, color: Colors.black))),
-                                                DataCell(Text(capitalizeEachWord(transaction['processed_by'].toString()), style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14, fontWeight: FontWeight.normal, color: Colors.black))),
-                                                DataCell(Text(DateFormat('MM/dd/yyyy').format(DateTime.parse(transaction['created_at'])), style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14, fontWeight: FontWeight.normal, color: Colors.black))),
-                                                DataCell(Text(transaction['action'], style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14, fontWeight: FontWeight.normal, color: Colors.black))),
-                                                DataCell(Text(capitalizeEachWord(transaction['payment_type']), style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14, fontWeight: FontWeight.normal, color: Colors.black))),
+                                                DataCell(Text(
+                                                  (transaction['id'] ?? '').toString(),
+                                                  style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14),
+                                                )),
+
+                                                DataCell(Text(
+                                                  capitalizeEachWord(transaction['processed_by']?.toString()),
+                                                  style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14),
+                                                )),
+
+                                                DataCell(Text(
+                                                  transaction['created_at'] != null
+                                                      ? DateFormat('MM/dd/yyyy').format(
+                                                          DateTime.parse(transaction['created_at'].toString()),
+                                                        )
+                                                      : 'N/A',
+                                                  style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14),
+                                                )),
+
+                                                DataCell(Text(
+                                                  transaction['action']?.toString() ?? 'N/A',
+                                                  style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14),
+                                                )),
+
+                                                DataCell(Text(
+                                                  capitalizeEachWord(transaction['payment_type']?.toString()),
+                                                  style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14),
+                                                )),
                                               ],
                                             );
                                           }).toList(),
@@ -452,10 +475,14 @@ class _TransactionPageState extends State<TransactionPage> {
   }
 }
 
-String capitalizeEachWord(String text) {
+String capitalizeEachWord(String? text) {
+  if (text == null || text.isEmpty) return 'N/A';
+
   return text
       .split(' ')
       .map((word) =>
-          word.isNotEmpty ? '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}' : '')
+          word.isNotEmpty
+              ? '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}'
+              : '')
       .join(' ');
 }

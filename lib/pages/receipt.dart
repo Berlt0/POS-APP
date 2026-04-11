@@ -177,6 +177,22 @@ bool canVoidSale() {
 }
 
 
+double safeDouble(dynamic value) {
+  if (value is num) return value.toDouble();
+  return double.tryParse(value?.toString() ?? '') ?? 0.0;
+}
+
+int safeInt(dynamic value) {
+  if (value is int) return value;
+  return int.tryParse(value?.toString() ?? '') ?? 0;
+}
+
+String safeString(dynamic value, [String fallback = 'N/A']) {
+  final text = value?.toString().trim();
+  if (text == null || text.isEmpty) return fallback;
+  return text;
+}
+
   @override
   Widget build(BuildContext context) {
     
@@ -187,6 +203,7 @@ bool canVoidSale() {
   }    
 
   final List products  = transaction?['products'] ?? [];
+  print('^^^^^^^^^^^^^^^^^^$products');
 
 
   Future<void> _showVoidConfirmation(BuildContext context) async {
@@ -452,7 +469,7 @@ bool canVoidSale() {
                             children: [
                               Expanded(
                                 flex: 5,
-                                child: Text(capitalizeEachWord(item['product_name'] ?? ''), style: GoogleFonts.kameron(
+                                child: Text(capitalizeEachWord(safeString(item['product_name'], 'Unknown Product')), style: GoogleFonts.kameron(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600,
                                 ),),
@@ -460,7 +477,7 @@ bool canVoidSale() {
                               Expanded(
                                 flex: 3,
                                 child: Text(
-                                  item['quantity'].toString(),
+                                  safeInt(item['quantity']).toString(),
                                   textAlign: TextAlign.center,
                                 style: GoogleFonts.kameron(
                                   fontSize: 15,
@@ -470,7 +487,7 @@ bool canVoidSale() {
                               Expanded(
                                 flex: 2,
                                 child: Text(
-                                  '\₱${item['price'].toStringAsFixed(2)}',
+                                  '₱${safeDouble(item['price']).toStringAsFixed(2)}',
                                   textAlign: TextAlign.right,
                                   style: GoogleFonts.kameron(
                                     fontSize: 15,
@@ -494,7 +511,7 @@ bool canVoidSale() {
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
                         )),
-                        Text('\₱${(transaction!['total_amount'] ?? 0).toStringAsFixed(2)}', style: GoogleFonts.kameron(
+                        Text('₱${safeDouble(transaction!['total_amount']).toStringAsFixed(2)}', style: GoogleFonts.kameron(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
                         ),),
@@ -507,7 +524,7 @@ bool canVoidSale() {
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
                         )),
-                        Text('\₱${(transaction!['amount_received'] ?? 0).toStringAsFixed(2)}',style: GoogleFonts.kameron(
+                        Text('₱${safeDouble(transaction!['amount_received']).toStringAsFixed(2)}',style: GoogleFonts.kameron(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
                         ),),
@@ -520,7 +537,7 @@ bool canVoidSale() {
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
                         )),
-                        Text('\₱${(transaction!['change_amount'] ?? 0).toStringAsFixed(2)}',style: GoogleFonts.kameron(
+                        Text('₱${safeDouble(transaction!['change_amount']).toStringAsFixed(2)}',style: GoogleFonts.kameron(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
                         ),),
