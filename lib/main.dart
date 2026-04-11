@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pos_app/db/initDB.dart';
-import 'package:pos_app/db/sync.dart';
+import 'package:pos_app/pages/settings/settings.dart';
 import 'package:pos_app/pages/addproduct.dart';
 import 'package:pos_app/pages/home.dart';
 import 'package:pos_app/pages/inventory.dart';
@@ -102,7 +102,8 @@ class MyApp extends StatelessWidget {
           return ViewReceipt(transaction: args);
         },  
         '/transaction': (context) => const TransactionPage(),
-        '/profile': (context) => const ProfilePage()
+        '/profile': (context) => const ProfilePage(),
+        '/settins': (context) => const Settings()
       },
     );
   }

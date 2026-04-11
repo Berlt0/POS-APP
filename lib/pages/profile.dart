@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/pages/login.dart';
+import 'package:pos_app/pages/settings/settings.dart';
 import 'package:pos_app/utils/responsive.dart';
 import 'package:pos_app/pages/home.dart';
 import 'package:pos_app/services/session_service.dart';
@@ -176,9 +177,9 @@ Future<bool> _handleCashierInsertion() async {
                   fontWeight: FontWeight.bold
                 ),),
                 InkWell(
-                  onTap: () {},
+                  onTap: ()  => Navigator.push( context, MaterialPageRoute(builder: (context) => const Settings())),
                   child: Icon(
-                    Icons.edit_note, size: isDesktop ? 37 : isTablet ? 32 : 27,
+                    Icons.settings, size: isDesktop ? 37 : isTablet ? 32 : 27,
                   ),
                 ),
               ],
@@ -306,9 +307,6 @@ Future<bool> _handleCashierInsertion() async {
 
           const SizedBox(height: 200),
 
-          _buildActionButton(icon: Icons.settings, text: 'Settings', color: const Color.fromARGB(255, 58, 58, 58), onTap: () {}),
-
-          const SizedBox(height: 10),
 
           _buildActionButton(icon: Icons.logout, text: 'Logout', color: Colors.red, onTap: () async {
             await SessionService.clearSession();

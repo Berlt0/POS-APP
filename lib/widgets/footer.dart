@@ -100,7 +100,7 @@ class AppFooter extends StatelessWidget {
   }
 
   Widget _navItem(IconData icon, String label, int index, bool isDesktop, bool isTablet) {
-    final bool isActive = currentIndex == index;
+
 
     return InkWell(
       onTap: () => onTap(index),
