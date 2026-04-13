@@ -3,7 +3,7 @@ import 'dart:convert';
 
 class ApiService {
 
-  static const String baseUrl = 'http://10.0.2.2:3000';
+  static const String baseUrl = 'https://similarly-cognition-create.ngrok-free.dev';
 
   static Future<http.Response> post(String endpoint, Map<String, dynamic> data) async {
     final url = Uri.parse('$baseUrl$endpoint');

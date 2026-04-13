@@ -30,43 +30,6 @@ class _StoreInfoState extends State<StoreInfo> {
     super.dispose();
   }
 
-  Widget buildField({
-    required String label,
-    required TextEditingController controller,
-    TextInputType? keyboardType,
-    IconData? icon,
-  }) {
-    final isTablet = Responsive.isTablet(context);
-    final isDesktop = Responsive.isDesktop(context);
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: TextField(
-        controller: controller,
-        keyboardType: keyboardType,
-        style: GoogleFonts.kameron(
-          fontSize: Responsive.font(context, mobile: 15, tablet: 17, desktop: 19),
-        ),
-        decoration: InputDecoration(
-          prefixIcon: icon != null ? Icon(icon, color: Color(0xFF6FE5F2)) : null,
-          labelText: label,
-          labelStyle: GoogleFonts.kameron(
-            fontSize: Responsive.font(context, mobile: 14, tablet: 16, desktop: 18),
-          ),
-          filled: true,
-          fillColor: Colors.grey[100],
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          contentPadding: EdgeInsets.symmetric(
-            vertical: isDesktop ? 18 : isTablet ? 16 : 12,
-            horizontal: 12,
-          ),
-        ),
-      ),
-    );
-  }
-
   void _saveStoreInfo() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -78,16 +41,14 @@ class _StoreInfoState extends State<StoreInfo> {
 
   @override
   Widget build(BuildContext context) {
-    final isTablet = Responsive.isTablet(context);
-    final isDesktop = Responsive.isDesktop(context);
-
     return Scaffold(
       appBar: AppBar(
         title: Text(
           "Store Information",
           style: GoogleFonts.kameron(
             fontWeight: FontWeight.bold,
-            fontSize: Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
+            fontSize:
+                Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
           ),
         ),
         backgroundColor: Colors.grey[100],
@@ -103,44 +64,59 @@ class _StoreInfoState extends State<StoreInfo> {
         child: Column(
           children: [
 
+            /// STORE DETAILS
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 "Store Details",
                 style: GoogleFonts.kameron(
-                  fontSize: Responsive.font(context, mobile: 16, tablet: 18, desktop: 20),
+                  fontSize: Responsive.font(
+                      context,
+                      mobile: 17,
+                      tablet: 18,
+                      desktop: 19),
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
 
-            buildField(
-              label: "Store Name",
-              controller: storeNameController,
-            ),
-
-            buildField(
-              label: "Phone Number",
-              controller: phoneController,
-              keyboardType: TextInputType.phone,
-  
-            ),
-
-            buildField(
-              label: "Email",
-              controller: emailController,
-              keyboardType: TextInputType.emailAddress,
-
-            ),
-
             const SizedBox(height: 10),
 
+          EditableField(
+                label: "Store Name",
+                controller: storeNameController,
+                icon: Icons.store,
+            ),
+
+              EditableField(
+                label: "Phone Number",
+                controller: phoneController,
+                keyboardType: TextInputType.phone,
+                icon: Icons.phone,
+              ),
+            
+
+               EditableField(
+                label: "Email",
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
+                icon: Icons.email,
+              ),
+            
+
+            const SizedBox(height: 20),
+
+            /// ADDRESS
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 "Address",
                 style: GoogleFonts.kameron(
-                  fontSize: Responsive.font(context, mobile: 16, tablet: 18, desktop: 20),
+                  fontSize: Responsive.font(
+                      context,
+                      mobile: 17,
+                      tablet: 18,
+                      desktop: 19),
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -148,55 +124,216 @@ class _StoreInfoState extends State<StoreInfo> {
 
             const SizedBox(height: 10),
 
-            buildField(
-              label: "Street Address",
-              controller: addressController,
-
-            ),
-
-            buildField(
-              label: "City",
-              controller: cityController,
-            ),
-
-            buildField(
-              label: "Province",
-              controller: provinceController,
-            ),
-
-            buildField(
-              label: "ZIP Code",
-              controller: zipController,
-              keyboardType: TextInputType.number,
-            ),
-
-            const SizedBox(height: 25),
-
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: _saveStoreInfo,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF30DD04),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Text(
-                  "Save Store Info",
-                  style: GoogleFonts.kameron(
-                    fontSize: Responsive.font(context, mobile: 15, tablet: 17, desktop: 19),
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
+           EditableField(
+                label: "Street Address",
+                controller: addressController,
+                icon: Icons.home,
               ),
-            ),
+            
+
+           EditableField(
+                label: "City",
+                controller: cityController,
+                icon: Icons.location_city,
+              ),
+            
+
+            EditableField(
+                label: "Province",
+                controller: provinceController,
+                icon: Icons.map,
+              ),
+            
+
+             EditableField(
+                label: "ZIP Code",
+                controller: zipController,
+                keyboardType: TextInputType.number,
+                icon: Icons.local_post_office,
+              ),
+            
 
             const SizedBox(height: 30),
+
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// 🔥 EDITABLE FIELD WITH ICON
+class EditableField extends StatefulWidget {
+  final String label;
+  final TextEditingController controller;
+  final TextInputType? keyboardType;
+  final IconData? icon;
+
+  const EditableField({
+    super.key,
+    required this.label,
+    required this.controller,
+    this.keyboardType,
+    this.icon,
+  });
+
+  @override
+  State<EditableField> createState() => _EditableFieldState();
+}
+
+class _EditableFieldState extends State<EditableField> {
+  bool isEditing = false;
+
+  String tempValue = "";
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+
+    
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+
+               
+                Row(
+                  children: [
+                    Icon(
+                      widget.icon,
+                      size: Responsive.font(
+                        context,
+                        mobile: 23,
+                        tablet: 27,
+                        desktop: 30,
+                      ),
+                      color: const Color.fromARGB(255, 55, 116, 167),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      widget.label,
+                      style: GoogleFonts.kameron(
+                        fontSize: Responsive.font(
+                            context,
+                            mobile: 16.8,
+                            tablet: 17.8,
+                            desktop: 18.8),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 6),
+
+                /// VALUE / INPUT
+                isEditing
+                    ? Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: TextField(
+                          controller: widget.controller,
+                          keyboardType: widget.keyboardType,
+                          autofocus: true,
+                          style: GoogleFonts.kameron(
+                            fontSize: Responsive.font(
+                                context,
+                                mobile: 16.5,
+                                tablet: 17.5,
+                                desktop: 18.5),
+                          ),
+                          decoration: const InputDecoration(
+                            isDense: true,
+                            border: UnderlineInputBorder(),
+                          ),
+                        ),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: Text(
+                          widget.controller.text,
+                          style: GoogleFonts.kameron(
+                            fontSize: Responsive.font(
+                                context,
+                                mobile: 16.5,
+                                tablet: 17.5,
+                                desktop: 18.5),
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey[900]
+                          ),
+                        ),
+                      ),
+              ],
+            ),
+          ),
+
+       
+  isEditing
+    ? Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+
+          
+          IconButton(
+            icon: Icon(
+              Icons.check,
+              size: Responsive.font(
+                  context,
+                  mobile: 23,
+                  tablet: 27,
+                  desktop: 30),
+              color: Colors.green,
+            ),
+            onPressed: () {
+              setState(() {
+                isEditing = false;
+              });
+            },
+          ),
+
+        
+          IconButton(
+            icon: Icon(
+              Icons.close,
+              size: Responsive.font(
+                  context,
+                  mobile: 23,
+                  tablet: 27,
+                  desktop: 30),
+              color: Colors.red,
+            ),
+            onPressed: () {
+              setState(() {
+                widget.controller.text = tempValue; 
+                isEditing = false;
+              });
+            },
+          ),
+        ],
+      )
+    : IconButton(
+        icon: Icon(
+          Icons.edit,
+          size: Responsive.font(
+              context,
+              mobile: 23,
+              tablet: 27,
+              desktop: 30),
+          color: const Color.fromARGB(255, 55, 116, 167),
+        ),
+        onPressed: () {
+          setState(() {
+            tempValue = widget.controller.text; 
+            isEditing = true;
+          });
+        },
+      ),
+
+      
+        ],
       ),
     );
   }
