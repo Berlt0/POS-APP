@@ -160,6 +160,28 @@ class AppDatabase {
         is_synced INTEGER DEFAULT 0
       )
       ''');
+
+
+        // STORE INFO (SETTINGS)
+    await db.execute('''
+      CREATE TABLE store_info (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        global_id TEXT UNIQUE,
+
+        store_name TEXT NOT NULL,
+        store_phone TEXT,
+        store_email TEXT,
+
+        street_address TEXT,
+        city TEXT,
+        province TEXT,
+        zip_code TEXT,
+
+        is_synced INTEGER DEFAULT 0,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+      )
+    ''');
+
     
     await db.execute(
     '''
@@ -211,6 +233,9 @@ class AppDatabase {
       await db.execute('CREATE INDEX idx_archive_deleted_at ON products_archive(deleted_at)');
       await db.execute('CREATE INDEX idx_archive_barcode ON products_archive(barcode)');
 
+      //Store info
+
+          await db.execute('CREATE INDEX idx_store_info_id ON store_info(id)');
 
     print("SQLite tables created");
   }

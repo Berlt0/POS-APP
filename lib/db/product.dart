@@ -1,4 +1,4 @@
-import 'package:pos_app/db/sync.dart';
+
 import 'package:sqflite/sqflite.dart';
 import '../models/products.dart';
 import 'database.dart';

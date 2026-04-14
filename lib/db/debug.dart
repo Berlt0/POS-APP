@@ -56,6 +56,14 @@ print('----------Sales----------');
     print(row);
   }
 
+  print('----------Store Info----------');
+
+  final store = await db.query('store_info');
+  print('--- Store Info ---');
+  for (var row in store) {
+    print(row);
+  }
+
    print('----------Session----------');
 
   final session = await db.query('session');
