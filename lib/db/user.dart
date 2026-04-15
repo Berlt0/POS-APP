@@ -1,6 +1,5 @@
 import 'database.dart';
 import '../utils/password_hashed.dart';
-import 'package:pos_app/utils/hash_token.dart';
 import 'package:intl/intl.dart';
 
 class UserDB {

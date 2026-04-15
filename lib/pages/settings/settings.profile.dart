@@ -1,6 +1,10 @@
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/utils/responsive.dart';
+import 'package:pos_app/db/accountProfile.dart';
+import 'package:pos_app/db/user.dart';
 
 class ProfileSettings extends StatefulWidget {
   const ProfileSettings({super.key});
@@ -11,14 +15,37 @@ class ProfileSettings extends StatefulWidget {
 
 class _ProfileSettingsState extends State<ProfileSettings> {
 
-  // Simulated role (replace with your real userData)
-  String role = "cashier"; // change to "admin" to test
+  
+  String? role; 
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController contactController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
+
+  bool isSaving = false;
+
+  String? nameError;
+  String? usernameError;
+  String? emailError;
+  String? contactError;
+  String? addressError;
+
+  bool isDirty = false;
+
+  String? profileImagePath;
+
+  Map<String, String> originalValues = {};
+  bool _isPickingImage = false;
+
+
+  @override
+  void initState() {
+    super.initState();
+    _loadInfo();
+  }
+
 
   @override
   void dispose() {
@@ -30,48 +57,243 @@ class _ProfileSettingsState extends State<ProfileSettings> {
     super.dispose();
   }
 
-  Widget buildField({
-    required String label,
-    required TextEditingController controller,
-    bool enabled = true,
-    IconData? icon,
-  }) {
+
+void _markDirty() {
+  setState(() {
+    isDirty = _anyFieldEdited();
+  });
+}
+
+TextEditingController _getController(String key) {
+  switch (key) {
+    case "name":
+      return nameController;
+    case "username":
+      return usernameController;
+    case "email":
+      return emailController;
+    case "contact":
+      return contactController;
+    case "address":
+      return addressController;
+    default:
+      return nameController;
+  }
+}
+
+Color _getBorderColor(String key) {
+  if (!_isEdited(key)) {
+    return Colors.green;
+  } else {
+    return Colors.amber;
+  }
+}
 
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: TextField(
-        controller: controller,
-        enabled: enabled,
-        style: GoogleFonts.kameron(
-          fontSize: Responsive.font(context, mobile: 15, tablet: 17, desktop: 19),
-        ),
-        decoration: InputDecoration(
-          prefixIcon: icon != null ? Icon(icon, color: Color(0xFF6FE5F2)) : null,
-          labelText: label,
-          labelStyle: GoogleFonts.kameron(
-            fontSize: Responsive.font(context, mobile: 14, tablet: 16, desktop: 18),
-          ),
-          filled: true,
-          fillColor: enabled ? Colors.grey[100] : Colors.grey[300],
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
+ Widget buildField({
+  required String key,
+  required String label,
+  required TextEditingController controller,
+  bool enabled = true,
+  IconData? icon,
+  String? errorText,
+  Function(String)? onChanged,
+}) {
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 12),
+    child: TextField(
+      controller: controller,
+      enabled: enabled,
+      onChanged: onChanged,
+      style: GoogleFonts.kameron(
+        fontSize: Responsive.font(context, mobile: 16, tablet: 17, desktop: 19),
+      ),
+      decoration: InputDecoration(
+      prefixIcon: icon != null
+          ? Icon(icon, color: const Color.fromARGB(255, 55, 116, 167))
+          : null,
+
+      labelText: label,
+      errorText: errorText,
+
+      suffixIcon: _isEdited(key)
+    ? IconButton(
+        icon: const Icon(Icons.close, color: Colors.red),
+        onPressed: () => _revertField(key),
+      )
+    : null,
+
+      filled: true,
+      fillColor: enabled ? Colors.grey[100] : Colors.grey[300],
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(
+          color: _getBorderColor(key),
+          width: 1.5,
         ),
       ),
-    );
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(
+          color: _getBorderColor(key),
+          width: 1.5,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(
+          color: _getBorderColor(key),
+          width: 2,
+  ),
+),
+    ),
+    ),
+  );
+}
+
+
+  Future<void> _loadInfo() async {
+
+    final userId = await UserDB().getLoggedInUserId();
+
+    if (userId == null) {
+    print("No logged-in user found");
+    return;
   }
 
+    final info = await Account().getAccountInfo(userId);
+
+    if (info.isNotEmpty && mounted) {
+    setState(() {
+      nameController.text = info['name'] ?? '';
+      usernameController.text = info['username'] ?? '';
+      emailController.text = info['email'] ?? '';
+      contactController.text = info['contact_number'] ?? '';
+      addressController.text = info['address'] ?? '';
+      role = info['role'] ?? 'cashier';
+
+      originalValues = {
+        'name': info['name'] ?? '',
+        'username': info['username'] ?? '',
+        'email': info['email'] ?? '',
+        'contact': info['contact_number'] ?? '',
+        'address': info['address'] ?? '',
+      };
+
+    });
+  }
+
+  }
+
+bool _anyFieldEdited() {
+  return nameController.text != (originalValues['name'] ?? '') ||
+      usernameController.text != (originalValues['username'] ?? '') ||
+      emailController.text != (originalValues['email'] ?? '') ||
+      contactController.text != (originalValues['contact'] ?? '') ||
+      addressController.text != (originalValues['address'] ?? '');
+}
+
+  bool _isEdited(String key) {
+  return _getController(key).text.trim() != (originalValues[key] ?? '').trim();
+}
+
+void _revertField(String key) {
+  setState(() {
+    _getController(key).text = originalValues[key] ?? '';
+    isDirty = _anyFieldEdited(); 
+  });
+}
 
 
-  void _saveProfile() {
+ void _saveProfile() async {
+
+
+  setState(() {
+    nameError = nameController.text.trim().isEmpty ? "Name is required" : null;
+    usernameError = usernameController.text.trim().isEmpty ? "Username required" : null;
+    emailError = !emailController.text.contains('@') ? "Invalid email" : null;
+    contactError = contactController.text.length < 7 ? "Invalid number" : null;
+    addressError = addressController.text.trim().isEmpty ? "Address required" : null;
+  });
+
+  if ([nameError, usernameError, emailError, contactError, addressError]
+      .any((e) => e != null)) {
+    return;
+  }
+
+  setState(() => isSaving = true);
+
+  final userId = await UserDB().getLoggedInUserId();
+
+  if (userId == null) {
+    setState(() => isSaving = false);
+    return;
+  }
+
+  final success = await Account().updateAccount(
+    id: userId,
+    name: nameController.text.trim(),
+    username: usernameController.text.trim(),
+    email: emailController.text.trim(),
+    contact: contactController.text.trim(),
+    address: addressController.text.trim(),
+  );
+
+  if (!mounted) return;
+
+  setState(() { 
+    isSaving = false;
+    });
+
+  if (success) {
+    await _loadInfo();
+
+      if (!mounted) return;
+
+      setState(() {
+        isDirty = false;
+      });
+
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text("Profile updated successfully"),
         backgroundColor: Colors.green,
       ),
     );
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Update failed"),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
+}
+
+
+Future<void> _changePhoto() async {
+  if (_isPickingImage) return; // prevent double open
+
+  _isPickingImage = true;
+
+  try {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: ImageSource.gallery);
+
+    if (picked != null) {
+      setState(() {
+        profileImagePath = picked.path;
+        isDirty = true;
+      });
+    }
+  } catch (e) {
+    debugPrint("Image picker error: $e");
+  } finally {
+    _isPickingImage = false;
+  }
+}
+
 
 
   @override
@@ -99,6 +321,35 @@ class _ProfileSettingsState extends State<ProfileSettings> {
         child: Column(
           children: [
 
+           Center(
+            child: Stack(
+              children: [
+                CircleAvatar(
+                  radius: 50,
+                  backgroundImage: profileImagePath != null
+                      ? FileImage(File(profileImagePath!))
+                      : const AssetImage('assets/Legendaries.png'),
+                ),
+
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: GestureDetector(
+                    onTap:  _isPickingImage ? null : _changePhoto,
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.blue,
+                      ),
+                      child: const Icon(Icons.camera_alt, color: Colors.white, size: 18),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
           
             Align(
               alignment: Alignment.centerLeft,
@@ -114,36 +365,83 @@ class _ProfileSettingsState extends State<ProfileSettings> {
             const SizedBox(height: 10),
 
             buildField(
+              key: "name",
               label: "Full Name",
               controller: nameController,
               icon: Icons.person,
               enabled: true,
+              errorText: nameError,
+              onChanged: (value) {
+                _markDirty();
+                setState(() {
+                  nameError = value.trim().isEmpty ? "Name is required" : null;
+                });
+              },
             ),
 
             buildField(
+              key: "username",
               label: "Username",
               controller: usernameController,
               icon: Icons.account_circle,
-              enabled: role == "admin", 
+              enabled: role == "admin",
+              errorText: usernameError,
+              onChanged: (value) {
+                _markDirty();
+
+                setState(() {
+
+                  usernameError = value.trim().isEmpty ? "Username is required" : null;
+                });
+              },
             ),
 
             buildField(
+              key: "email",
               label: "Email",
               controller: emailController,
               icon: Icons.email,
               enabled: role == "admin", 
+              errorText: emailError,
+              onChanged: (value) {
+                _markDirty();
+                setState(() {
+
+                  emailError = value.contains('@') ? null : "Invalid email";
+                });
+              },
             ),
 
             buildField(
+              key: "contact",
               label: "Contact Number",
               controller: contactController,
               icon: Icons.phone,
+              errorText: contactError,
+              onChanged: (value) {
+                _markDirty();
+                
+                setState(() {
+
+                  contactError = value.length < 7 ? "Invalid number" : null;
+                });
+              },
             ),
 
             buildField(
+              key: "address",
               label: "Address",
-              controller: contactController,
-              icon: Icons.phone,
+              controller: addressController,
+              icon: Icons.location_on,
+              errorText: addressError,
+              onChanged: (value) {
+                _markDirty();
+                
+                setState(() {
+                  
+                  addressError = value.trim().isEmpty ? "Address required" : null;
+                });
+              },
             ),
 
             const SizedBox(height: 20),
@@ -161,6 +459,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
 
             const SizedBox(height: 10),
 
+         
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
@@ -184,26 +483,35 @@ class _ProfileSettingsState extends State<ProfileSettings> {
 
             const SizedBox(height: 30),
 
-          
+          if(isDirty)
             SizedBox(
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: _saveProfile,
+                onPressed: (isSaving || !isDirty) ? null : _saveProfile, 
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF30DD04),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: Text(
-                  "Save Changes",
-                  style: GoogleFonts.kameron(
-                    fontSize: Responsive.font(context, mobile: 15, tablet: 17, desktop: 19),
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
+                child: isSaving
+                    ? const SizedBox(
+                        height: 22,
+                        width: 22,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : Text(
+                        "Save Changes",
+                        style: GoogleFonts.kameron(
+                          fontSize: Responsive.font(context, mobile: 15, tablet: 17, desktop: 19),
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
               ),
             ),
 
