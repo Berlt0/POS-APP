@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pos_app/pages/settings/settings.profile.dart';
 import 'package:pos_app/pages/settings/settings.storeInfo.dart';
 import 'package:pos_app/utils/responsive.dart';
 
@@ -86,8 +87,7 @@ class _SettingsState extends State<Settings> {
 
           // Account
           buildSection("Account", [
-            buildTile(Icons.person, "Profile", () {}),
-            buildTile(Icons.email, "Email", () {}),
+            buildTile(Icons.person, "Profile", () => Navigator.push(context,MaterialPageRoute(builder: (context) => const ProfileSettings()))),
           ]),
 
           // Store Info
