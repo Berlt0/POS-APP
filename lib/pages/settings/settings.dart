@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pos_app/pages/settings/resetPass.settings.dart';
 import 'package:pos_app/pages/settings/settings.profile.dart';
 import 'package:pos_app/pages/settings/settings.storeInfo.dart';
 import 'package:pos_app/utils/responsive.dart';
@@ -64,7 +65,7 @@ class _SettingsState extends State<Settings> {
         shadowColor: Colors.grey.withOpacity(0.5),
         elevation: 3,
         leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios_new_sharp, size: isDesktop ? 35 : isTablet ? 30 :25,),   // or Icons.arrow_back
+            icon: Icon(Icons.arrow_back_ios_new_sharp, size: isDesktop ? 35 : isTablet ? 30 :25,),   
             iconSize: Responsive.spacing(context, mobile: 28, tablet: 32, desktop: 36), 
             color: Colors.black,
             onPressed: () => Navigator.pop(context),
@@ -97,32 +98,19 @@ class _SettingsState extends State<Settings> {
 
           // Payments
           buildSection("Payments", [
-            buildTile(Icons.payment, "Payment Methods", () {}),
-            buildTile(Icons.receipt_long, "Transaction Settings", () {}),
+            buildTile(Icons.payment, "Payment Methods(Coming soon)", () {}),
+
           ]),
 
-          // Inventory
-          buildSection("Inventory", [
-            buildTile(Icons.inventory, "Manage Products", () {}),
-            buildTile(Icons.qr_code, "Barcode Settings", () {}),
-          ]),
-
-          // Sync
-          buildSection("Sync", [
-            buildTile(Icons.sync, "Sync Data", () {}),
+          buildSection("Backup", [
             buildTile(Icons.cloud, "Backup & Restore", () {}),
           ]),
 
-          // Receipt
-          buildSection("Receipt", [
-            buildTile(Icons.receipt, "Receipt Layout", () {}),
-            buildTile(Icons.print, "Printer Settings", () {}),
-          ]),
 
-          // Security
+          
           buildSection("Security", [
-            buildTile(Icons.lock, "Change Password", () {}),
-            buildTile(Icons.security, "PIN / Biometrics", () {}),
+            buildTile(Icons.lock, "Reset Password", () => Navigator.push(context,MaterialPageRoute(builder: (context) => const ResetPass()))),
+            buildTile(Icons.security, "Manage Cashier Access", () {}),
           ]),
 
           // System

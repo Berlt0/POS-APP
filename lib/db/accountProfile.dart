@@ -37,7 +37,6 @@ class Account {
 Future<bool> updateAccount({
   required int id,
   required String name,
-  required String username,
   required String email,
   required String contact,
   required String address,
@@ -49,7 +48,6 @@ Future<bool> updateAccount({
       'users',
       {
         'name': name,
-        'username': username,
         'email': email,
         'contact_number': contact,
         'address': address,

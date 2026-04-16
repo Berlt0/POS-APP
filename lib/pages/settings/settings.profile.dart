@@ -19,7 +19,6 @@ class _ProfileSettingsState extends State<ProfileSettings> {
   String? role; 
 
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController contactController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
@@ -27,12 +26,12 @@ class _ProfileSettingsState extends State<ProfileSettings> {
   bool isSaving = false;
 
   String? nameError;
-  String? usernameError;
   String? emailError;
   String? contactError;
   String? addressError;
 
   bool isDirty = false;
+  
 
   String? profileImagePath;
 
@@ -50,7 +49,6 @@ class _ProfileSettingsState extends State<ProfileSettings> {
   @override
   void dispose() {
     nameController.dispose();
-    usernameController.dispose();
     emailController.dispose();
     contactController.dispose();
     addressController.dispose();
@@ -68,8 +66,6 @@ TextEditingController _getController(String key) {
   switch (key) {
     case "name":
       return nameController;
-    case "username":
-      return usernameController;
     case "email":
       return emailController;
     case "contact":
@@ -166,7 +162,6 @@ Color _getBorderColor(String key) {
     if (info.isNotEmpty && mounted) {
     setState(() {
       nameController.text = info['name'] ?? '';
-      usernameController.text = info['username'] ?? '';
       emailController.text = info['email'] ?? '';
       contactController.text = info['contact_number'] ?? '';
       addressController.text = info['address'] ?? '';
@@ -174,7 +169,6 @@ Color _getBorderColor(String key) {
 
       originalValues = {
         'name': info['name'] ?? '',
-        'username': info['username'] ?? '',
         'email': info['email'] ?? '',
         'contact': info['contact_number'] ?? '',
         'address': info['address'] ?? '',
@@ -187,7 +181,6 @@ Color _getBorderColor(String key) {
 
 bool _anyFieldEdited() {
   return nameController.text != (originalValues['name'] ?? '') ||
-      usernameController.text != (originalValues['username'] ?? '') ||
       emailController.text != (originalValues['email'] ?? '') ||
       contactController.text != (originalValues['contact'] ?? '') ||
       addressController.text != (originalValues['address'] ?? '');
@@ -210,13 +203,12 @@ void _revertField(String key) {
 
   setState(() {
     nameError = nameController.text.trim().isEmpty ? "Name is required" : null;
-    usernameError = usernameController.text.trim().isEmpty ? "Username required" : null;
     emailError = !emailController.text.contains('@') ? "Invalid email" : null;
     contactError = contactController.text.length < 7 ? "Invalid number" : null;
     addressError = addressController.text.trim().isEmpty ? "Address required" : null;
   });
 
-  if ([nameError, usernameError, emailError, contactError, addressError]
+  if ([nameError, emailError, contactError, addressError]
       .any((e) => e != null)) {
     return;
   }
@@ -233,7 +225,6 @@ void _revertField(String key) {
   final success = await Account().updateAccount(
     id: userId,
     name: nameController.text.trim(),
-    username: usernameController.text.trim(),
     email: emailController.text.trim(),
     contact: contactController.text.trim(),
     address: addressController.text.trim(),
@@ -379,22 +370,6 @@ Future<void> _changePhoto() async {
               },
             ),
 
-            buildField(
-              key: "username",
-              label: "Username",
-              controller: usernameController,
-              icon: Icons.account_circle,
-              enabled: role == "admin",
-              errorText: usernameError,
-              onChanged: (value) {
-                _markDirty();
-
-                setState(() {
-
-                  usernameError = value.trim().isEmpty ? "Username is required" : null;
-                });
-              },
-            ),
 
             buildField(
               key: "email",
