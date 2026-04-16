@@ -47,6 +47,7 @@ class AppDatabase {
         contact_number TEXT,
         address TEXT,
         createdAt TEXT,
+        is_disabled INTEGER NOT NULL DEFAULT 0,
         is_synced INTEGER DEFAULT 0
       )
     ''');

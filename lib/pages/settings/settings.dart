@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pos_app/pages/settings/managaAccess.dart';
 import 'package:pos_app/pages/settings/resetPass.settings.dart';
 import 'package:pos_app/pages/settings/settings.profile.dart';
 import 'package:pos_app/pages/settings/settings.storeInfo.dart';
@@ -86,17 +87,17 @@ class _SettingsState extends State<Settings> {
       body: ListView(
         children: [
 
-          // Account
+   
           buildSection("Account", [
             buildTile(Icons.person, "Profile", () => Navigator.push(context,MaterialPageRoute(builder: (context) => const ProfileSettings()))),
           ]),
 
-          // Store Info
+
           buildSection("Store Info", [
             buildTile(Icons.store, "Store Details", () => Navigator.push(context,MaterialPageRoute(builder: (context) => const StoreInfo()))),
           ]),
 
-          // Payments
+       
           buildSection("Payments", [
             buildTile(Icons.payment, "Payment Methods(Coming soon)", () {}),
 
@@ -110,10 +111,10 @@ class _SettingsState extends State<Settings> {
           
           buildSection("Security", [
             buildTile(Icons.lock, "Reset Password", () => Navigator.push(context,MaterialPageRoute(builder: (context) => const ResetPass()))),
-            buildTile(Icons.security, "Manage Cashier Access", () {}),
+            buildTile(Icons.security, "Manage Cashier Access",  () => Navigator.push(context,MaterialPageRoute(builder: (context) => const ManageCashierAccess()))),
           ]),
 
-          // System
+       
           buildSection("System", [
             buildTile(Icons.info, "About App", () {}),
             buildTile(Icons.settings, "App Preferences", () {}),
