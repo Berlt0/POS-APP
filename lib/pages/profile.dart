@@ -815,6 +815,59 @@ Future<void> _showAddCashierModal() async {
   final isDesktop = Responsive.isDesktop(context);
   final isTablet = Responsive.isTablet(context);
 
+  if (allCashiersSummary.isEmpty) {
+      return Column(
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  spreadRadius: 1,
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.people_outline_rounded,
+                  size: isDesktop ? 72 : isTablet ? 62 : 52,
+                  color: Colors.grey[400],
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  "No Cashiers Yet",
+                  style: GoogleFonts.kameron(
+                    fontSize: isDesktop ? 23 : isTablet ? 21 : 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[800],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "You haven't added any cashier yet.\nTap the 'Add Cashier' button below to get started.",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.kameron(
+                    fontSize: isDesktop ? 16 : isTablet ? 15 : 14,
+                    color: Colors.grey[600],
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 10,)
+        ],
+      );
+    }
+
   return Column(
     children: allCashiersSummary.map((cashier) {
       return Container(

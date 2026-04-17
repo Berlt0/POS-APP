@@ -59,52 +59,138 @@ class _ManageCashierAccessState extends State<ManageCashierAccess> {
   final id = user["id"];
   final name = user["name"];
 
-  showDialog(
+  showGeneralDialog<bool>(
     context: context,
-    builder: (_) => AlertDialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      title: const Text("Remove Cashier"),
-      content: Text("Are you sure you want to permanently delete $name?"),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text("Cancel"),
-        ),
-        TextButton(
-          onPressed: () async {
-            Navigator.pop(context);
+    barrierLabel: "Delete Cashier",
+    barrierDismissible: true,
+    barrierColor: Colors.black.withOpacity(0.5),
+    transitionDuration: const Duration(milliseconds: 300),
+    pageBuilder: (context, anim1, anim2) {
+      final isTablet = Responsive.isTablet(context);
+      final isDesktop = Responsive.isDesktop(context);
 
-            final success = await ManageAccess().removeCashier(id, name);
+      return Center(
+        child: Material(
+          type: MaterialType.transparency,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: isDesktop ? 380 : isTablet ? 350 : 290,
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Title
+                  Text(
+                    "Remove Cashier?",
+                    style: GoogleFonts.kameron(
+                      fontSize: isDesktop ? 22 : isTablet ? 20 : 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
 
-            if (success) {
-              setState(() {
-                cashiers.removeAt(index);
-              });
+                  // Message
+                  Text(
+                    "Are you sure you want to permanently delete $name?\nThis action cannot be undone.",
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.kameron(
+                      fontSize: isDesktop ? 16 : isTablet ? 15.5 : 14.5,
+                      fontWeight: FontWeight.w500,
+                      height: 1.4,
+                      color: Colors.grey[700],
+                    ),
+                  ),
 
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text("$name has been removed"),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("Failed to delete user"),
-                  backgroundColor: Colors.orange,
-                ),
-              );
-            }
-          },
-          child: const Text(
-            "Delete",
-            style: TextStyle(color: Colors.red),
+                  const SizedBox(height: 40),
+
+                  // Action Buttons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // Cancel Button
+                      GestureDetector(
+                        onTap: () => Navigator.of(context).pop(false),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                          child: Text(
+                            "Cancel",
+                            style: GoogleFonts.kameron(
+                              fontSize: isDesktop ? 18 : isTablet ? 17 : 15.5,
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // Delete Button
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
+                          backgroundColor: Colors.red,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          elevation: 2,
+                        ),
+                        onPressed: () async {
+                          Navigator.of(context).pop(true); // Close dialog first
+
+                          final success = await ManageAccess().removeCashier(id, name);
+
+                          if (success) {
+                            setState(() {
+                              cashiers.removeAt(index);
+                            });
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("$name has been removed"),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Failed to delete user"),
+                                backgroundColor: Colors.orange,
+                              ),
+                            );
+                          }
+                        },
+                        child: Text(
+                          "Delete",
+                          style: GoogleFonts.kameron(
+                            fontSize: isDesktop ? 18 : isTablet ? 17 : 15.5,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
-      ],
-    ),
+      );
+    },
+    transitionBuilder: (context, anim1, anim2, child) {
+      return ScaleTransition(
+        scale: CurvedAnimation(
+          parent: anim1,
+          curve: Curves.easeOutBack,   // Nice bounce animation
+        ),
+        child: child,
+      );
+    },
   );
 }
 
