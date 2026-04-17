@@ -11,8 +11,8 @@ class UserDB {
 
     final result = await db.query(
       'users',
-      where: 'username = ? AND password = ?',
-      whereArgs: [username, hashedPassword],
+      where: 'username = ? AND password = ? AND is_disabled = ? AND deleted_at IS NULL',
+      whereArgs: [username, hashedPassword,0],
       limit: 1,
     );
 

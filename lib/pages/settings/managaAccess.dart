@@ -55,25 +55,33 @@ class _ManageCashierAccessState extends State<ManageCashierAccess> {
 
 
   void deleteUser(int index) {
-    final name = cashiers[index]["name"];
+  final user = cashiers[index];
+  final id = user["id"];
+  final name = user["name"];
 
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: const Text("Remove Cashier"),
-        content: Text("Are you sure you want to permanently delete $name?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
-          ),
-          TextButton(
-            onPressed: () {
+  showDialog(
+    context: context,
+    builder: (_) => AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      title: const Text("Remove Cashier"),
+      content: Text("Are you sure you want to permanently delete $name?"),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text("Cancel"),
+        ),
+        TextButton(
+          onPressed: () async {
+            Navigator.pop(context);
+
+            final success = await ManageAccess().removeCashier(id, name);
+
+            if (success) {
               setState(() {
                 cashiers.removeAt(index);
               });
-              Navigator.pop(context);
 
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -81,16 +89,24 @@ class _ManageCashierAccessState extends State<ManageCashierAccess> {
                   backgroundColor: Colors.red,
                 ),
               );
-            },
-            child: const Text(
-              "Delete",
-              style: TextStyle(color: Colors.red),
-            ),
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Failed to delete user"),
+                  backgroundColor: Colors.orange,
+                ),
+              );
+            }
+          },
+          child: const Text(
+            "Delete",
+            style: TextStyle(color: Colors.red),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
 
 

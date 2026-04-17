@@ -48,7 +48,8 @@ class AppDatabase {
         address TEXT,
         createdAt TEXT,
         is_disabled INTEGER NOT NULL DEFAULT 0,
-        is_synced INTEGER DEFAULT 0
+        is_synced INTEGER DEFAULT 0,
+        deleted_at TEXT
       )
     ''');
 

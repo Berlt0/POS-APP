@@ -11,7 +11,8 @@ class ResetPassword {
       final  cashiers = await db.rawQuery(
         '''
           SELECT * FROM users
-          WHERE role = ? 
+          WHERE role = ? AND 
+          deleted_at IS NULL
         ''',['cashier']);
 
 

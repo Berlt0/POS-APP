@@ -2,6 +2,7 @@ class Addcashier {
 
   final int? id;
   final String name;
+  final String? global_id;
   final String username;
   final String email;
   final String contactNo;
@@ -12,7 +13,8 @@ class Addcashier {
 
 Addcashier({
   this.id, 
-  required this.name, 
+  required this.name,
+  this.global_id,
   required this.username, 
   required this.email,
   required this.contactNo,
@@ -22,6 +24,7 @@ Addcashier({
 
     Map<String, dynamic> toMap() {
     return {
+      'global_id': global_id,
       'name': name,
       'username': username,
       'email': email,

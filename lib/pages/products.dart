@@ -175,7 +175,7 @@ Future<void> _loadProducts() async {
       .map((p) => p.category ?? 'Others')
       .toSet();
 
-  final List<String> sortedCategories = uniqueCategories.toList()..sort();
+
 
   setState(() {
     _categories = ['All', ...uniqueCategories];
@@ -299,7 +299,6 @@ Future<bool?> showConfirmationDialog(BuildContext context) {
 
 Future<bool?> showDeleteConfirmationModal(BuildContext context) {
 
-    final isMobile = Responsive.isMobile(context);
     final isTablet = Responsive.isTablet(context);
     final isDesktop = Responsive.isDesktop(context);
 
@@ -448,7 +447,7 @@ final autocompleteCategories = _categories.where((c) => c != 'All').toList();
     ),
     builder: (context) {
 
-      final isMobile = Responsive.isMobile(context);
+
       final isTablet = Responsive.isTablet(context);
       final isDesktop = Responsive.isDesktop(context);
 

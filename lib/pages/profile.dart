@@ -9,6 +9,10 @@ import 'package:pos_app/services/session_service.dart';
 import 'package:pos_app/db/summary.dart';
 import 'package:pos_app/models/addCashier.dart';
 import 'package:pos_app/utils/password_hashed.dart';
+import 'package:uuid/uuid.dart';
+
+var uuid = Uuid();
+String generateId() => Uuid().v4();
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -94,6 +98,7 @@ Future<bool> _handleCashierInsertion() async {
           final hashedPassword = PasswordHelper.hashPassword(passwordController.text.trim());
 
           final cashier = Addcashier(
+            global_id: generateId(),
             name: nameController.text.trim(),
             username: usernameController.text.trim(),
             email: emailController.text.trim(),

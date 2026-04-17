@@ -1,5 +1,4 @@
 import 'database.dart';
-import 'package:intl/intl.dart';
 import 'package:pos_app/models/addCashier.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -43,8 +42,6 @@ class Summary {
  Future<Map<String, dynamic>> getTodaysSummary(int userId) async {
     try {
       final db = await AppDatabase.database;
-
-      final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
 
       final List<Map<String, dynamic>> result = await db.rawQuery('''
@@ -109,7 +106,7 @@ class Summary {
         COUNT(DISTINCT s.id) AS transaction_count,
 
   
-        IFNULL(SUM(DISTINCT s.total_amount), 0) AS total_revenue,
+        IFNULL(SUM(s.total_amount), 0) AS total_revenue,
 
        
         IFNULL(SUM(si.quantity), 0) AS items_sold,
@@ -117,7 +114,7 @@ class Summary {
       
         CASE 
           WHEN COUNT(DISTINCT s.id) > 0 
-          THEN SUM(DISTINCT s.total_amount) / COUNT(DISTINCT s.id)
+          THEN SUM(s.total_amount) / COUNT(s.id)
           ELSE 0
         END AS average_sales
 
@@ -132,6 +129,7 @@ class Summary {
         ON si.sale_id = s.id
 
       WHERE u.role = ?
+      AND u.deleted_at IS NULL
 
       GROUP BY u.id
     ''', ['cashier']);

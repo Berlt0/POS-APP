@@ -19,7 +19,7 @@ import 'package:pos_app/services/session_service.dart';
 import 'pages/receipt.dart';
 import 'pages/transaction.dart';
 import 'dart:async';
-import 'package:pos_app/pages/settings/settings.profile.dart';
+
 
 Future<void> deleteOldDatabase() async {
   final dbPath = await getDatabasesPath();

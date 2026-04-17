@@ -12,6 +12,7 @@ class ManageAccess{
         '''
           SELECT * FROM users
           WHERE role = ? 
+          AND deleted_at IS NULL
         ''',['cashier']);
 
 
@@ -47,6 +48,32 @@ class ManageAccess{
       return false;
     }
   }
+
+
+  Future<bool> removeCashier(int id, String name) async {
+
+    try {
+      
+      final db = await AppDatabase.database;
+
+      final now = DateTime.now().toIso8601String();
+
+      final remove = await db.rawUpdate(
+        '''
+          UPDATE users SET deleted_at = ?, is_synced = ? WHERE id = ? AND name = ? 
+        ''', [now,0,id,name]); 
+
+        return remove > 0;
+
+    } catch (error) {
+      
+      print("Failed to remove cashier: $error");
+      return false;
+    }
+
+  }
+
+
 
 
 }
