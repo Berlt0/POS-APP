@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/utils/responsive.dart';
 import 'package:pos_app/widgets/sale_chart.dart';
 import 'package:pos_app/widgets/topSellingProduct.dart';
+import 'package:pos_app/services/exports/pdf/salesReport.dart';
 
 
 class Reports extends StatefulWidget {
@@ -52,6 +53,36 @@ void initState() {
     super.dispose();
   }
 
+
+DateTimeRange getEffectiveDateRange() {
+  if (selectedFilter == 'Custom' && selectedRange != null) {
+    return selectedRange!;
+  }
+
+  final now = DateTime.now();
+
+  if (selectedFilter == 'Today') {
+    return DateTimeRange(
+      start: DateTime(now.year, now.month, now.day),
+      end: DateTime(now.year, now.month, now.day, 23, 59, 59),
+    );
+  }
+
+  if (selectedFilter == 'Weekly') {
+    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+    final start = DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day);
+
+    final end = start.add(const Duration(days: 6, hours: 23, minutes: 59, seconds: 59));
+
+    return DateTimeRange(start: start, end: end);
+  }
+
+
+  return DateTimeRange(
+    start: DateTime(now.year, now.month, now.day),
+    end: DateTime(now.year, now.month, now.day),
+  );
+}
 
 
 Future<void> _pickDateRange(BuildContext context) async {
@@ -198,11 +229,46 @@ String _valueOrLoading(String key, {bool peso = false}) {
 }
 
 
+Future<void> _exportReport() async {
+  try {
+    final file = await exportReportPDF(
+      reportCard: reportCard,
+      salesTrend: salesTrend,
+      rcogsp: rcogsp,
+      topProducts: topProducts,
+      dateRange: getEffectiveDateRange(),
+      filter: selectedFilter,
+    );
+
+    if (!mounted) return;
+
+    print(file.path);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Report exported'),
+        backgroundColor: Colors.green,
+      ),
+    );
+  } catch (e) {
+    debugPrint('Export error: $e');
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Export failed: $e'),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+}
+
+
+
 
   @override
   Widget build(BuildContext context) {
 
-    final isMobile = Responsive.isMobile(context);
     final isTablet = Responsive.isTablet(context);
     final isDesktop = Responsive.isDesktop(context);
 
@@ -258,7 +324,41 @@ String _valueOrLoading(String key, {bool peso = false}) {
                           ),
                         ),
                       ),
-                    )
+                    ),
+
+                     SizedBox(width: 10),
+
+
+                    SizedBox(
+                      height: Responsive.spacing(context,
+                          mobile: 40, tablet: 45, desktop: 50),
+                      child: Material(
+                        color: Colors.green,
+                        borderRadius: BorderRadius.circular(8),
+                        elevation: 4,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(8),
+                          onTap: _exportReport,
+                          child: Padding(
+                            padding: EdgeInsets.all(8),
+                            child: Row(
+                              children: [
+                                Icon(Icons.download, size: 18, color: Colors.white),
+                                SizedBox(width: 5),
+                                Text(
+                                  'Export',
+                                  style: GoogleFonts.kameron(
+                                    fontSize: isDesktop ? 15 : isTablet ? 14 : 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
 
 
                   ],
