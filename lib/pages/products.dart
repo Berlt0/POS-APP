@@ -921,7 +921,6 @@ Widget productCard(Product product) {
   @override
   Widget build(BuildContext context) {
 
-    final isMobile = Responsive.isMobile(context);
     final isTablet = Responsive.isTablet(context);
     final isDesktop = Responsive.isDesktop(context);
 

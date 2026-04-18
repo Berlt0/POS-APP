@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pos_app/pages/settings/aboutApp.dart';
 import 'package:pos_app/pages/settings/managaAccess.dart';
 import 'package:pos_app/pages/settings/resetPass.settings.dart';
 import 'package:pos_app/pages/settings/settings.profile.dart';
@@ -64,7 +65,7 @@ class _SettingsState extends State<Settings> {
         toolbarHeight: isDesktop ? 80 : isTablet ? 70 : 60,
         backgroundColor: Colors.grey[100],
         shadowColor: Colors.grey.withOpacity(0.5),
-        elevation: 3,
+        elevation: 5,
         leading: IconButton(
             icon: Icon(Icons.arrow_back_ios_new_sharp, size: isDesktop ? 35 : isTablet ? 30 :25,),   
             iconSize: Responsive.spacing(context, mobile: 28, tablet: 32, desktop: 36), 
@@ -116,7 +117,7 @@ class _SettingsState extends State<Settings> {
 
        
           buildSection("System", [
-            buildTile(Icons.info, "About App", () {}),
+            buildTile(Icons.info, "About App", () => Navigator.push(context,MaterialPageRoute(builder: (context) => const AboutApp()))),
             buildTile(Icons.settings, "App Preferences", () {}),
           ]),
         ],

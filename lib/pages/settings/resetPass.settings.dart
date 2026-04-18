@@ -227,7 +227,8 @@ class _ResetPassState extends State<ResetPass> {
           ),
         ),
         backgroundColor: Colors.grey[100],
-        elevation: 3,
+        elevation: 5,
+        shadowColor: Colors.grey.withOpacity(0.5),
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new_sharp,
               size: Responsive.font(context, mobile: 25, tablet: 30, desktop: 35)),

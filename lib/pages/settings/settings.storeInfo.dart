@@ -177,7 +177,8 @@ void _handleEditing(bool isEditing) {
           ),
         ),
         backgroundColor: Colors.grey[100],
-        elevation: 3,
+        elevation: 5,
+        shadowColor: Colors.grey.withOpacity(0.5),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
           onPressed: () => Navigator.pop(context),
