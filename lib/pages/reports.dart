@@ -37,6 +37,8 @@ List<Map<String, dynamic>> topProducts = [];
 
 final ScrollController _topProductsScrollController = ScrollController();
 
+bool isExporting = false;
+
 
 @override
 void initState() {
@@ -150,14 +152,18 @@ Future<void> loadSalesTrend() async {
       dateRange: selectedRange
     );
 
+    if (!mounted) return;
+
     setState(() {
       salesTrend = data;
+      isSaleTrendLoading = false;
     });
 
-    setState(() => isSaleTrendLoading = false);
 
   } catch (error) {
     debugPrint('Error fetching data, $error');
+    if (!mounted) return;
+    setState(() => isSaleTrendLoading = false);
   }
 }
 
@@ -165,23 +171,29 @@ Future<void> loadRCOGSP() async {
 
   try {
     
-    setState(() => isSaleTrendLoading = true);
+    setState(() => isRCOGSPLoading = true);
 
     final data = await fetchRCOGSP(
       filter: selectedFilter,
       dateRange: selectedRange
     );
 
+    if (!mounted) return;
+
     setState(() {
       rcogsp = data;
+      isRCOGSPLoading = false;
     });
 
 
 
-    setState(() => isSaleTrendLoading = false);
 
   } catch (error) {
     debugPrint('Error fetching data, $error');
+
+    if (!mounted) return;
+
+    setState(() => isRCOGSPLoading = false);
   }
 
 }
@@ -197,14 +209,19 @@ Future<void> loadTopSellingProducts() async {
       dateRange: selectedRange
     );
 
+    if (!mounted) return;
+
     setState(() {
       topProducts = products; 
+      isTopProductsLoading = false;
     });
 
     setState(() => isTopProductsLoading = false);
 
   } catch (error) {
     debugPrint('Error fetching data,$error');
+    if (!mounted) return;
+    setState(() => isTopProductsLoading = false);
   }
 
 }
@@ -231,6 +248,9 @@ String _valueOrLoading(String key, {bool peso = false}) {
 
 Future<void> _exportReport() async {
   try {
+
+    setState(() => isExporting = true);
+
     final file = await exportReportPDF(
       reportCard: reportCard,
       salesTrend: salesTrend,
@@ -245,7 +265,7 @@ Future<void> _exportReport() async {
     print(file.path);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Report exported'),
+        content: Text('Report successfully exported'),
         backgroundColor: Colors.green,
       ),
     );
@@ -260,6 +280,10 @@ Future<void> _exportReport() async {
         backgroundColor: Colors.red,
       ),
     );
+  }finally {
+    if (mounted) {
+      setState(() => isExporting = false);
+    }
   }
 }
 
@@ -345,8 +369,8 @@ Future<void> _exportReport() async {
                               children: [
                                 Icon(Icons.download, size: 18, color: Colors.white),
                                 SizedBox(width: 5),
-                                Text(
-                                  'Export',
+                                Text(isExporting ?
+                                  'Exporting' : 'Export',
                                   style: GoogleFonts.kameron(
                                     fontSize: isDesktop ? 15 : isTablet ? 14 : 13,
                                     fontWeight: FontWeight.w500,

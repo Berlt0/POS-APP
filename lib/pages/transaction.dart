@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:pos_app/pages/receipt.dart';
 import 'package:pos_app/utils/responsive.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pos_app/services/exports/pdf/transactionReports.dart';
 
 class TransactionPage extends StatefulWidget {
   const TransactionPage({super.key});
@@ -82,6 +83,18 @@ class _TransactionPageState extends State<TransactionPage> {
     }
   }
 
+
+  Future<List<Map<String, dynamic>>> fetchAllTransactionsForExport({
+    DateTime? startDate,
+    DateTime? endDate,
+  }) async {
+    return await fetchTransactions(
+      startDate: startDate,
+      endDate: endDate,
+  );  
+}
+
+
   @override
   void initState() {
     super.initState();
@@ -157,11 +170,78 @@ class _TransactionPageState extends State<TransactionPage> {
     return grouped.values.toList();
   }
 
+
+Future<void> _exportTransactions() async {
+  try {
+    setState(() => isLoading = true);
+
+    DateTime now = DateTime.now();
+    DateTime? start;
+    DateTime? end;
+
+    if (selectedFilter == 'Today') {
+      start = DateTime(now.year, now.month, now.day);
+      end = start.add(const Duration(days: 1));
+    } else if (selectedFilter == 'Weekly') {
+      start = now.subtract(const Duration(days: 7));
+      end = now;
+    } else if (selectedFilter == 'Custom' && selectedRange != null) {
+      start = selectedRange!.start;
+      end = selectedRange!.end;
+    }
+
+    final raw = await fetchAllTransactionsForExport(
+      startDate: start,
+      endDate: end,
+    );
+
+    if (raw.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text("No transactions to export"),
+          backgroundColor: Colors.orange,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    final file = await exportTransactionPDF(
+      transactions: raw,
+      dateRange: selectedRange,
+      filter: selectedFilter,
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Transaction records exported successfully!"),
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Export failed: $e"),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+
+    debugPrint("Export error: $e");
+  } finally {
+    setState(() => isLoading = false);
+  }
+}
+
+
+
   @override
   Widget build(BuildContext context) {
     final isDesktop = Responsive.isDesktop(context);
     final isTablet = Responsive.isTablet(context);
-    final isMobile = Responsive.isMobile(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -189,6 +269,38 @@ class _TransactionPageState extends State<TransactionPage> {
                 color: Colors.black,
               ),
             ),
+
+            SizedBox(
+                      height: Responsive.spacing(context,
+                          mobile: 40, tablet: 45, desktop: 50),
+                      child: Material(
+                        color: Colors.green,
+                        borderRadius: BorderRadius.circular(8),
+                        elevation: 4,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(8),
+                          onTap:  isLoading ? null : _exportTransactions,
+                          child: Padding(
+                            padding: EdgeInsets.all(8),
+                            child: Row(
+                              children: [
+                                Icon(Icons.download, size: 18, color: Colors.white),
+                                SizedBox(width: 5),
+                                Text(isLoading ? "Exporting" :
+                                  'Export',
+                                  style: GoogleFonts.kameron(
+                                    fontSize: isDesktop ? 15 : isTablet ? 14 : 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    
           ],
         ),
       ),
