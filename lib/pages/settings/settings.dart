@@ -7,6 +7,7 @@ import 'package:pos_app/pages/settings/settings.profile.dart';
 import 'package:pos_app/pages/settings/settings.storeInfo.dart';
 import 'package:pos_app/utils/responsive.dart';
 
+
 class Settings extends StatefulWidget {
   const Settings({super.key});
 
@@ -63,13 +64,12 @@ class _SettingsState extends State<Settings> {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: isDesktop ? 80 : isTablet ? 70 : 60,
-        backgroundColor: Colors.grey[100],
-        shadowColor: Colors.grey.withOpacity(0.5),
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 5,
         leading: IconButton(
             icon: Icon(Icons.arrow_back_ios_new_sharp, size: isDesktop ? 35 : isTablet ? 30 :25,),   
             iconSize: Responsive.spacing(context, mobile: 28, tablet: 32, desktop: 36), 
-            color: Colors.black,
+            color: Theme.of(context).iconTheme.color,
             onPressed: () => Navigator.pop(context),
             tooltip: 'Back',
           ),
@@ -80,13 +80,14 @@ class _SettingsState extends State<Settings> {
             style: GoogleFonts.kameron(
               fontSize: isDesktop ? 22 : isTablet ? 20 :18,
               fontWeight: FontWeight.bold,
-              color: Colors.black
+              color: Theme.of(context).colorScheme.onSurface
             ),
             ),
         
       ),
       body: ListView(
         children: [
+          SizedBox(height: 15,),
 
    
           buildSection("Account", [

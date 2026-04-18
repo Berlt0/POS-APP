@@ -19,13 +19,13 @@ class AboutApp extends StatelessWidget {
               tablet: 20,
               desktop: 22,
             ),
+          color: Theme.of(context).colorScheme.onSurface
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 5,
-        shadowColor: Colors.grey.withOpacity(0.5),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new),
+          icon: Icon(Icons.arrow_back_ios_new, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -34,7 +34,7 @@ class AboutApp extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: const [
+          children:  [
 
             SizedBox(height: 30),
 
@@ -58,7 +58,9 @@ class AboutApp extends StatelessWidget {
 
             Text(
               "Version 1.0.0",
-              style: TextStyle(color: Colors.grey),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+              ),
             ),
 
             SizedBox(height: 20),

@@ -9,7 +9,11 @@ import 'package:pos_app/services/session_service.dart';
 import 'package:pos_app/db/summary.dart';
 import 'package:pos_app/models/addCashier.dart';
 import 'package:pos_app/utils/password_hashed.dart';
+import 'package:pos_app/utils/boxShadow.dart';
 import 'package:uuid/uuid.dart';
+
+import 'package:provider/provider.dart';
+import 'package:pos_app/providers/theme.provider.dart';
 
 var uuid = Uuid();
 String generateId() => Uuid().v4();
@@ -44,6 +48,7 @@ class _ProfilePageState extends State<ProfilePage> {
   String? contactError;
   String? addressError;
   String? passwordError;
+
 
 @override
 void initState() {
@@ -141,6 +146,9 @@ Future<bool> _handleCashierInsertion() async {
 
   @override
   Widget build(BuildContext context) {
+
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     final isTablet = Responsive.isTablet(context);
     final isDesktop = Responsive.isDesktop(context);
 
@@ -154,7 +162,7 @@ Future<bool> _handleCashierInsertion() async {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: null,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -182,9 +190,14 @@ Future<bool> _handleCashierInsertion() async {
                   fontWeight: FontWeight.bold
                 ),),
                 InkWell(
-                  onTap: ()  => Navigator.push( context, MaterialPageRoute(builder: (context) => const Settings())),
+                  onTap: () {
+                    themeProvider.toggleTheme();
+                  },
                   child: Icon(
-                    Icons.settings, size: isDesktop ? 37 : isTablet ? 32 : 27,
+                    themeProvider.isDarkMode
+                        ? Icons.dark_mode_rounded   
+                        : Icons.wb_sunny_rounded,   
+                    size: isDesktop ? 37 : isTablet ? 32 : 27,
                   ),
                 ),
               ],
@@ -208,18 +221,18 @@ Future<bool> _handleCashierInsertion() async {
               style: GoogleFonts.kameron(
                 fontSize: isDesktop ? 28 : isTablet ? 24 : 21,
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
 
             
 
-            // Email & Role
+        
             Text(
               userData?['email'] ?? '',
               style: GoogleFonts.kameron(
                 fontSize: isDesktop ? 18 : isTablet ? 17 : 15,
-                color: Colors.grey[700],
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.w500
               ),
             ),
@@ -313,6 +326,13 @@ Future<bool> _handleCashierInsertion() async {
           const SizedBox(height: 200),
 
 
+          _buildActionButton(icon: Icons.settings, text: 'Settings', color:  Theme.of(context).colorScheme.onSurface, onTap: () async {
+            Navigator.push( context, MaterialPageRoute(builder: (context) => const Settings()),);
+              
+            }),
+
+            const SizedBox(height: 12),
+
           _buildActionButton(icon: Icons.logout, text: 'Logout', color: Colors.red, onTap: () async {
             await SessionService.clearSession();
             Navigator.pushReplacement( context, MaterialPageRoute(builder: (context) => const LoginPage()),);
@@ -353,21 +373,22 @@ Future<void> _showAddCashierModal() async {
     context: context,
     barrierLabel: "Add Cashier",
     barrierDismissible: true,
-    barrierColor: Colors.black.withOpacity(0.5),
+    barrierColor: Colors.black.withOpacity(0.3), 
     transitionDuration: const Duration(milliseconds: 300),
     pageBuilder: (context, anim1, anim2) {
       return Center(
         child: Material(
-          type: MaterialType.transparency,
+            color: Theme.of(context).colorScheme.surface, 
+            borderRadius: BorderRadius.circular(16),
           child: ConstrainedBox(
             constraints: BoxConstraints(
               maxWidth: isDesktop ? 420 : isTablet ? 380 : 340,
-              maxHeight: MediaQuery.of(context).size.height * 0.85, // Prevent too tall modal
+              maxHeight: MediaQuery.of(context).size.height * 0.85, 
             ),
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: StatefulBuilder(
@@ -383,7 +404,7 @@ Future<void> _showAddCashierModal() async {
                           style: GoogleFonts.kameron(
                             fontSize: isDesktop ? 22 : isTablet ? 20 : 18,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 24),
@@ -541,7 +562,7 @@ Future<void> _showAddCashierModal() async {
                             GestureDetector(
                               onTap: () {
                                   Navigator.pop(context);
-                                  // Clear controllers & errors on cancel
+                                  
                                   nameController.clear();
                                   usernameController.clear();
                                   emailController.clear();
@@ -566,7 +587,7 @@ Future<void> _showAddCashierModal() async {
                                   "Cancel",
                                   style: GoogleFonts.kameron(
                                     fontSize: isDesktop ? 21 : isTablet ? 18 : 15,
-                                    color: Colors.black,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -698,16 +719,9 @@ Future<void> _showAddCashierModal() async {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            spreadRadius: 1,
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        boxShadow: ShadowHelper.getShadow(context),
       ),
       child: Column(
         crossAxisAlignment:CrossAxisAlignment.start,
@@ -717,11 +731,13 @@ Future<void> _showAddCashierModal() async {
               children: [
                 Text('Contact Number:', style: GoogleFonts.kameron(
                    fontSize:  isDesktop ? 18 : isTablet ? 15 : 15,
-                   fontWeight: FontWeight.w500
+                   fontWeight: FontWeight.w500,
+                   color: Theme.of(context).colorScheme.onSurface
                 ),),
                 Text(userData?['contact_number'] ?? 'N/A', style: GoogleFonts.kameron(
                    fontSize:  isDesktop ? 18 : isTablet ? 17 : 15,
-                   fontWeight: FontWeight.w500
+                   fontWeight: FontWeight.w500,
+                   color: Theme.of(context).colorScheme.onSurface
                 ),)
               ],
             )
@@ -740,16 +756,9 @@ Future<void> _showAddCashierModal() async {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            spreadRadius: 1,
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        boxShadow:ShadowHelper.getShadow(context)
       ),
       child: Column(
         children: [
@@ -758,11 +767,14 @@ Future<void> _showAddCashierModal() async {
               children: [
                 Text('Transaction: ', style: GoogleFonts.kameron(
                    fontSize:  isDesktop ? 18 : isTablet ? 17 : 15,
-                   fontWeight: FontWeight.w500
+                   fontWeight: FontWeight.w500,
+                   color: Theme.of(context).colorScheme.onSurface
                 ),),
                 Text('${summaryData?['transaction_count'] ?? 0}', style: GoogleFonts.kameron(
                    fontSize:  isDesktop ? 18 : isTablet ? 17 : 15,
-                   fontWeight: FontWeight.w500
+                   fontWeight: FontWeight.w500,
+                   color: Theme.of(context).colorScheme.onSurface
+                   
                 ),)
               ],
             ),
@@ -771,11 +783,13 @@ Future<void> _showAddCashierModal() async {
               children: [
                 Text('Revenue: ', style: GoogleFonts.kameron(
                    fontSize:  isDesktop ? 18 : isTablet ? 17 : 15,
-                   fontWeight: FontWeight.w500
+                   fontWeight: FontWeight.w500,
+                   color: Theme.of(context).colorScheme.onSurface
                 ),),
                 Text('₱${((summaryData?['total_revenue'] ?? 0) as num).toStringAsFixed(2)}', style: GoogleFonts.kameron(
                    fontSize:  isDesktop ? 18 : isTablet ? 17 : 15,
-                   fontWeight: FontWeight.w500
+                   fontWeight: FontWeight.w500,
+                   color: Theme.of(context).colorScheme.onSurface
                 ),)
               ],
             ),
@@ -784,11 +798,13 @@ Future<void> _showAddCashierModal() async {
               children: [
                 Text('Items Sold: ', style: GoogleFonts.kameron(
                    fontSize:  isDesktop ? 18 : isTablet ? 17 : 15,
-                   fontWeight: FontWeight.w500
+                   fontWeight: FontWeight.w500,
+                   color: Theme.of(context).colorScheme.onSurface
                 ),),
                 Text('${summaryData?['items_sold'] ?? 0}', style: GoogleFonts.kameron(
                    fontSize:  isDesktop ? 18 : isTablet ? 17 : 15,
-                   fontWeight: FontWeight.w500
+                   fontWeight: FontWeight.w500,
+                   color: Theme.of(context).colorScheme.onSurface
                 ),)
               ],
             ),
@@ -797,11 +813,13 @@ Future<void> _showAddCashierModal() async {
               children: [
                 Text('Average sales: ', style: GoogleFonts.kameron(
                    fontSize:  isDesktop ? 18 : isTablet ? 17 : 15,
-                   fontWeight: FontWeight.w500
+                   fontWeight: FontWeight.w500,
+                   color: Theme.of(context).colorScheme.onSurface
                 ),),
                 Text('₱${((summaryData?['average_sales'] ?? 0) as num).toStringAsFixed(2)}', style: GoogleFonts.kameron(
                    fontSize:  isDesktop ? 18 : isTablet ? 17 : 15,
-                   fontWeight: FontWeight.w500
+                   fontWeight: FontWeight.w500,
+                   color: Theme.of(context).colorScheme.onSurface
                 ),)
               ],
             ),
@@ -822,16 +840,9 @@ Future<void> _showAddCashierModal() async {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.2),
-                  spreadRadius: 1,
-                  blurRadius: 6,
-                  offset: const Offset(0, 3),
-                ),
-              ],
+              boxShadow: ShadowHelper.getShadow(context)
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -839,7 +850,7 @@ Future<void> _showAddCashierModal() async {
                 Icon(
                   Icons.people_outline_rounded,
                   size: isDesktop ? 72 : isTablet ? 62 : 52,
-                  color: Colors.grey[400],
+                  color:  Theme.of(context).iconTheme.color,
                 ),
                 const SizedBox(height: 20),
                 Text(
@@ -847,7 +858,7 @@ Future<void> _showAddCashierModal() async {
                   style: GoogleFonts.kameron(
                     fontSize: isDesktop ? 23 : isTablet ? 21 : 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey[800],
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -856,7 +867,7 @@ Future<void> _showAddCashierModal() async {
                   textAlign: TextAlign.center,
                   style: GoogleFonts.kameron(
                     fontSize: isDesktop ? 16 : isTablet ? 15 : 14,
-                    color: Colors.grey[600],
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     height: 1.4,
                   ),
                 ),
@@ -875,16 +886,9 @@ Future<void> _showAddCashierModal() async {
         width: double.infinity,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
-              spreadRadius: 1,
-              blurRadius: 6,
-              offset: const Offset(0, 3),
-            ),
-          ],
+          boxShadow: ShadowHelper.getShadow(context)
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -895,6 +899,7 @@ Future<void> _showAddCashierModal() async {
                 Text('Cashier:', style: GoogleFonts.kameron(
                     fontSize: isDesktop ? 20 : isTablet ? 18 : 16,
                     fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface
                   ),),
                   SizedBox(width: 15,),
                 Text(
@@ -902,38 +907,39 @@ Future<void> _showAddCashierModal() async {
                   style: GoogleFonts.kameron(
                     fontSize: isDesktop ? 20 : isTablet ? 18 : 16,
                     fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface
                   ),
                 ),
               ],
             ),
-            Divider(thickness: 1,),
+            Divider(thickness: 1,color: Theme.of(context).colorScheme.onSurface,),
             const SizedBox(height: 5),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Transactions: ', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500)),
-                Text('${cashier['transaction_count'] ?? 0}', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500)),
+                Text('Transactions: ', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500,color: Theme.of(context).colorScheme.onSurface)),
+                Text('${cashier['transaction_count'] ?? 0}', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500,color: Theme.of(context).colorScheme.onSurface)),
               ],
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Revenue: ', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500)),
-                Text('₱${((cashier['total_revenue'] ?? 0) as num).toStringAsFixed(2)}', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500)),
+                Text('Revenue: ', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500,color: Theme.of(context).colorScheme.onSurface)),
+                Text('₱${((cashier['total_revenue'] ?? 0) as num).toStringAsFixed(2)}', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500,color: Theme.of(context).colorScheme.onSurface)),
               ],
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Items Sold: ', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500)),
-                Text('${cashier['items_sold'] ?? 0}', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500)),
+                Text('Items Sold: ', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500,color: Theme.of(context).colorScheme.onSurface)),
+                Text('${cashier['items_sold'] ?? 0}', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500,color: Theme.of(context).colorScheme.onSurface)),
               ],
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Average Sales: ', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500)),
-                Text('₱${((cashier['average_sales'] ?? 0) as num).toStringAsFixed(2)}', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500)),
+                Text('Average Sales: ', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500,color: Theme.of(context).colorScheme.onSurface)),
+                Text('₱${((cashier['average_sales'] ?? 0) as num).toStringAsFixed(2)}', style: GoogleFonts.kameron(fontSize: isDesktop ? 18 : isTablet ? 17 : 15, fontWeight: FontWeight.w500,color: Theme.of(context).colorScheme.onSurface)),
               ],
             ),
           ],
@@ -960,16 +966,9 @@ Future<void> _showAddCashierModal() async {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
-              spreadRadius: 1,
-              blurRadius: 6,
-              offset: const Offset(0, 3),
-            ),
-          ],
+          boxShadow: ShadowHelper.getShadow(context)
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -989,7 +988,6 @@ Future<void> _showAddCashierModal() async {
       ),
     );
   }
-
 
 
 }

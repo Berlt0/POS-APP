@@ -19,6 +19,8 @@ import 'package:pos_app/services/session_service.dart';
 import 'pages/receipt.dart';
 import 'pages/transaction.dart';
 import 'dart:async';
+import 'package:provider/provider.dart';
+import 'providers/theme.provider.dart';
 
 
 Future<void> deleteOldDatabase() async {
@@ -37,16 +39,13 @@ Future<void> main() async {
 
 
   await AppDatabase.database;
-
-
   await UserSeed.seed();
-
-
-  // call isLoggedIn() defensively
-  final dynamic result = await AuthService.isLoggedIn(); 
+  
   final bool loggedIn = await isUserLoggedIn();
 
   debugPrint('Is user logged in? $loggedIn');
+
+  await initializeDatabaseAndSync();
 
   if (loggedIn) {
     final session = await SessionService.getSession();
@@ -58,12 +57,17 @@ Future<void> main() async {
   }
 
 
-  runApp(MyApp(isLoggedIn: loggedIn));
+  runApp(
+  ChangeNotifierProvider(
+    create: (_) => ThemeProvider(),
+    child: MyApp(isLoggedIn: loggedIn),
+  ),
+);
 
-  
-    await initializeDatabaseAndSync();
-  
 }
+
+
+
 
 Future<bool> isUserLoggedIn() async {
   final bool tokenExists = await AuthService.isLoggedIn();
@@ -71,16 +75,69 @@ Future<bool> isUserLoggedIn() async {
   return tokenExists && sessionExists;
 }
 
+
+
 class MyApp extends StatelessWidget {
   final bool isLoggedIn;
 
   const MyApp({Key? key, required this.isLoggedIn}) : super(key: key);
 
+
+
   @override
   Widget build(BuildContext context) {
     
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      
+      theme: ThemeData(
+        brightness: Brightness.light,
+        primaryColor: Colors.blue,
+        scaffoldBackgroundColor: Colors.grey[100],
+        
+      ),
+
+      darkTheme: ThemeData(
+      brightness: Brightness.dark,
+      useMaterial3: true,
+      scaffoldBackgroundColor: const Color(0xFF121212),
+
+      colorScheme: const ColorScheme.dark(
+        primary: Colors.blue,
+        secondary: Colors.blueAccent,
+        surface: Color.fromARGB(209, 49, 49, 49),
+        background: Color(0xFF121212),
+        
+      ),
+
+      appBarTheme:  AppBarTheme(
+        backgroundColor:Color.fromARGB(209, 49, 49, 49),
+        foregroundColor: Colors.grey[100],
+        elevation: 0,
+        scrolledUnderElevation: 0, 
+        surfaceTintColor: Colors.transparent, 
+      ),
+
+      cardColor: const Color(0xFF1E1E1E),
+
+      textTheme: const TextTheme(
+        bodyMedium: TextStyle(color: Colors.white),
+        bodyLarge: TextStyle(color: Colors.white),
+      ),
+
+      inputDecorationTheme: const InputDecorationTheme(
+        filled: true,
+        fillColor: Color(0xFF2A2A2A),
+        border: OutlineInputBorder(),
+        labelStyle: TextStyle(color: Colors.white70),
+      ),
+    ),
+
+      themeMode: themeProvider.themeMode,
+
       initialRoute: isLoggedIn ? '/home' : '/',
       routes: {
         '/': (context) => const LoginPage(),
@@ -104,7 +161,7 @@ class MyApp extends StatelessWidget {
         },  
         '/transaction': (context) => const TransactionPage(),
         '/profile': (context) => const ProfilePage(),
-        '/settins': (context) => const Settings()
+        '/settings': (context) => const Settings()
       },
     );
   }

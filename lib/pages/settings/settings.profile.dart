@@ -103,6 +103,7 @@ Color _getBorderColor(String key) {
       onChanged: onChanged,
       style: GoogleFonts.kameron(
         fontSize: Responsive.font(context, mobile: 16, tablet: 17, desktop: 19),
+        color: Colors.black
       ),
       decoration: InputDecoration(
       prefixIcon: icon != null
@@ -110,6 +111,27 @@ Color _getBorderColor(String key) {
           : null,
 
       labelText: label,
+      hintText: "Enter $label",
+      hintStyle: TextStyle(
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Colors.black54
+            : Colors.grey,
+      ),
+
+      labelStyle: TextStyle(
+        color: Colors.black54
+      ),
+
+    floatingLabelStyle: TextStyle(
+    color: Colors.black,
+    shadows: [
+      Shadow(offset: Offset(1, 1), color: Colors.white),
+      Shadow(offset: Offset(-1, -1), color: Colors.white),
+      Shadow(offset: Offset(1, -1), color: Colors.white),
+      Shadow(offset: Offset(-1, 1), color: Colors.white),
+    ],
+  ),
+
       errorText: errorText,
 
       suffixIcon: _isEdited(key)
@@ -120,7 +142,7 @@ Color _getBorderColor(String key) {
     : null,
 
       filled: true,
-      fillColor: enabled ? Colors.grey[100] : Colors.grey[300],
+      fillColor: enabled ? Colors.grey[200] : Colors.grey[300],
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide(
@@ -297,11 +319,11 @@ Future<void> _changePhoto() async {
           style: GoogleFonts.kameron(
             fontWeight: FontWeight.bold,
             fontSize: Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
+            color: Theme.of(context).colorScheme.onSurface
           ),
         ),
-        backgroundColor: Colors.grey[100],
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 5,
-        shadowColor: Colors.grey.withOpacity(0.5),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
           onPressed: () => Navigator.pop(context),
@@ -350,6 +372,7 @@ Future<void> _changePhoto() async {
                 style: GoogleFonts.kameron(
                   fontSize: Responsive.font(context, mobile: 16, tablet: 18, desktop: 20),
                   fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurface
                 ),
               ),
             ),
@@ -429,6 +452,7 @@ Future<void> _changePhoto() async {
                 style: GoogleFonts.kameron(
                   fontSize: Responsive.font(context, mobile: 16, tablet: 18, desktop: 20),
                   fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurface
                 ),
               ),
             ),
@@ -466,7 +490,7 @@ Future<void> _changePhoto() async {
               child: ElevatedButton(
                 onPressed: (isSaving || !isDirty) ? null : _saveProfile, 
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF30DD04),
+                  backgroundColor: const Color.fromARGB(206, 47, 221, 4),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),

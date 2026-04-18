@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pos_app/db/sync.dart';
+import 'package:pos_app/utils/boxShadow.dart';
 import 'package:pos_app/utils/responsive.dart';
 import 'package:pos_app/db/inventory.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -171,6 +172,8 @@ class _InventoryState extends State<Inventory> {
 
     showModalBottomSheet(
       context: context,
+      backgroundColor: Theme.of(context).colorScheme.surface, 
+      barrierColor: Colors.black.withOpacity(0.9),
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -178,98 +181,104 @@ class _InventoryState extends State<Inventory> {
       builder: (context) {
         String? _errorText;
 
-        return StatefulBuilder(
-          builder: (context, setStateDialog) {
-            final isMobile = Responsive.isMobile(context);
-            final isTablet = Responsive.isTablet(context);
-            final isDesktop = Responsive.isDesktop(context);
-
-            return Padding(
-              padding: EdgeInsets.only(
-                left: 16,
-                right: 16,
-                top: 16,
-                bottom: MediaQuery.of(context).viewInsets.bottom + 70,
+        return Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface, 
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(height: 10),
-                  Text(
-                    "Update Product",
-                    style: GoogleFonts.kameron(
-                      fontSize: Responsive.font(context, mobile: 16, tablet: 20, desktop: 22),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  TextFormField(
-                    controller: _stockController,
-                    style: GoogleFonts.kameron(
-                      fontSize: Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
-                    ),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: InputDecoration(
-                      errorText: _errorText,
-                      errorStyle: GoogleFonts.kameron(
-                        fontSize: Responsive.font(context, mobile: 13, tablet: 15, desktop: 17),
-                        color: Colors.red,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      labelText: 'Stock',
-                      labelStyle: GoogleFonts.kameron(
-                         fontSize: isDesktop ? 19 : isTablet ? 18 : 17,
-                      ),
-                      border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
-                      contentPadding:  EdgeInsets.symmetric(vertical: isMobile ? 12 : 18, horizontal: 20),
-                    ),
-                    onChanged: (value) {
-                      if (_errorText != null) {
-                        setStateDialog(() => _errorText = null);
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(isDesktop ? 200 : isTablet ? 180 : 150 ,isDesktop ? 55 : isTablet ? 50 : 40),
-                      backgroundColor: const Color(0xFF00C853),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      shadowColor: Colors.grey[800],
-                    ),
-                    onPressed: () {
-                      final value = _stockController.text;
-
-                      setStateDialog(() {
-                        if (value.isEmpty) {
-                          _errorText = 'Stock is required';
-                        } else if (int.tryParse(value) == null) {
-                          _errorText = 'Invalid number';
-                        } else {
-                          _errorText = null;
-                        }
-                      });
-
-                      if (_errorText != null) return;
-
-                      _updateStock(product);
-                    },
-                    child: Text(
-                      'Save',
+          child: StatefulBuilder(
+            builder: (context, setStateDialog) {
+              final isMobile = Responsive.isMobile(context);
+              final isTablet = Responsive.isTablet(context);
+              final isDesktop = Responsive.isDesktop(context);
+          
+              return Padding(
+                padding: EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  top: 16,
+                  bottom: MediaQuery.of(context).viewInsets.bottom + 70,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 10),
+                    Text(
+                      "Update Product",
                       style: GoogleFonts.kameron(
-                        fontSize: Responsive.font(context, mobile: 15, tablet: 19, desktop: 21),
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
+                        fontSize: Responsive.font(context, mobile: 16, tablet: 20, desktop: 22),
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-                ],
-              ),
-            );
-          },
+                    const SizedBox(height: 15),
+                    TextFormField(
+                      controller: _stockController,
+                      style: GoogleFonts.kameron(
+                        fontSize: Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
+                      ),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      decoration: InputDecoration(
+                        errorText: _errorText,
+                        errorStyle: GoogleFonts.kameron(
+                          fontSize: Responsive.font(context, mobile: 13, tablet: 15, desktop: 17),
+                          color: Colors.red,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        labelText: 'Stock',
+                        labelStyle: GoogleFonts.kameron(
+                           fontSize: isDesktop ? 19 : isTablet ? 18 : 17,
+                        ),
+                        border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
+                        contentPadding:  EdgeInsets.symmetric(vertical: isMobile ? 12 : 18, horizontal: 20),
+                      ),
+                      onChanged: (value) {
+                        if (_errorText != null) {
+                          setStateDialog(() => _errorText = null);
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(isDesktop ? 200 : isTablet ? 180 : 150 ,isDesktop ? 55 : isTablet ? 50 : 40),
+                        backgroundColor: const Color(0xFF00C853),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        shadowColor: Colors.grey[800],
+                      ),
+                      onPressed: () {
+                        final value = _stockController.text;
+          
+                        setStateDialog(() {
+                          if (value.isEmpty) {
+                            _errorText = 'Stock is required';
+                          } else if (int.tryParse(value) == null) {
+                            _errorText = 'Invalid number';
+                          } else {
+                            _errorText = null;
+                          }
+                        });
+          
+                        if (_errorText != null) return;
+          
+                        _updateStock(product);
+                      },
+                      child: Text(
+                        'Save',
+                        style: GoogleFonts.kameron(
+                          fontSize: Responsive.font(context, mobile: 15, tablet: 19, desktop: 21),
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         );
       },
     );
@@ -313,17 +322,18 @@ class _InventoryState extends State<Inventory> {
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = Responsive.isMobile(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final isMobile = Responsive.isTablet(context);
     final isTablet = Responsive.isTablet(context);
     final isDesktop = Responsive.isDesktop(context);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        shadowColor: Colors.grey.withOpacity(0.5),
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.grey[100],
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 5,
         toolbarHeight: isDesktop ? 70 : isTablet ? 60 : 50,
         title: Padding(
@@ -333,7 +343,7 @@ class _InventoryState extends State<Inventory> {
             style: GoogleFonts.kameron(
               fontSize: isDesktop ? 24 : isTablet ? 22 : 20,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: Theme.of(context).colorScheme.onSurface
             ),
           ),
         ),
@@ -358,7 +368,8 @@ class _InventoryState extends State<Inventory> {
                             height: Responsive.spacing(context, mobile: 50, tablet: 55, desktop: 63),
                             child: TextField(
                               style: GoogleFonts.kameron(
-                                fontSize:  Responsive.font(context,mobile: 17, tablet: 28, desktop: 30)
+                                fontSize:  Responsive.font(context,mobile: 17, tablet: 28, desktop: 30),
+                                color: Colors.black
                               ),
                               controller: _searchController,
                               onChanged: (value) {
@@ -373,8 +384,8 @@ class _InventoryState extends State<Inventory> {
                               ],
                               decoration: InputDecoration(
                                 hintText: 'Search for...',
-                                prefixIcon: Icon(Icons.search, size: Responsive.font(context,mobile: 25, tablet: 28, desktop: 30),),
-                                hintStyle: GoogleFonts.kameron(fontSize: Responsive.font(context,mobile: 15, tablet: 18, desktop: 20),fontWeight: FontWeight.w500),
+                                prefixIcon: Icon(Icons.search, size: Responsive.font(context,mobile: 25, tablet: 28, desktop: 30),color: Colors.black87,),
+                                hintStyle: GoogleFonts.kameron(fontSize: Responsive.font(context,mobile: 15, tablet: 18, desktop: 20),fontWeight: FontWeight.w500, color: Colors.black87),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30),
                                   borderSide: BorderSide(color: Colors.black, width: 1),
@@ -391,6 +402,8 @@ class _InventoryState extends State<Inventory> {
                           child: SizedBox(
                             height: Responsive.spacing(context, mobile: 50, tablet: 55, desktop: 63),
                             child: DropdownButtonFormField<String>(
+                              iconEnabledColor: Colors.black87,
+                              dropdownColor: Colors.white,
                               value: _selectedCategory,
                               style: GoogleFonts.kameron(fontSize: Responsive.font(context,mobile: 16, tablet: 18, desktop: 20), color: Colors.black,),
                               decoration: InputDecoration(
@@ -416,7 +429,7 @@ class _InventoryState extends State<Inventory> {
                         )
                       ],
                     ),
-                    Divider(color: Colors.black, thickness: .9, height: 35),
+                    Divider( thickness: .9, height: 35),
                     
                     Center(
                       child: Text(
@@ -430,16 +443,8 @@ class _InventoryState extends State<Inventory> {
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: isDark ? Color.fromARGB(225, 167, 166, 166) : Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.3),
-                            spreadRadius: 2,
-                            blurRadius: 6,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(12.0),
@@ -480,7 +485,7 @@ class _InventoryState extends State<Inventory> {
                                           Icon(
                                             isSearching ? Icons.search_off : Icons.inventory_2_outlined,
                                             size: 45,
-                                            color: Colors.grey[500],
+                                            color: Theme.of(context).colorScheme.surface,
                                           ),
                                           const SizedBox(height: 15),
                                           Text(
@@ -529,7 +534,7 @@ class _InventoryState extends State<Inventory> {
                                                 style: tableTextStyle(
                                                   fontSize: isDesktop ? 21 : isTablet ? 18 : 14,
                                                   fontWeight: FontWeight.w500,
-                                                  color: product.stock == 0 ? Colors.red : product.stock <= product.low_stock_alert! ? const Color.fromARGB(255, 255, 165, 0) : const Color.fromARGB(255, 34, 141, 38),
+                                                  color: product.stock == 0 ? Colors.red : product.stock <= product.low_stock_alert! ? const Color.fromARGB(255, 255, 165, 0) : Color.fromARGB(255, 21, 105, 0),
                                                 ),
                                               ),
                                             ),
@@ -593,7 +598,7 @@ class _InventoryState extends State<Inventory> {
           // Fixed Pagination at the bottom
           if (_totalItems > 1)
             Container(
-              color: Colors.grey[100],
+              color: Theme.of(context).scaffoldBackgroundColor,
               padding: const EdgeInsets.symmetric(vertical: 45),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,

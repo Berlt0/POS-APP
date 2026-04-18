@@ -63,7 +63,7 @@ class _ManageCashierAccessState extends State<ManageCashierAccess> {
     context: context,
     barrierLabel: "Delete Cashier",
     barrierDismissible: true,
-    barrierColor: Colors.black.withOpacity(0.5),
+    barrierColor: Colors.black.withOpacity(0.3),
     transitionDuration: const Duration(milliseconds: 300),
     pageBuilder: (context, anim1, anim2) {
       final isTablet = Responsive.isTablet(context);
@@ -71,6 +71,8 @@ class _ManageCashierAccessState extends State<ManageCashierAccess> {
 
       return Center(
         child: Material(
+          color: Theme.of(context).colorScheme.surface, 
+          borderRadius: BorderRadius.circular(16),
           type: MaterialType.transparency,
           child: ConstrainedBox(
             constraints: BoxConstraints(
@@ -79,7 +81,7 @@ class _ManageCashierAccessState extends State<ManageCashierAccess> {
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
@@ -103,7 +105,7 @@ class _ManageCashierAccessState extends State<ManageCashierAccess> {
                       fontSize: isDesktop ? 16 : isTablet ? 15.5 : 14.5,
                       fontWeight: FontWeight.w500,
                       height: 1.4,
-                      color: Colors.grey[700],
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(1)
                     ),
                   ),
 
@@ -122,7 +124,7 @@ class _ManageCashierAccessState extends State<ManageCashierAccess> {
                             "Cancel",
                             style: GoogleFonts.kameron(
                               fontSize: isDesktop ? 18 : isTablet ? 17 : 15.5,
-                              color: Colors.black87,
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -204,12 +206,12 @@ class _ManageCashierAccessState extends State<ManageCashierAccess> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.08),
-            blurRadius: 10,
+            blurRadius: 5,
             offset: const Offset(0, 4),
           ),
         ],
@@ -312,7 +314,6 @@ class _ManageCashierAccessState extends State<ManageCashierAccess> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: Text(
           "Manage Cashier Access",
@@ -324,11 +325,11 @@ class _ManageCashierAccessState extends State<ManageCashierAccess> {
               tablet: 20,
               desktop: 22,
             ),
+          color: Theme.of(context).colorScheme.onSurface
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 5,
-        shadowColor: Colors.grey.withOpacity(0.5),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
           onPressed: () => Navigator.pop(context),
@@ -347,6 +348,7 @@ class _ManageCashierAccessState extends State<ManageCashierAccess> {
                 tablet: 19,
                 desktop: 21,
               ),
+              color: Theme.of(context).colorScheme.onSurface,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -355,7 +357,7 @@ class _ManageCashierAccessState extends State<ManageCashierAccess> {
             "Enable or disable access • Swipe to manage",
             style: GoogleFonts.kameron(
               fontSize: 14,
-              color: Colors.grey.shade600,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)
             ),
           ),
           const SizedBox(height: 20),

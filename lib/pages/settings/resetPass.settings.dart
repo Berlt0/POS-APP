@@ -71,6 +71,7 @@ class _ResetPassState extends State<ResetPass> {
             tablet: 17,
             desktop: 19,
           ),
+          color: Colors.black
         ),
         decoration: InputDecoration(
           prefixIcon: icon != null
@@ -88,6 +89,22 @@ class _ResetPassState extends State<ResetPass> {
                 )
               : null,
           labelText: label,
+          labelStyle: TextStyle(
+            color: Colors.black54
+          ),
+
+
+          floatingLabelStyle: TextStyle(
+          color: Colors.black,
+          shadows: [
+            Shadow(offset: Offset(1, 1), color: Colors.white),
+            Shadow(offset: Offset(-1, -1), color: Colors.white),
+            Shadow(offset: Offset(1, -1), color: Colors.white),
+            Shadow(offset: Offset(-1, 1), color: Colors.white),
+          ],
+        ),
+
+          
           errorText: errorText,
           filled: true,
           fillColor: Colors.grey[100],
@@ -123,24 +140,25 @@ class _ResetPassState extends State<ResetPass> {
         ),
         child: DropdownButtonHideUnderline(
           child: DropdownButton<String>(
+            dropdownColor: Colors.grey[100],
             value: cashiers.contains(selectedCashier) ? selectedCashier : null,
             hint: Text(
               "Select Cashier",
               style: GoogleFonts.kameron(
-                fontSize: Responsive.font(context,
-                    mobile: 16, tablet: 17, desktop: 19),
+                fontSize: Responsive.font(context,mobile: 16, tablet: 17, desktop: 19),
+                color: Colors.black
               ),
             ),
             isExpanded: true,
-            icon: const Icon(Icons.arrow_drop_down),
+            icon: Icon(Icons.arrow_drop_down,color: Colors.black),
             items: cashiers.map((cashier) {
               return DropdownMenuItem(
                 value: cashier,
                 child: Text(
                   cashier,
                   style: GoogleFonts.kameron(
-                    fontSize: Responsive.font(context,
-                        mobile: 16, tablet: 17, desktop: 19),
+                    fontSize: Responsive.font(context,mobile: 16, tablet: 17, desktop: 19),
+                    color: Colors.black
                   ),
                 ),
               );
@@ -214,6 +232,7 @@ class _ResetPassState extends State<ResetPass> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        
         title: Text(
           "Reset Password",
           style: GoogleFonts.kameron(
@@ -224,16 +243,16 @@ class _ResetPassState extends State<ResetPass> {
               tablet: 20,
               desktop: 22,
             ),
+          color: Theme.of(context).colorScheme.onSurface
           ),
         ),
-        backgroundColor: Colors.grey[100],
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 5,
-        shadowColor: Colors.grey.withOpacity(0.5),
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new_sharp,
               size: Responsive.font(context, mobile: 25, tablet: 30, desktop: 35)),
           iconSize: Responsive.spacing(context, mobile: 28, tablet: 32, desktop: 36),
-          color: Colors.black,
+          color: Theme.of(context).colorScheme.onSurface,
           onPressed: () => Navigator.pop(context),
           tooltip: 'Back',
         ),
@@ -254,6 +273,7 @@ class _ResetPassState extends State<ResetPass> {
                   desktop: 20,
                 ),
                 fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface
               ),
             ),
             const SizedBox(height: 10),

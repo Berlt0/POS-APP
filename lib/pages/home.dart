@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/db/debug.dart';
+import 'package:pos_app/utils/boxShadow.dart';
 import 'package:pos_app/utils/responsive.dart';
 import 'package:pos_app/widgets/footer.dart';
 import 'package:pos_app/services/session_service.dart';
@@ -196,7 +197,7 @@ int _currentIndex = 0;
   Widget build(BuildContext context) {
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       bottomNavigationBar: AppFooter(
       currentIndex: _currentIndex,
       onTap: (index) {
@@ -304,7 +305,7 @@ int _currentIndex = 0;
                           desktop: 35,
                         ),
                         fontWeight: FontWeight.w500,
-                        color: Colors.black,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     Text(
@@ -317,7 +318,7 @@ int _currentIndex = 0;
                           desktop: 17,
                         ),
                         fontWeight: FontWeight.w500,
-                        color: const Color.fromARGB(255, 58, 57, 57),
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                       ),
                     ),
                   ],
@@ -401,7 +402,7 @@ int _currentIndex = 0;
                           desktop: 20,
                         ),
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+
                       ),
                     ),
                   ],
@@ -693,7 +694,7 @@ int _currentIndex = 0;
                                       ),
                                       
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.black,
+                                      color: Theme.of(context).colorScheme.onSurface
                                       ),
                                       ),
                                     ],
@@ -782,7 +783,7 @@ int _currentIndex = 0;
                                     desktop: 20,
                                   ),
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.black,
+                                  color: Theme.of(context).colorScheme.onSurface
                                 ),
                               ),
                                ],
@@ -871,7 +872,7 @@ int _currentIndex = 0;
                                         desktop: 20,
                                       ),
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.black,
+                                      color: Theme.of(context).colorScheme.onSurface
                                       ),
                                       ),
                                     ],
@@ -960,7 +961,7 @@ int _currentIndex = 0;
                                     desktop: 20,
                                   ),
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.black,
+                                  color: Theme.of(context).colorScheme.onSurface
                                 ),
                               ),
                                ],
@@ -1202,16 +1203,9 @@ int _currentIndex = 0;
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        boxShadow: ShadowHelper.getShadow(context)
       ),
       child: Row(
         children: [
@@ -1251,7 +1245,7 @@ int _currentIndex = 0;
                       desktop: 18,
                     ),
                     fontWeight: FontWeight.w300,
-                    color: const Color.fromARGB(255, 46, 46, 46),
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 Text(
@@ -1264,7 +1258,6 @@ int _currentIndex = 0;
                       desktop: 23,
                     ),
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
                   ),
                 ),
               ],

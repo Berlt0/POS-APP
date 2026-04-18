@@ -172,13 +172,13 @@ void _handleEditing(bool isEditing) {
           "Store Information",
           style: GoogleFonts.kameron(
             fontWeight: FontWeight.bold,
-            fontSize:
-                Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
+            fontSize:Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
+            color: Theme.of(context).colorScheme.onSurface
+
           ),
         ),
-        backgroundColor: Colors.grey[100],
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 5,
-        shadowColor: Colors.grey.withOpacity(0.5),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
           onPressed: () => Navigator.pop(context),
@@ -190,7 +190,8 @@ void _handleEditing(bool isEditing) {
         child: Column(
           children: [
 
-            /// STORE DETAILS
+          SizedBox(height: 10,),
+
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
