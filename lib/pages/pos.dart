@@ -1,8 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:pos_app/db/addUser.dart';
 import 'package:pos_app/db/barcode.dart';
 import 'package:pos_app/db/sync.dart';
 import 'package:pos_app/db/syncTransationHistory.dart';
@@ -60,7 +58,7 @@ class ProductCard extends StatelessWidget {
     final isDesktop = Responsive.isDesktop(context);
     final isTablet = Responsive.isTablet(context);
     
-    
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final double borderRadius = Responsive.spacing(context, mobile: 14, tablet: 16, desktop: 18);
     
@@ -69,7 +67,7 @@ class ProductCard extends StatelessWidget {
       height: height,
       child: Card(
         elevation: 3,
-        color: quantity > 0 ? const Color(0xFF00E6FF)  : stock == 0 ?  Color.fromARGB(221, 238, 85, 87) : Colors.grey[200],
+        color: quantity > 0 ? const Color(0xFF00E6FF)  : stock == 0 ?  Color.fromARGB(221, 238, 85, 87) : isDark ? Color.fromARGB(209, 49, 49, 49) : Colors.grey[200],
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
         ),
@@ -83,6 +81,8 @@ class ProductCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _circleButton(
+                    context: context,
+                    name: 'remove',
                     icon: Icons.remove,
                     onTap: quantity > 0 ? onRemove : null,
                     size: isDesktop ? 35 : isTablet ? 30 : 20,
@@ -90,9 +90,13 @@ class ProductCard extends StatelessWidget {
                   ),
                   Text(
                     quantity.toString(),
-                    style: GoogleFonts.kameron(fontWeight: FontWeight.bold, fontSize: isDesktop ? 22 : isTablet ? 20 : 15),
+                    style: GoogleFonts.kameron(fontWeight: FontWeight.bold, 
+                    fontSize: isDesktop ? 22 : isTablet ? 20 : 15,
+                    color: quantity > 0 ? Colors.black : Theme.of(context).colorScheme.onSurface,)
                   ),
                   _circleButton(
+                    context: context,
+                    name: 'add',
                     icon: Icons.add,
                     onTap: stock > quantity ? onAdd : null,
                     size: isDesktop ? 35 : isTablet ? 30 : 20,
@@ -155,21 +159,22 @@ class ProductCard extends StatelessWidget {
                 style: GoogleFonts.kameron(
                   fontWeight: FontWeight.bold,
                   fontSize: isDesktop ? 22 : isTablet ? 19 : 14,
+                  color: quantity > 0 ? Colors.black : Theme.of(context).colorScheme.onSurface
                 ),
               ),
               Text(
                 '₱${price.toStringAsFixed(2)}',
                 style: GoogleFonts.kameron(
                   fontSize: isDesktop ? 21 : isTablet ? 18 : 13,
-                  color: const Color.fromARGB(255, 57, 148, 60),
-                  fontWeight: FontWeight.w600,
+                  color: quantity > 0 ? const Color.fromARGB(255, 1, 54, 3) : const Color.fromARGB(255, 43, 155, 47)   ,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               Text(
                 'Stock: $stock',
                 style: GoogleFonts.kameron(
                   fontSize: isDesktop ? 20.5 : isTablet ? 17.5 : 12.5,
-                  color: const Color.fromARGB(255, 68, 67, 67),
+                  color:  quantity > 0 ? Colors.black : Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.w500
                 ),
               ),
@@ -182,8 +187,12 @@ class ProductCard extends StatelessWidget {
     );
   }
 
-  Widget _circleButton({required IconData icon, VoidCallback? onTap, double size = 20}) {
-    
+  Widget _circleButton({
+    required BuildContext context,
+    required IconData icon,
+    VoidCallback? onTap,
+    String? name,
+    double size = 20}) {
     
     
     return InkWell(
@@ -193,13 +202,14 @@ class ProductCard extends StatelessWidget {
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: onTap == null ? Colors.grey[300] : Colors.black,
+          color: onTap == null ? Colors.grey[300] : Colors.white
         ),
-        child: Icon(icon, size: size, color: Colors.white),
+        child: Icon(icon, size: size, color:  (onTap == null && name == 'remove') ||  (onTap == null && name == 'add')? Colors.white : Colors.black),
       ),
     );
   }
 }
+
 
 Widget _rowText(
   String label,
@@ -361,16 +371,15 @@ class _POSState extends State<POS> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.grey[100],
-        shadowColor: Colors.grey.withOpacity(0.5),
+         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        shadowColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
         elevation: 3,
        toolbarHeight: isDesktop ? 80 : isTablet ? 70 : 60,
         leading: IconButton(
             icon: Icon(Icons.arrow_back_ios_new_sharp,size: isDesktop ? 35 : isTablet ? 30 :25),   // or Icons.arrow_back
             iconSize: Responsive.spacing(context, mobile: 28, tablet: 32, desktop: 36), 
-            color: Colors.black,
             onPressed: () => Navigator.pop(context),
             tooltip: 'Back',
           ),
@@ -381,7 +390,6 @@ class _POSState extends State<POS> {
             style: GoogleFonts.kameron(
               fontSize: isDesktop ? 22 : isTablet ? 20 :18,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
             ),
           ),
       ),
@@ -397,6 +405,10 @@ class _POSState extends State<POS> {
                   Expanded(
                     flex: 2,
                     child: TextField(
+                      style: GoogleFonts.kameron(
+                          fontSize:  Responsive.font(context,mobile: 17, tablet: 20, desktop: 30),
+                          color: Colors.black
+                        ),
                       controller: _searchController,
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')),
@@ -409,11 +421,11 @@ class _POSState extends State<POS> {
                       },
                       decoration: InputDecoration(
                         hintText: 'Search for...',
-                        
-                        prefixIcon: Icon(Icons.search, size: Responsive.font(context,mobile: 25, tablet: 28, desktop: 30)),
+                        hintStyle: GoogleFonts.kameron(fontSize: Responsive.font(context,mobile: 15, tablet: 18, desktop: 20), fontWeight: FontWeight.w500,color: Colors.black87),
+                        prefixIcon: Icon(Icons.search, size: Responsive.font(context,mobile: 25, tablet: 28, desktop: 30),color: Colors.black87,),
                          suffixIcon: _searchText.isNotEmpty
                           ? IconButton(
-                              icon:  Icon(Icons.clear, size: Responsive.font(context,mobile: 20, tablet: 25, desktop: 30)),
+                              icon:  Icon(Icons.clear, size: Responsive.font(context,mobile: 20, tablet: 25, desktop: 30),color: Colors.black87,),
                               onPressed: () {
                                 if (!mounted) return;
                                 setState(() {
@@ -423,12 +435,11 @@ class _POSState extends State<POS> {
                               },
                             )
                           : null,
-                        hintStyle: GoogleFonts.kameron(fontSize: Responsive.font(context,mobile: 15, tablet: 18, desktop: 20), fontWeight: FontWeight.w500),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
                           borderSide: const BorderSide(color: Colors.black, width: 1),
                         ),
-                        fillColor: Colors.grey[100],
+                        fillColor: Colors.white,
                         filled: true,
                         contentPadding:
                             const EdgeInsets.symmetric(vertical: 1, horizontal: 10),
@@ -552,16 +563,16 @@ class _POSState extends State<POS> {
                             ? Icons.search_off
                             : Icons.storefront_outlined,
                             size: 60,
-                            color: Colors.grey[400],
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                           const SizedBox(height: 15),
                           Text(
                             _searchText.isNotEmpty
                                 ? 'No products found'
-                                : 'No products available', // optional fallback
+                                : 'No products available', 
                             style: GoogleFonts.kameron(
                               fontSize: 16,
-                              color: Colors.grey[700],
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -605,7 +616,7 @@ class _POSState extends State<POS> {
         
               const SizedBox(height: 15),
         
-              /// CART SUMMARY
+              
               Center(
                 child: Container(
                   width: isDesktop ? 580 : isTablet ? 530 : double.infinity,
@@ -616,7 +627,8 @@ class _POSState extends State<POS> {
                       borderRadius: BorderRadius.circular(12)),
                   child: Container(
                     decoration: BoxDecoration(
-                        color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                        color: Theme.of(context).colorScheme.surface, 
+                        borderRadius: BorderRadius.circular(12)),
                     padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
                     child: IntrinsicHeight(
                       child: Row(

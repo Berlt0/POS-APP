@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/db/transaction.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_app/pages/receipt.dart';
+import 'package:pos_app/utils/boxShadow.dart';
 import 'package:pos_app/utils/responsive.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/services/exports/pdf/transactionReports.dart';
@@ -240,20 +241,22 @@ Future<void> _exportTransactions() async {
 
   @override
   Widget build(BuildContext context) {
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final isDesktop = Responsive.isDesktop(context);
     final isTablet = Responsive.isTablet(context);
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.grey[100],
-        shadowColor: Colors.grey.withOpacity(0.5),
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        shadowColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
         automaticallyImplyLeading: false,
         elevation: 3,
         toolbarHeight: isDesktop ? 80 : isTablet ? 70 : 60,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new_sharp, size: isDesktop ? 35 : isTablet ? 30 : 25),
           iconSize: Responsive.spacing(context, mobile: 25, tablet: 30, desktop: 35),
-          color: Colors.black,
           onPressed: () => Navigator.pop(context),
           tooltip: 'Back',
         ),
@@ -266,13 +269,12 @@ Future<void> _exportTransactions() async {
               style: GoogleFonts.kameron(
                 fontSize: isDesktop ? 22 : isTablet ? 20 : 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
               ),
             ),
 
             SizedBox(
                       height: Responsive.spacing(context,
-                          mobile: 40, tablet: 45, desktop: 50),
+                      mobile: 40, tablet: 45, desktop: 50),
                       child: Material(
                         color: Colors.green,
                         borderRadius: BorderRadius.circular(8),
@@ -305,7 +307,7 @@ Future<void> _exportTransactions() async {
         ),
       ),
 
-      // ==================== MODIFIED BODY (Same structure as Inventory) ====================
+   
       body: Column(
         children: [
           Expanded(
@@ -321,7 +323,6 @@ Future<void> _exportTransactions() async {
                       style: GoogleFonts.kameron(
                         fontSize: Responsive.font(context, mobile: 15, tablet: 21, desktop: 24),
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -340,7 +341,7 @@ Future<void> _exportTransactions() async {
                               decoration: BoxDecoration(
                                 border: Border.all(color: Colors.grey.shade300),
                                 borderRadius: BorderRadius.circular(12),
-                                color: Colors.white,
+                                color: Colors.grey[100],
                               ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -365,6 +366,8 @@ Future<void> _exportTransactions() async {
                         Expanded(
                           flex: 1,
                           child: DropdownButtonFormField<String>(
+                            dropdownColor: Colors.grey[100],
+                            iconEnabledColor: Colors.black87,
                             value: selectedFilter,
                             items: ['Today', 'Weekly', 'Custom']
                                 .map((e) => DropdownMenuItem(
@@ -401,16 +404,9 @@ Future<void> _exportTransactions() async {
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: isDark ? Color.fromARGB(248, 233, 232, 232) : Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.3),
-                            spreadRadius: 2,
-                            blurRadius: 6,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
+                        boxShadow: ShadowHelper.getShadow(context)
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(12.0),
@@ -477,15 +473,15 @@ Future<void> _exportTransactions() async {
                                         child: DataTable(
                                           showCheckboxColumn: false,
                                           columnSpacing: isDesktop ? 38 : isTablet ? 35 : 30,
-                                          headingRowColor: MaterialStateProperty.all(const Color.fromARGB(164, 224, 224, 224)),
+                                          headingRowColor:  MaterialStateProperty.all(const Color.fromARGB(228, 255, 255, 255)),
                                           dataRowHeight: isDesktop ? 60 : isTablet ? 55 : 45,
                                           headingRowHeight: isDesktop ? 58 : isTablet ? 55 : 50,
                                           columns: [
-                                            DataColumn(label: Text('ID', style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14.5, fontWeight: FontWeight.w500))),
-                                            DataColumn(label: Text('Processed By', style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14.5, fontWeight: FontWeight.w500))),
-                                            DataColumn(label: Text('Date', style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14.5, fontWeight: FontWeight.w500))),
-                                            DataColumn(label: Text('Action', style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14.5, fontWeight: FontWeight.w500))),
-                                            DataColumn(label: Text('Payment Method', style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14.5, fontWeight: FontWeight.w500))),
+                                            DataColumn(label: Text('ID', style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14.5, fontWeight: FontWeight.w500,color: Colors.black))),
+                                            DataColumn(label: Text('Processed By', style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14.5, fontWeight: FontWeight.w500,color: Colors.black))),
+                                            DataColumn(label: Text('Date', style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14.5, fontWeight: FontWeight.w500,color: Colors.black))),
+                                            DataColumn(label: Text('Action', style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14.5, fontWeight: FontWeight.w500,color: Colors.black))),
+                                            DataColumn(label: Text('Payment Method', style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14.5, fontWeight: FontWeight.w500,color: Colors.black))),
                                           ],
                                           rows: groupedTransactions.map((transaction) {
                                             return DataRow(
@@ -498,12 +494,12 @@ Future<void> _exportTransactions() async {
                                               cells: [
                                                 DataCell(Text(
                                                   (transaction['id'] ?? '').toString(),
-                                                  style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14),
+                                                  style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14,color: Colors.black),
                                                 )),
 
                                                 DataCell(Text(
                                                   capitalizeEachWord(transaction['processed_by']?.toString()),
-                                                  style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14),
+                                                  style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14,color: Colors.black),
                                                 )),
 
                                                 DataCell(Text(
@@ -512,17 +508,17 @@ Future<void> _exportTransactions() async {
                                                           DateTime.parse(transaction['created_at'].toString()),
                                                         )
                                                       : 'N/A',
-                                                  style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14),
+                                                  style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14,color: Colors.black),
                                                 )),
 
                                                 DataCell(Text(
                                                   transaction['action']?.toString() ?? 'N/A',
-                                                  style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14),
+                                                  style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14,color: Colors.black),
                                                 )),
 
                                                 DataCell(Text(
                                                   capitalizeEachWord(transaction['payment_type']?.toString()),
-                                                  style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14),
+                                                  style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14,color: Colors.black),
                                                 )),
                                               ],
                                             );
@@ -549,7 +545,7 @@ Future<void> _exportTransactions() async {
           // Fixed Pagination at the bottom (same as Inventory)
           if (_totalRows > 0)
             Container(
-              color: Colors.grey[100],
+              color: Theme.of(context).scaffoldBackgroundColor,
               padding: const EdgeInsets.symmetric(vertical: 65),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,

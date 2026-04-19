@@ -2,6 +2,7 @@
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:pos_app/db/reports.dart';
+import 'package:pos_app/utils/boxShadow.dart';
 import 'package:pos_app/widgets/RCOGSP.dart';
 import 'package:pos_app/widgets/footer.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -94,14 +95,27 @@ Future<void> _pickDateRange(BuildContext context) async {
     lastDate: DateTime.now(),
     initialDateRange: selectedRange,
     builder: (context, child) {
+
+       final isDark = Theme.of(context).brightness == Brightness.dark;
+
       return Theme(
-        data: Theme.of(context).copyWith(
-          colorScheme: ColorScheme.light(
-            primary: Color(0xFF3CE7FA), 
-          ),
-        ),
-        child: child!,
-      );
+    data: Theme.of(context).copyWith(
+      colorScheme: isDark
+          ? const ColorScheme.dark(
+              primary: Color(0xFF3CE7FA),
+              onPrimary: Colors.black,
+              surface: Color(0xFF1E1E1E),
+              onSurface: Colors.white,
+            )
+          : const ColorScheme.light(
+              primary: Color(0xFF3CE7FA),
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: Colors.black,
+            ),
+    ),
+    child: child!,
+    );
     },
   );
 
@@ -297,10 +311,10 @@ Future<void> _exportReport() async {
     final isDesktop = Responsive.isDesktop(context);
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.grey[100],
-        shadowColor: Colors.grey.withOpacity(0.5),
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        shadowColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
         automaticallyImplyLeading: false,
         elevation: 5,
         toolbarHeight: isDesktop ? 70 : isTablet ? 70 : 60,
@@ -314,7 +328,6 @@ Future<void> _exportReport() async {
                 style: GoogleFonts.kameron(
                   fontSize: isDesktop ? 24 :isTablet ? 22 : 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black
                 ),
                 ),
                 Row(
@@ -403,7 +416,7 @@ Future<void> _exportReport() async {
                 style: GoogleFonts.kameron(
                   fontSize: Responsive.font(context, mobile: 15,tablet: 21, desktop: 24 ),
                   fontWeight: FontWeight.bold,
-                  color: Colors.black
+                  color: Theme.of(context).colorScheme.onSurface
                 )
               ),
               SizedBox(height: 10,),
@@ -419,7 +432,7 @@ Future<void> _exportReport() async {
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey.shade300),
                           borderRadius: BorderRadius.circular(12),
-                          color: Colors.white,
+                          color: Colors.grey[100],
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -448,6 +461,8 @@ Future<void> _exportReport() async {
                   Expanded(
                     flex: 1,
                     child: DropdownButtonFormField<String>(
+                      dropdownColor: Colors.grey[100],
+                      iconEnabledColor: Colors.black87,
                      value: selectedFilter,
                      items: ['Today', 'Weekly', 'Custom']
                     .map((e) => DropdownMenuItem(value: e, child: Text(e, style: GoogleFonts.kameron(fontSize:  Responsive.font(context,mobile: 14, tablet: 17, desktop: 19), color:Colors.black),)))
@@ -564,14 +579,7 @@ Future<void> _exportReport() async {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                            color: Colors.grey.withOpacity(0.3),
-                            spreadRadius: 4,
-                            blurRadius: 6,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
+                          boxShadow: ShadowHelper.getShadow(context)
                         ),
                        child: isSaleTrendLoading
                         ? Center(child: CircularProgressIndicator.adaptive(
@@ -614,14 +622,7 @@ Future<void> _exportReport() async {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                            color: Colors.grey.withOpacity(0.3),
-                            spreadRadius: 4,
-                            blurRadius: 6,
-                            offset: const Offset(0, 3),
-                          ),
-                          ]
+                          boxShadow: ShadowHelper.getShadow(context)
                         ),
                        child: isRCOGSPLoading
                         ? Center(child: CircularProgressIndicator.adaptive(
@@ -663,14 +664,7 @@ Future<void> _exportReport() async {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
-                           boxShadow: [
-                              BoxShadow(
-                              color: Colors.grey.withOpacity(0.3),
-                              spreadRadius: 4,
-                              blurRadius: 6,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
+                           boxShadow: ShadowHelper.getShadow(context)
                           
                         ),
                         child: isTopProductsLoading
@@ -778,16 +772,9 @@ Future<void> _exportReport() async {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        boxShadow: ShadowHelper.getShadow(context)
       ),
       child: Row(
         children: [
@@ -827,7 +814,7 @@ Future<void> _exportReport() async {
                       desktop: 20,
                     ),
                     fontWeight: FontWeight.w500,
-                    color: const Color.fromARGB(255, 44, 44, 44),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 Text(
@@ -837,7 +824,7 @@ Future<void> _exportReport() async {
                       ? Responsive.font(context , mobile: 12, tablet: 14, desktop: 18,)
                       : Responsive.font(context , mobile: 15, tablet: 17, desktop: 23,),
                     fontWeight: loading ? FontWeight.w500 :  FontWeight.bold,
-                    color: loading ? Colors.grey[500] : Colors.black,
+                    color: loading ? Colors.grey[500] : Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ],

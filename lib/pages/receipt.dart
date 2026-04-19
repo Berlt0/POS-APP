@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter/material.dart';
 import 'package:pos_app/db/transaction.dart';
 import 'package:pos_app/db/database.dart';
 import 'package:pos_app/utils/responsive.dart';
@@ -209,23 +208,27 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
   Future<void> _showVoidConfirmation(BuildContext context) async {
     final TextEditingController reasonController = TextEditingController();
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final String? reason = await showGeneralDialog<String>(
       context: context,
       barrierLabel: "Void Sale",
-      barrierDismissible: true,
-      barrierColor: Colors.black.withOpacity(0.5),
+      barrierDismissible: false,
+      barrierColor: isDark ? Colors.black.withOpacity(0.9) : Colors.black.withOpacity(0.6),
       transitionDuration: const Duration(milliseconds: 300),
       pageBuilder: (context, anim1, anim2) {
         print(transaction!['status']);
         return Center(
           child: Material(
-            type: MaterialType.transparency,
+            shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 300),
               child: Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Column(
@@ -248,13 +251,18 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
                     TextField(
                       controller: reasonController,
                       autofocus: true,
-                      style: GoogleFonts.kameron(),
+                      style: GoogleFonts.kameron(
+                        fontSize: Responsive.font(context, mobile: 16,tablet: 20,desktop: 22),
+                        color: Colors.black
+                      ),
                       decoration: InputDecoration(
                         hintText: 'Enter reason...',
                         hintStyle: GoogleFonts.kameron(color: Colors.grey),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
+                        filled: true,
+                        fillColor: Colors.white
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -263,7 +271,7 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
                       children: [
                         TextButton(
                           onPressed: () => Navigator.pop(context),
-                          child: Text("Cancel", style: GoogleFonts.kameron(color: Colors.black, fontWeight: FontWeight.w500)),
+                          child: Text("Cancel", style: GoogleFonts.kameron(fontWeight: FontWeight.w500,color: Theme.of(context).colorScheme.onSurface)),
                         ),
                         const SizedBox(width: 10),
                         ElevatedButton(
@@ -312,12 +320,12 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
 }
 
     return Scaffold(
+       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text('Receipt',style: GoogleFonts.kameron(fontWeight: FontWeight.bold,fontSize: Responsive.font(context, mobile: 18, tablet: 20, desktop: 22))),
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new_sharp,size: Responsive.spacing(context, mobile: 25, tablet: 30, desktop: 35)),   // or Icons.arrow_back
           iconSize: Responsive.spacing(context, mobile: 25, tablet: 30, desktop: 35), 
-          color: Colors.black,
           onPressed: () => Navigator.pop(context),
           tooltip: 'Back',
         ),
@@ -356,6 +364,7 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
                         style: GoogleFonts.kameron(
                           fontSize: 20,
                           fontWeight: FontWeight.w700,
+                          color: Colors.black
                         ),
                       ),
                     ),
@@ -366,10 +375,12 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
                         Text('Store name:',style: GoogleFonts.kameron(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
+                          color: Colors.black
                         ),),
                         Text('Gilbert Convenience Store',style: GoogleFonts.kameron(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
+                          color: Colors.black
                         ),),
                       ],
                     ),
@@ -379,10 +390,12 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
                         Text('Address: ',style: GoogleFonts.kameron(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
+                          color: Colors.black
                         ),),
                         Text('Brgy. Balangasan, Pagadian City',style: GoogleFonts.kameron(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
+                          color: Colors.black
                         ),),
                       ],
                     ),      
@@ -392,6 +405,7 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
                         Text('Date: ',style: GoogleFonts.kameron(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
+                          color: Colors.black
                         ),),
                         Text(
                           transaction!['created_at'] != null
@@ -400,6 +414,7 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
                           style: GoogleFonts.kameron(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
+                            color: Colors.black
                           ),
                         ),
                       ],
@@ -410,10 +425,12 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
                         Text('Payment Method: ',style: GoogleFonts.kameron(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
+                          color: Colors.black
                         ),),
                         Text(capitalizeEachWord(transaction!['payment_type'] ?? ''),style: GoogleFonts.kameron(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
+                          color: Colors.black
                         ),),
                       ],
                     ),
@@ -434,6 +451,7 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
                                   style: GoogleFonts.kameron(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
+                                    color: Colors.black
                                   ),
                                 ),
                               ),
@@ -444,6 +462,7 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
                                   style: GoogleFonts.kameron(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
+                                    color: Colors.black
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
@@ -455,6 +474,7 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
                                   style: GoogleFonts.kameron(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
+                                    color: Colors.black
                                   ),
                                   textAlign: TextAlign.right,
                                 ),
@@ -463,7 +483,8 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
                           )
                         ),
                         
-                        ...products.map<Widget>((item) => Container(
+                        ...products.map<Widget>((item) => 
+                        Container(
                           padding: EdgeInsets.symmetric(vertical: 2),
                           child: Row(
                             children: [
@@ -472,6 +493,7 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
                                 child: Text(capitalizeEachWord(safeString(item['product_name'], 'Unknown Product')), style: GoogleFonts.kameron(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600,
+                                  color: Colors.black
                                 ),),
                               ),
                               Expanded(
@@ -482,6 +504,7 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
                                 style: GoogleFonts.kameron(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600,
+                                  color: Colors.black
                                 ),),
                               ),
                               Expanded(
@@ -492,6 +515,7 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
                                   style: GoogleFonts.kameron(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
+                                    color: Colors.black
                                   ),
                                 ),
                               ),
@@ -510,10 +534,12 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
                         Text('TOTAL AMOUNT:', style: GoogleFonts.kameron(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
+                          color: Colors.black
                         )),
                         Text('₱${safeDouble(transaction!['total_amount']).toStringAsFixed(2)}', style: GoogleFonts.kameron(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
+                          color: Colors.black
                         ),),
                       ],
                     ),
@@ -523,10 +549,12 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
                         Text('AMOUNT RECEIVED:', style: GoogleFonts.kameron(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
+                          color: Colors.black
                         )),
                         Text('₱${safeDouble(transaction!['amount_received']).toStringAsFixed(2)}',style: GoogleFonts.kameron(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
+                          color: Colors.black
                         ),),
                       ],
                     ),
@@ -536,10 +564,12 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
                         Text('CHANGE:', style: GoogleFonts.kameron(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
+                          color: Colors.black
                         )),
                         Text('₱${safeDouble(transaction!['change_amount']).toStringAsFixed(2)}',style: GoogleFonts.kameron(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
+                          color: Colors.black
                         ),),
                       ],
                     ),
@@ -551,7 +581,8 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
                         style: GoogleFonts.kameron(
                           fontSize: 16,
                           fontStyle: FontStyle.italic,
-                          fontWeight: FontWeight.w400
+                          fontWeight: FontWeight.w400,
+                          color: Colors.black
                         ),
                       ),
                     ),

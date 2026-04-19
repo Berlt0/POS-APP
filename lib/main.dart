@@ -97,6 +97,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.light,
         primaryColor: Colors.blue,
         scaffoldBackgroundColor: Colors.grey[100],
+        dividerColor: Colors.black87, 
         
       ),
 
@@ -104,6 +105,7 @@ class MyApp extends StatelessWidget {
       brightness: Brightness.dark,
       useMaterial3: true,
       scaffoldBackgroundColor: const Color(0xFF121212),
+      dividerColor: Colors.black87, 
 
       colorScheme: const ColorScheme.dark(
         primary: Colors.blue,

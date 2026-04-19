@@ -5,11 +5,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/db/syncTransationHistory.dart';
 import 'package:pos_app/models/cartItem.dart';
 import 'package:pos_app/db/database.dart';
-import 'package:pos_app/db/user.dart';
 import 'package:pos_app/db/debug.dart';
 import 'package:flutter/services.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:pos_app/db/sync.dart';
+import 'package:pos_app/utils/boxShadow.dart';
 import 'package:pos_app/utils/responsive.dart';
 import 'package:uuid/uuid.dart';
 
@@ -93,13 +93,15 @@ void dispose() {
     final isTablet = Responsive.isTablet(context);
     final isMobile = Responsive.isMobile(context);
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
   final TextEditingController _controller = TextEditingController();
 
   return showGeneralDialog<String>(
     context: context,
     barrierLabel: "Cash Payment",
     barrierDismissible: true,
-    barrierColor: Colors.black.withOpacity(0.5),
+    barrierColor: isDark ? Colors.black.withOpacity(0.9) : Colors.black.withOpacity(0.6),
     transitionDuration: const Duration(milliseconds: 300),
     pageBuilder: (context, anim1, anim2) {
 
@@ -117,7 +119,7 @@ void dispose() {
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
@@ -135,6 +137,7 @@ void dispose() {
                         controller: _controller,
                         style: GoogleFonts.kameron( 
                           fontSize: isDesktop ? 22 : isTablet ? 20 : 18,
+                          color: Colors.black
                         ),
                         onChanged: (value){
                             if (_errorText != null) {
@@ -161,10 +164,21 @@ void dispose() {
                             fontSize: isDesktop ? 19 : isTablet ? 18 : 17,
                             color: Colors.black
                           ),
+                           floatingLabelStyle: TextStyle(
+                              color: Colors.black,
+                              shadows: [
+                                Shadow(offset: Offset(1, 1), color: Colors.white),
+                                Shadow(offset: Offset(-1, -1), color: Colors.white),
+                                Shadow(offset: Offset(1, -1), color: Colors.white),
+                                Shadow(offset: Offset(-1, 1), color: Colors.white),
+                              ],
+                            ),
                           contentPadding: EdgeInsets.symmetric(
                             vertical: isMobile ? 12 : 18,
                             horizontal: 20
-                          )
+                          ),
+                        fillColor: Colors.white,
+                        filled: true
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -173,13 +187,13 @@ void dispose() {
                         children: [
                           TextButton(
                             onPressed: () => Navigator.pop(context, null),
-                            child: Text("Cancel", style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 15, color: Colors.black,fontWeight: FontWeight.w500),),
+                            child: Text("Cancel", style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 15, color: isDark ? Colors.white : Colors.black,fontWeight: FontWeight.w500),),
                           ),
                           const SizedBox(width: 10),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               padding: EdgeInsets.fromLTRB(17, 10, 17, 10),
-                              backgroundColor: Color(0xFF00C853),
+                              backgroundColor:  isDark? Color(0xFF30DD04) : Color(0xFF00C853),
                             ),
                             onPressed: ()  {
                               final enteredAmount = double.tryParse(_controller.text);
@@ -224,9 +238,14 @@ void dispose() {
 }
 
     Future<PaymentResult?> _paymentModal() {
+
+      final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return showModalBottomSheet<PaymentResult>(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Theme.of(context).colorScheme.surface, 
+      barrierColor: isDark ? Colors.black.withOpacity(0.9) : Colors.black.withOpacity(0.6),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(20),
@@ -396,18 +415,19 @@ void dispose() {
     final isTablet = Responsive.isTablet(context);
     final isMobile = Responsive.isMobile(context);
 
+      final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.grey[100],
-        shadowColor: Colors.grey.withOpacity(0.5),
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        shadowColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
         elevation: 5,
         toolbarHeight: isDesktop ? 80 : isTablet ? 70 : 60,
         leading: IconButton(
             icon: Icon(Icons.arrow_back_ios_new_sharp,size: isDesktop ? 35 : isTablet ? 30 :25),   // or Icons.arrow_back
             iconSize: Responsive.spacing(context, mobile: 25, tablet: 30, desktop: 35), 
-            color: Colors.black,
             onPressed: () => Navigator.pop(context),
             tooltip: 'Back',
           ),
@@ -418,7 +438,6 @@ void dispose() {
             style: GoogleFonts.kameron(
               fontSize: isDesktop ? 22 : isTablet ? 20 :18,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
             ),
           ),
       ),
@@ -431,7 +450,7 @@ void dispose() {
               children: [
                 Icon(
                   Icons.shopping_cart,
-                  color: const Color.fromARGB(255, 16, 19, 187),
+                  color: isDark ? Colors.white :  Color.fromARGB(255, 16, 19, 187),
                   size: isDesktop ? 35 : isTablet ? 30 : 23,
                 ),
                 const SizedBox(width: 6),
@@ -455,16 +474,9 @@ void dispose() {
                   return Container(
                     padding: const EdgeInsets.fromLTRB(12,12,12,12),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                       BoxShadow(
-                            color: Colors.grey.withOpacity(0.3),
-                            spreadRadius: 4,
-                            blurRadius: 6,
-                            offset: const Offset(0, 3),
-                          ),
-                      ],
+                      boxShadow: ShadowHelper.getShadow(context)
                     ),
                     child: Row(
                       children: [
@@ -500,8 +512,8 @@ void dispose() {
                                 '₱${item.price.toStringAsFixed(2)}',
                                 style: GoogleFonts.kameron(
                                   fontSize: isDesktop ? 20 : isTablet ? 16 : 13,
-                                  color: const Color.fromARGB(255, 55, 134, 58),
-                                  fontWeight: FontWeight.w500,
+                                  color: isDark ? Color.fromARGB(255, 43, 161, 47) : const Color.fromARGB(255, 55, 134, 58),
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],
@@ -534,7 +546,7 @@ void dispose() {
               width: double.infinity,
               padding: const EdgeInsets.all(15),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 border: Border.all(color: Colors.grey.shade400),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
@@ -551,10 +563,10 @@ void dispose() {
                   _rowText("Total Items", totalQty.toString(),
                       fontSize: isDesktop ? 19 : isTablet ? 17 : 14,
                     weight: FontWeight.w500),
-                  const SizedBox(height: 3),
+                   SizedBox(height: 3),
                   _rowText("Subtotal", '₱${subtotal.toStringAsFixed(2)}',
-                      fontSize:  isDesktop ? 20 : isTablet ? 18 : 15, color:  Colors.black, weight: FontWeight.w500),
-                  const SizedBox(height: 3),
+                      fontSize:  isDesktop ? 20 : isTablet ? 18 : 15, weight: FontWeight.w500,),
+                   SizedBox(height: 3),
                   _rowText("Total", '₱${total.toStringAsFixed(2)}',
                       fontSize:  isDesktop ? 22 : isTablet ? 20 : 16, weight: FontWeight.bold, color: Colors.red),
                 ],
@@ -618,30 +630,42 @@ void dispose() {
   }
 
 
-  Widget _rowText(String label, String value,
-      {required  weight, double fontSize = 14, Color color = Colors.black}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.kameron(
-            fontWeight: weight,
-            fontSize: fontSize,
-            color: color,
+  Widget _rowText(
+  String label,
+  String value, {
+  required FontWeight weight,
+  double fontSize = 14,
+  Color? color,
+}) {
+  return Builder(
+    builder: (context) {
+      final resolvedColor =
+          color ?? Theme.of(context).colorScheme.onSurface;
+
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.kameron(
+              fontWeight: weight,
+              fontSize: fontSize,
+              color: resolvedColor,
+            ),
           ),
-        ),
-        Text(
-          value,
-          style: GoogleFonts.kameron(
-            fontWeight: weight,
-            fontSize: fontSize,
-            color: color,
+          Text(
+            value,
+            style: GoogleFonts.kameron(
+              fontWeight: weight,
+              fontSize: fontSize,
+              color: resolvedColor,
+            ),
           ),
-        ),
-      ],
-    );
-  }
+        ],
+      );
+    },
+  );
+}
 }
 
 

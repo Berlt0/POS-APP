@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pos_app/db/sync.dart';
-import 'package:pos_app/utils/boxShadow.dart';
 import 'package:pos_app/utils/responsive.dart';
 import 'package:pos_app/db/inventory.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -170,10 +169,12 @@ class _InventoryState extends State<Inventory> {
   void _openUpdateModal(SomeProductData product) {
     _stockController.text = product.stock.toString();
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Theme.of(context).colorScheme.surface, 
-      barrierColor: Colors.black.withOpacity(0.9),
+      barrierColor: isDark ? Colors.black.withOpacity(0.9) : Colors.black.withOpacity(0.6),
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -443,7 +444,7 @@ class _InventoryState extends State<Inventory> {
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: isDark ? Color.fromARGB(225, 167, 166, 166) : Colors.white,
+                        color: isDark ? Color.fromARGB(248, 233, 232, 232) : Colors.white,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Padding(
@@ -515,7 +516,7 @@ class _InventoryState extends State<Inventory> {
                                         columnSpacing: isDesktop ? 35 : isTablet ? 30 : 25,
                                         headingRowHeight: isDesktop ? 58 : isTablet ? 55 : 50,
                                         dataRowHeight: isDesktop ? 60 : isTablet ? 55 : 45,
-                                        headingRowColor: MaterialStateProperty.all(const Color.fromARGB(164, 224, 224, 224)),
+                                        headingRowColor: MaterialStateProperty.all(const Color.fromARGB(228, 255, 255, 255)),
                                         columns: [
                                           DataColumn(label: Text('Product', style: tableTextStyle(fontSize: isDesktop ? 21 : isTablet ? 18 : 14.5, fontWeight: FontWeight.w500))),
                                           DataColumn(label: Text('Category', style: tableTextStyle(fontSize: isDesktop ? 21 : isTablet ? 18 : 14.5, fontWeight: FontWeight.w500))),

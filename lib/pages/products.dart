@@ -305,12 +305,13 @@ Future<bool?> showDeleteConfirmationModal(BuildContext context) {
     final isTablet = Responsive.isTablet(context);
     final isDesktop = Responsive.isDesktop(context);
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
   return showGeneralDialog<bool>(
     context: context,
     barrierLabel: "Delete Product",
     barrierDismissible: true,
-    barrierColor: Colors.black.withOpacity(0.9),
+    barrierColor:   isDark ? Colors.black.withOpacity(0.9) : Colors.black.withOpacity(0.6),
     transitionDuration: const Duration(milliseconds: 300),
     pageBuilder: (context, anim1, anim2) {
       return Center(
@@ -440,12 +441,13 @@ _editedImage = _originalImage;
 
 final autocompleteCategories = _categories.where((c) => c != 'All').toList();
 
+final isDark = Theme.of(context).brightness == Brightness.dark;
 
   showModalBottomSheet(
     context: context,
     backgroundColor: Theme.of(context).colorScheme.surface, 
-    barrierColor: Colors.black.withOpacity(0.9),
     isScrollControlled: true,
+    barrierColor: isDark ? Colors.black.withOpacity(0.9) : Colors.black.withOpacity(0.6),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20))
     ),
@@ -924,6 +926,8 @@ Widget productCard(Product product) {
     final isTablet = Responsive.isTablet(context);
     final isDesktop = Responsive.isDesktop(context);
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -1024,6 +1028,8 @@ Widget productCard(Product product) {
               child: FutureBuilder<List<Product>>(
                 future: _productsFuture,
                 builder: (context,snapshot){
+
+                  
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
                   }
@@ -1136,7 +1142,7 @@ Widget productCard(Product product) {
             });
           
             },
-            backgroundColor: Color(0xFF25FFA0), 
+            backgroundColor: isDark? Color(0xFF30DD04) : Color(0xFF25FFA0), 
             child: Icon(Icons.add, color: Colors.black, size: isDesktop ? 40 : isTablet ? 35 : 25), 
             ),
         ),
