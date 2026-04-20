@@ -196,6 +196,8 @@ int _currentIndex = 0;
   @override
   Widget build(BuildContext context) {
 
+   final isLandscape = Responsive.isLandscape(context);
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       bottomNavigationBar: AppFooter(
@@ -230,10 +232,9 @@ int _currentIndex = 0;
     ),
 
       body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
+        child: SingleChildScrollView( 
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 110),
+            padding: Responsive.pagePadding(context),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -253,7 +254,14 @@ int _currentIndex = 0;
                       child: Text(
                         "Leo and Mae",
                         style: GoogleFonts.kameron(
-                          fontSize: Responsive.font(
+                          fontSize: isLandscape ? 
+                          Responsive.font(
+                            context,
+                            mobile: 21,
+                            tablet: 23,
+                            desktop: 25,
+                          )
+                          : Responsive.font(
                             context,
                             mobile: 20,
                             tablet: 25,
@@ -298,7 +306,14 @@ int _currentIndex = 0;
                     Text(
                       "Dashboard",
                       style: GoogleFonts.kameron(
-                        fontSize: Responsive.font(
+                        fontSize: isLandscape
+                        ? Responsive.font(
+                          context,
+                          mobile: 20,
+                          tablet: 25,
+                          desktop: 30,
+                        ):
+                        Responsive.font(
                           context,
                           mobile: 20,
                           tablet: 30,
@@ -328,13 +343,9 @@ int _currentIndex = 0;
                 // Stats Cards
                 LayoutBuilder(
                   builder: (context, constraints) {
-                    int crossAxisCount = constraints.maxWidth < 600 ? 2 : 4;
-                    double cardHeight = Responsive.spacing(
-                      context,
-                      mobile: 75,
-                      tablet: 110,
-                      desktop: 120,
-                    );
+                    int crossAxisCount = Responsive.gridCount(context);
+
+                    double cardHeight = Responsive.cardHeight(context);
           
                     return GridView.builder(
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -410,12 +421,9 @@ int _currentIndex = 0;
                 SizedBox(height: 12,),
 
                     Container(
-                        height: Responsive.spacing(
-                          context,
-                          mobile: 300,
-                          tablet: 350,
-                          desktop: 400,
-                        ),
+                        height: isLandscape 
+                          ? Responsive.spacing(context, mobile: 250, tablet: 280, desktop: 300)
+                          : Responsive.spacing(context, mobile: 300, tablet: 350, desktop: 400),
                         margin: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -576,9 +584,9 @@ int _currentIndex = 0;
                 LayoutBuilder(
                   builder: (context, constraints) {
                     const double breakpoint = 800.0;
-                    final bool isNarrow = constraints.maxWidth < breakpoint;
+                    final bool isNarrow = !Responsive.isDesktop(context);
 
-                    const double containerHeight = 450;
+                     double containerHeight = isLandscape ? 320 : 450;
                     
                     final isDesktop = Responsive.isDesktop(context);
                     final isTablet = Responsive.isTablet(context);
@@ -601,7 +609,7 @@ int _currentIndex = 0;
                               Text(
                                 "View Sales",
                                 style: GoogleFonts.kameron(
-                                  fontSize: isDesktop ? 19 : isTablet ? 17 : 14,
+                                  fontSize: isLandscape ? (isDesktop ? 16 : isTablet ? 14 : 12) : (isDesktop ? 19 : isTablet ? 17 : 14),
                                   fontWeight: FontWeight.w500,
                                   color: Colors.black,
                                 ),
@@ -609,7 +617,7 @@ int _currentIndex = 0;
                               Icon( 
                                 Icons.keyboard_arrow_right,
                                 color: Colors.black,
-                                size: isDesktop ? 24 : isTablet ? 22 : 20,
+                                size:  isLandscape ? (isDesktop ? 22 : isTablet ? 20 : 18) : (isDesktop ? 24 : isTablet ? 22 : 20),
                               )
                             ],
                           ),
@@ -642,7 +650,7 @@ int _currentIndex = 0;
                               Text(
                                 "Manage Inventory",
                                 style: GoogleFonts.kameron(
-                                  fontSize: isDesktop ? 19 : isTablet ? 17 : 14,
+                                  fontSize: isLandscape ? (isDesktop ? 16 : isTablet ? 14 : 12) : (isDesktop ? 19 : isTablet ? 17 : 14),
                                   fontWeight: FontWeight.w500,
                                   color: Colors.black,
                                 ),
@@ -650,7 +658,7 @@ int _currentIndex = 0;
                               Icon( 
                                 Icons.keyboard_arrow_right,
                                 color: Colors.black,
-                                size: isDesktop ? 24 : isTablet ? 22 : 20,
+                                size: isLandscape ? (isDesktop ? 22 : isTablet ? 20 : 18) : (isDesktop ? 24 : isTablet ? 22 : 20),
                               )
                             ],
                           ),
@@ -659,7 +667,7 @@ int _currentIndex = 0;
                       );
                     }
 
-                    if (isNarrow) {
+                    if (isNarrow && !isLandscape) {
 
                       final isDesktop = Responsive.isDesktop(context);
                       final isTablet = Responsive.isTablet(context);
@@ -848,7 +856,7 @@ int _currentIndex = 0;
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
-                            flex: 2,
+                            flex: isLandscape ? 3 : 2,
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -936,7 +944,7 @@ int _currentIndex = 0;
                     ),
                                            const SizedBox(width: 25),
                           Expanded(
-                            flex: 1,
+                            flex: isLandscape ? 2 : 1,
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
