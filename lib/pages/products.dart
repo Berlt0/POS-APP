@@ -28,7 +28,6 @@ class _ProductsState extends State<Products> {
 
   TextEditingController _productNameController = TextEditingController();
   TextEditingController _productCategoryController = TextEditingController();
-  TextEditingController _barcodeController = TextEditingController();
   TextEditingController _priceController = TextEditingController();
   TextEditingController _costController = TextEditingController();
   TextEditingController _stockAlertController = TextEditingController();
@@ -101,9 +100,11 @@ class _ProductsState extends State<Products> {
 
 Future<void> _pickImage(void Function(void Function()) modalSetState) async {
 
-  final isMobile = Responsive.isMobile(context);
+  
   final isTablet = Responsive.isTablet(context);
   final isDesktop = Responsive.isDesktop(context);
+
+  final isLandscape = Responsive.isLandscape(context);
 
   showModalBottomSheet(
     context: context,
@@ -115,9 +116,9 @@ Future<void> _pickImage(void Function(void Function()) modalSetState) async {
         children: [
           SizedBox(height: 10,),
           ListTile(
-            leading:  Icon(Icons.photo_library, size: isDesktop ? 33 : isTablet ? 28 : 23),
+            leading:  Icon(Icons.photo_library, size:  isLandscape ? (isDesktop ? 25 : isTablet ? 20 : 18) : (isDesktop ? 33 : isTablet ? 28 : 23)),
             title:  Text('Choose from Gallery', style: GoogleFonts.kameron(
-              fontSize: isDesktop ? 22 : isTablet ? 20 : 18 
+              fontSize: isLandscape ? (isDesktop ? 17 : isTablet ? 15 : 14) : (isDesktop ? 22 : isTablet ? 20 : 18) 
             ),),
             onTap: () async {
               final XFile? newImage =
@@ -131,9 +132,9 @@ Future<void> _pickImage(void Function(void Function()) modalSetState) async {
             },
           ),
           ListTile(
-            leading: Icon(Icons.camera_alt ,size: isDesktop ? 33 : isTablet ? 28 : 23),
+            leading: Icon(Icons.camera_alt ,size: isLandscape ? (isDesktop ? 25 : isTablet ? 20 : 18) : (isDesktop ? 33 : isTablet ? 28 : 23)),
             title:  Text('Take a Photo', style: GoogleFonts.kameron(
-              fontSize: isDesktop ? 22 : isTablet ? 20 : 18 
+              fontSize: isLandscape ? (isDesktop ? 17 : isTablet ? 15 : 14) : (isDesktop ? 22 : isTablet ? 20 : 18) 
             ),),
             onTap: () async {
               final XFile? newImage =
@@ -304,13 +305,15 @@ Future<bool?> showDeleteConfirmationModal(BuildContext context) {
 
     final isTablet = Responsive.isTablet(context);
     final isDesktop = Responsive.isDesktop(context);
+    final isLandscape = Responsive.isLandscape(context);
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
 
   return showGeneralDialog<bool>(
     context: context,
     barrierLabel: "Delete Product",
-    barrierDismissible: true,
+    barrierDismissible: false,
     barrierColor:   isDark ? Colors.black.withOpacity(0.9) : Colors.black.withOpacity(0.6),
     transitionDuration: const Duration(milliseconds: 300),
     pageBuilder: (context, anim1, anim2) {
@@ -318,7 +321,7 @@ Future<bool?> showDeleteConfirmationModal(BuildContext context) {
         child: Material(
           type: MaterialType.transparency,
           child: ConstrainedBox(
-            constraints:  BoxConstraints(maxWidth: isDesktop ? 380 : isTablet ? 350 : 270),
+            constraints:  BoxConstraints(maxWidth: isLandscape ? (isDesktop ? 300 : isTablet ? 250 : 220) :(isDesktop ? 380 : isTablet ? 350 : 270)),
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -331,7 +334,7 @@ Future<bool?> showDeleteConfirmationModal(BuildContext context) {
                    Text(
                     "Delete Product?",
                     style: GoogleFonts.kameron(
-                      fontSize: isDesktop ? 21 : isTablet ? 20 : 17,
+                      fontSize: isLandscape ? (isDesktop ? 17 : isTablet ? 15 : 14) : (isDesktop ? 21 : isTablet ? 20 : 17),
                       fontWeight: FontWeight.bold,
 
                     ),
@@ -341,7 +344,7 @@ Future<bool?> showDeleteConfirmationModal(BuildContext context) {
                         "Are you sure you want to delete this product?",
                         textAlign: TextAlign.center,
                         style: GoogleFonts.kameron(
-                          fontSize: isDesktop ? 20 : isTablet ? 18 : 14.5,
+                          fontSize: isLandscape ?  (isDesktop ? 15 : isTablet ? 13 : 12.5) : (isDesktop ? 20 : isTablet ? 18 : 14.5),
                           fontWeight: FontWeight.w500
                       
                         ),
@@ -359,7 +362,7 @@ Future<bool?> showDeleteConfirmationModal(BuildContext context) {
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text("Cancel", style: GoogleFonts.kameron(
-                              fontSize: isDesktop ? 21 : isTablet ? 18 : 15,
+                              fontSize: isLandscape ? (isDesktop ? 16 : isTablet ? 14 : 13) : (isDesktop ? 21 : isTablet ? 18 : 15),
                               fontWeight: FontWeight.w500
                             )),
                           ),
@@ -374,7 +377,7 @@ Future<bool?> showDeleteConfirmationModal(BuildContext context) {
                           Navigator.of(context).pop(true); 
                         },
                         child:  Text("Delete", style: GoogleFonts.kameron(
-                          fontSize: isDesktop ? 21 : isTablet ? 19 : 15,
+                          fontSize:  isLandscape ? (isDesktop ? 16 : isTablet ? 14 : 13) : (isDesktop ? 21 : isTablet ? 18 : 15),
                           color: Colors.white,
                           fontWeight: FontWeight.w500
                         ),),
@@ -456,6 +459,7 @@ final isDark = Theme.of(context).brightness == Brightness.dark;
 
       final isTablet = Responsive.isTablet(context);
       final isDesktop = Responsive.isDesktop(context);
+      final isLandscape = Responsive.isLandscape(context);
 
 
       return Container(
@@ -479,7 +483,7 @@ final isDark = Theme.of(context).brightness == Brightness.dark;
                   Text(
                     "Edit Product",
                     style: GoogleFonts.kameron(
-                      fontSize: isDesktop ? 22 : isTablet ? 21 : 17,
+                      fontSize: isLandscape ?  (isDesktop ? 18 : isTablet ? 16 : 15) : (isDesktop ? 22 : isTablet ? 21 : 17),
                       fontWeight: FontWeight.w500,
                     ),),
                     SizedBox(height: 15,),
@@ -499,8 +503,8 @@ final isDark = Theme.of(context).brightness == Brightness.dark;
                                 )
                               : Image.asset(
                                   'assets/Legendaries.png',
-                                  width: isDesktop ? 250 : isTablet ? 230 : 150,
-                                  height:isDesktop ? 230 : isTablet ? 200 :130,
+                                  width: isLandscape ? (isDesktop ? 180 : isTablet ? 150 : 130) : (isDesktop ? 250 : isTablet ? 230 : 150),
+                                  height: isLandscape ? (isDesktop ? 150 : isTablet ? 130 :100) : (isDesktop ? 230 : isTablet ? 200 :130),
                                   fit: BoxFit.cover,
                                 ),
                         ),
@@ -516,7 +520,7 @@ final isDark = Theme.of(context).brightness == Brightness.dark;
                           child: Icon(
                             Icons.edit,
                             color: Colors.white,
-                            size: isDesktop ? 26 : isTablet ? 23 :18,
+                            size: isLandscape ? (isDesktop ? 21 : isTablet ? 18 :17) : (isDesktop ? 26 : isTablet ? 23 :18),
                           ),
                         ),
                       ],
@@ -533,22 +537,22 @@ final isDark = Theme.of(context).brightness == Brightness.dark;
                            TextFormField(
                             controller: _productNameController,
                             style: GoogleFonts.kameron(
-                              fontSize: isDesktop ? 22 : isTablet ? 20 : 16
+                              fontSize: isLandscape ? (isDesktop ? 18 : isTablet ? 16 : 15) : (isDesktop ? 22 : isTablet ? 20 : 16)
                             ),
                             decoration: InputDecoration(
                               labelText: 'Product',
                               labelStyle: GoogleFonts.kameron(
-                                fontSize: Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
+                                fontSize: isLandscape ?  Responsive.font(context, mobile: 15, tablet: 16, desktop: 18) : Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
                                 fontWeight: FontWeight.w500,
                               ),
                               errorText: _productNameController.text.trim().isEmpty ? 'Required' : null,
                               errorStyle: GoogleFonts.kameron(
-                                fontSize: Responsive.font(context, mobile: 13, tablet: 15, desktop: 17),
+                                fontSize: isLandscape ? Responsive.font(context, mobile: 12, tablet: 13, desktop: 15) : Responsive.font(context, mobile: 13, tablet: 15, desktop: 17),
                                 color: Colors.red,
                                 fontWeight: FontWeight.w500,
                               ),
                               contentPadding: EdgeInsets.symmetric(
-                                vertical:  isDesktop ? 18 : isTablet ? 15 : 10,
+                                vertical:  isLandscape ? (isDesktop ? 12 : isTablet ? 10 : 9) : (isDesktop ? 18 : isTablet ? 15 : 10),
                                 horizontal: 18
                               ),
                               border: OutlineInputBorder(
@@ -579,7 +583,7 @@ final isDark = Theme.of(context).brightness == Brightness.dark;
                                 return TextField(
                                   controller: controller,
                                   style: GoogleFonts.kameron(
-                                    fontSize: isDesktop ? 22 : isTablet ? 20 : 16,
+                                    fontSize: isLandscape ? (isDesktop ? 18 : isTablet ? 16 : 15) : (isDesktop ? 22 : isTablet ? 20 : 16),
                                     color: Theme.of(context).colorScheme.onSurface
                                   ),
                                   focusNode: focusNode,
@@ -587,18 +591,18 @@ final isDark = Theme.of(context).brightness == Brightness.dark;
                                   decoration: InputDecoration(
                                     labelText: 'Category',
                                     labelStyle: GoogleFonts.kameron(
-                                      fontSize: Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
+                                      fontSize: isLandscape ?  Responsive.font(context, mobile: 15, tablet: 16, desktop: 18) : Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
                                       fontWeight: FontWeight.w500,
                                       color: Theme.of(context).colorScheme.onSurface
                                     ),
                                     errorText: _productCategoryController.text.trim().isEmpty ? 'Required' : null,
                                     errorStyle: GoogleFonts.kameron(
-                                      fontSize: Responsive.font(context, mobile: 13, tablet: 14, desktop: 16),
+                                      fontSize: isLandscape ? Responsive.font(context, mobile: 12, tablet: 13, desktop: 15) : Responsive.font(context, mobile: 13, tablet: 15, desktop: 17),
                                       color: Colors.red,
                                       fontWeight: FontWeight.w500,
                                     ),
                                     contentPadding: EdgeInsets.symmetric(
-                                      vertical:  isDesktop ? 18 : isTablet ? 15 : 10,
+                                      vertical:  isLandscape ? (isDesktop ? 12 : isTablet ? 10 : 9) : (isDesktop ? 18 : isTablet ? 15 : 10),
                                       horizontal: 18
                                     ),
                                     border: OutlineInputBorder(
@@ -621,7 +625,7 @@ final isDark = Theme.of(context).brightness == Brightness.dark;
                             TextFormField(
                             controller: _priceController,
                             style: GoogleFonts.kameron(
-                              fontSize: isDesktop ? 22 : isTablet ? 20 : 16
+                              fontSize: isLandscape ? (isDesktop ? 18 : isTablet ? 16 : 15) : (isDesktop ? 22 : isTablet ? 20 : 16)
                             ),
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
@@ -630,18 +634,18 @@ final isDark = Theme.of(context).brightness == Brightness.dark;
                             decoration: InputDecoration(
                               labelText: 'Price',
                               labelStyle: GoogleFonts.kameron(
-                                fontSize: Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
+                                fontSize: isLandscape ?  Responsive.font(context, mobile: 15, tablet: 16, desktop: 18) : Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
                                 fontWeight: FontWeight.w500,
                               ),
                               prefixText: '₱ ',
                               errorText: _priceController.text.trim().isEmpty ? 'Required' : null,
                               errorStyle: GoogleFonts.kameron(
-                                fontSize: Responsive.font(context, mobile: 13, tablet: 14, desktop: 16),
+                                fontSize:  isLandscape ? Responsive.font(context, mobile: 12, tablet: 13, desktop: 15) : Responsive.font(context, mobile: 13, tablet: 15, desktop: 17),
                                 color: Colors.red,
                                 fontWeight: FontWeight.w500,
                               ),
                               contentPadding: EdgeInsets.symmetric(
-                              vertical:  isDesktop ? 18 : isTablet ? 15 : 10,
+                              vertical:   isLandscape ? (isDesktop ? 12 : isTablet ? 10 : 9) : (isDesktop ? 18 : isTablet ? 15 : 10),
                               horizontal: 18
                             ),
                               border: OutlineInputBorder(
@@ -655,7 +659,7 @@ final isDark = Theme.of(context).brightness == Brightness.dark;
                             TextFormField(
                             controller: _costController,
                             style: GoogleFonts.kameron(
-                              fontSize: isDesktop ? 22 : isTablet ? 20 : 16
+                              fontSize: isLandscape ? (isDesktop ? 18 : isTablet ? 16 : 15) : (isDesktop ? 22 : isTablet ? 20 : 16)
                             ),
                            inputFormatters: [
                               FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
@@ -664,18 +668,18 @@ final isDark = Theme.of(context).brightness == Brightness.dark;
                             decoration: InputDecoration(
                               labelText: 'Cost',
                               labelStyle: GoogleFonts.kameron(
-                                fontSize: Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
+                                fontSize: isLandscape ?  Responsive.font(context, mobile: 15, tablet: 16, desktop: 18) : Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
                                 fontWeight: FontWeight.w500,
                               ),
                               prefixText: '₱ ',
                               errorText: _costController.text.trim().isEmpty ? 'Required' : null,
                               errorStyle: GoogleFonts.kameron(
-                                fontSize: Responsive.font(context, mobile: 13, tablet: 14, desktop: 16),
+                                fontSize: isLandscape ? Responsive.font(context, mobile: 12, tablet: 13, desktop: 15) : Responsive.font(context, mobile: 13, tablet: 15, desktop: 17),
                                 color: Colors.red,
                                 fontWeight: FontWeight.w500,
                               ),
                               contentPadding: EdgeInsets.symmetric(
-                                vertical:  isDesktop ? 18 : isTablet ? 15 : 10,
+                                vertical:  isLandscape ? (isDesktop ? 12 : isTablet ? 10 : 9) : (isDesktop ? 18 : isTablet ? 15 : 10),
                                 horizontal: 18
                             ),
                               border: OutlineInputBorder(
@@ -689,7 +693,7 @@ final isDark = Theme.of(context).brightness == Brightness.dark;
                             TextFormField(
                             controller: _stockAlertController,
                             style: GoogleFonts.kameron(
-                              fontSize: isDesktop ? 22 : isTablet ? 20 : 16
+                              fontSize: isLandscape ? (isDesktop ? 18 : isTablet ? 16 : 15) : (isDesktop ? 22 : isTablet ? 20 : 16)
                             ),
                             keyboardType: TextInputType.number,
                             inputFormatters: [
@@ -698,11 +702,11 @@ final isDark = Theme.of(context).brightness == Brightness.dark;
                             decoration: InputDecoration(
                               labelText: 'Stock Alert Level',
                               labelStyle: GoogleFonts.kameron(
-                                fontSize: Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
+                                fontSize: isLandscape ?  Responsive.font(context, mobile: 15, tablet: 16, desktop: 18) : Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
                                 fontWeight: FontWeight.w500,
                               ),
                               contentPadding: EdgeInsets.symmetric(
-                                vertical:  isDesktop ? 18 : isTablet ? 15 : 10,
+                                vertical:  isLandscape ? (isDesktop ? 12 : isTablet ? 10 : 9) : (isDesktop ? 18 : isTablet ? 15 : 10),
                                 horizontal: 18
                             ),
                               border: OutlineInputBorder(
@@ -717,16 +721,16 @@ final isDark = Theme.of(context).brightness == Brightness.dark;
                             TextFormField(
                             controller: _descriptionController, 
                             style: GoogleFonts.kameron(
-                              fontSize: isDesktop ? 22 : isTablet ? 20 : 16
+                              fontSize: isLandscape ? (isDesktop ? 18 : isTablet ? 16 : 15) : (isDesktop ? 22 : isTablet ? 20 : 16)
                             ),   
                             decoration: InputDecoration(
                               labelText: 'Description...',
                               labelStyle: GoogleFonts.kameron(
-                                fontSize: Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
+                                fontSize: isLandscape ?  Responsive.font(context, mobile: 15, tablet: 16, desktop: 18) : Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
                                 fontWeight: FontWeight.w500,
                               ),
                                contentPadding: EdgeInsets.symmetric(
-                                vertical:  isDesktop ? 35 : isTablet ? 30 : 10,
+                                vertical: isLandscape ? (isDesktop ? 25 : isTablet ? 20 : 15) : (isDesktop ? 35 : isTablet ? 30 : 10),
                                 horizontal: 18
                               ),
                               border: OutlineInputBorder(
@@ -744,7 +748,7 @@ final isDark = Theme.of(context).brightness == Brightness.dark;
                   SizedBox(height: 20,),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      minimumSize: Size(isDesktop ? 200 : isTablet ? 180 : 150 ,isDesktop ? 55 : isTablet ? 50 : 40),
+                      minimumSize:  isLandscape ? Size(isDesktop ? 170 : isTablet ? 160 : 150 ,isDesktop ? 45 : isTablet ? 40 : 35) :  Size(isDesktop ? 200 : isTablet ? 180 : 150 ,isDesktop ? 55 : isTablet ? 50 : 40),
                       backgroundColor: Color(0xFF00C853),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)
@@ -778,7 +782,7 @@ final isDark = Theme.of(context).brightness == Brightness.dark;
                     child: Text(
                       "Save",
                       style: GoogleFonts.kameron(
-                        fontSize:  Responsive.font(context, mobile: 15, tablet: 19, desktop: 21),
+                        fontSize: isLandscape ? Responsive.font(context, mobile: 14, tablet: 16, desktop: 18) : Responsive.font(context, mobile: 15, tablet: 19, desktop: 21),
                         fontWeight: FontWeight.w500,
                         color: Colors.black
                       ),
@@ -804,6 +808,9 @@ final isDark = Theme.of(context).brightness == Brightness.dark;
 
 
 Widget categoryHeader(String title) {
+
+   final isLandscape = Responsive.isLandscape(context);
+
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 12),
     child: Row(
@@ -816,7 +823,7 @@ Widget categoryHeader(String title) {
             style: GoogleFonts.kameron(
               fontWeight: FontWeight.w700,
               color: Theme.of(context).colorScheme.onSurface,
-              fontSize: Responsive.font(context, mobile: 12.3, tablet: 15, desktop: 16)
+              fontSize: isLandscape ? Responsive.font(context, mobile: 12.3, tablet: 13, desktop: 15) : Responsive.font(context, mobile: 12.3, tablet: 15, desktop: 16)
             ),
           ),
         ),
@@ -830,15 +837,16 @@ Widget categoryHeader(String title) {
 Widget productCard(Product product) {
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isLandscape = Responsive.isLandscape(context);
 
-    final isMobile = Responsive.isMobile(context);
+  
     final isTablet = Responsive.isTablet(context);
     final isDesktop = Responsive.isDesktop(context);
 
   return Container(
     margin: const EdgeInsets.only(top: 8),
     padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-    height: Responsive.spacing(context, mobile: 78, tablet: 95, desktop: 110),
+    height: isLandscape ? Responsive.spacing(context, mobile: 60, tablet: 70, desktop: 85) : Responsive.spacing(context, mobile: 78, tablet: 95, desktop: 110),
     decoration: BoxDecoration(
       color: product.stock == 0 ? Colors.red[100] : Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.circular(14),
@@ -856,13 +864,13 @@ Widget productCard(Product product) {
               child: product.imagePath != null
                   ? Image.file(
                       File(product.imagePath!),
-                      width: isDesktop ? 75 : isTablet ? 65 : 55,
-                      height: isDesktop ? 70 : isTablet ? 60 : 50,
+                      width: isLandscape ? (isDesktop ? 55 : isTablet ? 45 : 40) : (isDesktop ? 75 : isTablet ? 65 : 55),
+                      height: isLandscape ? isDesktop ? 50 : isTablet ? 40 : 35 : (isDesktop ? 70 : isTablet ? 60 : 50),
                       fit: BoxFit.cover,
                     ): Image.asset(
                       'assets/Legendaries.png', // fallback image
-                      width: isDesktop ? 75 : isTablet ? 65 : 55,
-                      height: isDesktop ? 70 : isTablet ? 60 : 50,
+                      width: isLandscape ? (isDesktop ? 55 : isTablet ? 45 : 40) : (isDesktop ? 75 : isTablet ? 65 : 55),
+                      height: isLandscape ? isDesktop ? 50 : isTablet ? 40 : 35 : (isDesktop ? 70 : isTablet ? 60 : 50),
                       fit: BoxFit.cover,
                     ),
             ),
@@ -875,14 +883,14 @@ Widget productCard(Product product) {
                 Text(
                   toTitleCase(product.name),
                   style: GoogleFonts.kameron(
-                    fontSize: isDesktop ? 20 : isTablet ? 18 : 14.5,
+                    fontSize: isLandscape ? (isDesktop ? 15 : isTablet ? 15 : 14.5) : (isDesktop ? 20 : isTablet ? 18 : 14.5),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
                   '₱${product.price.toStringAsFixed(2)}',
                   style: GoogleFonts.kameron(
-                    fontSize: isDesktop ? 19 : isTablet ? 17 : 13.5,
+                    fontSize: isLandscape ? (isDesktop ? 14 : isTablet ? 14 : 13.5) : (isDesktop ? 19 : isTablet ? 17 : 13.5),
                     color: isDark ? Colors.white :Colors.grey[900],
                     fontWeight: FontWeight.w500
                   ),
@@ -890,7 +898,7 @@ Widget productCard(Product product) {
                 Text(
                   'Stock: ${product.stock}',
                   style: GoogleFonts.kameron(
-                    fontSize: isDesktop ? 18 : isTablet ? 16 : 12.5,
+                    fontSize: isLandscape ? (isDesktop ? 13 : isTablet ? 13 : 12.5) : (isDesktop ? 18 : isTablet ? 16 : 12.5),
                     color: isDark ? Colors.white :Colors.grey[900],
                     fontWeight: FontWeight.w500
                   ),
@@ -905,11 +913,11 @@ Widget productCard(Product product) {
           children: [
             if (_userRole == 'admin') ...[
               IconButton(
-                icon:  Icon(Icons.edit, size: isDesktop ? 30 :isTablet ? 25 :18),
+                icon:  Icon(Icons.edit, size: isLandscape ? (isDesktop ? 21 : isTablet ? 19 :18) : (isDesktop ? 30 :isTablet ? 25 :18)),
                 onPressed: () => _openEditModal(product),
               ),
               IconButton(
-                icon:  Icon(Icons.delete, size: isDesktop ? 30 :isTablet ? 25 :18, color: Colors.red),
+                icon:  Icon(Icons.delete, size: isLandscape ? (isDesktop ? 21 : isTablet ? 19 :18) : (isDesktop ? 30 :isTablet ? 25 :18), color: Colors.red),
                 onPressed: () =>_openDeleteConfirmationModal(product.id!),
               ),
             ],
@@ -927,6 +935,7 @@ Widget productCard(Product product) {
     final isDesktop = Responsive.isDesktop(context);
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isLandscape = Responsive.isLandscape(context);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -936,13 +945,13 @@ Widget productCard(Product product) {
         shadowColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
         automaticallyImplyLeading: false,
         elevation: 5,
-        toolbarHeight: isDesktop ? 70 : isTablet ? 60 : 50,
+        toolbarHeight: isLandscape ? (isDesktop ? 50 : isTablet ? 40 : 35) : (isDesktop ? 70 : isTablet ? 60 : 50),
         title:Padding(
           padding: const EdgeInsets.fromLTRB(20,0,0,0),
           child: Text(
             "Products",
             style: GoogleFonts.kameron(
-              fontSize: isDesktop ? 24 :isTablet ? 22 : 20,
+              fontSize: isLandscape ? (isDesktop ? 20 :isTablet ? 18 : 16) : (isDesktop ? 24 :isTablet ? 22 : 20),
               fontWeight: FontWeight.bold,
               color: Theme.of(context).colorScheme.onSurface
             ),
@@ -961,10 +970,11 @@ Widget productCard(Product product) {
                   Expanded(
                     flex: 3,
                     child: SizedBox(
-                      height: Responsive.spacing(context, mobile: 50, tablet: 55, desktop: 63),
+                      height: isLandscape ? Responsive.spacing(context, mobile: 45, tablet: 50, desktop: 55)
+                            : Responsive.spacing(context, mobile: 50, tablet: 55, desktop: 63),
                       child: TextField(
                         style: GoogleFonts.kameron(
-                          fontSize:  Responsive.font(context,mobile: 17, tablet: 20, desktop: 30),
+                          fontSize:  Responsive.font(context,mobile: 17, tablet: 19, desktop: 20),
                           color: Colors.black
                         ),
                         controller: _searchController,
@@ -974,7 +984,11 @@ Widget productCard(Product product) {
                         decoration: InputDecoration(
                           hintText: 'Search for...',
                           prefixIcon: Icon(Icons.search, size: Responsive.font(context,mobile: 25, tablet: 28, desktop: 30),color: Colors.black87,),
-                          hintStyle: GoogleFonts.kameron(fontSize: Responsive.font(context,mobile: 15, tablet: 18, desktop: 20), fontWeight: FontWeight.w500,color: Colors.black87),
+                          hintStyle: GoogleFonts.kameron(
+                            fontSize:isLandscape 
+                              ? Responsive.font(context,mobile: 14, tablet: 16, desktop: 18)
+                              : Responsive.font(context,mobile: 15, tablet: 18, desktop: 20),
+                            fontWeight: FontWeight.w500,color: Colors.black87),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(30),
                             borderSide: BorderSide(color: Colors.black, width: 1),
@@ -991,13 +1005,16 @@ Widget productCard(Product product) {
                   Expanded(
                     flex: 2,
                     child: SizedBox(
-                      height: Responsive.spacing(context, mobile: 50, tablet: 55, desktop: 63),
+                      height: isLandscape ? Responsive.spacing(context, mobile: 45, tablet: 50, desktop: 55)
+                              : Responsive.spacing(context, mobile: 50, tablet: 55, desktop: 63),
                       child: DropdownButtonFormField<String>(
                         dropdownColor: Colors.white,
                         iconEnabledColor: Colors.black87,
                         value: _selectedCategory,
                         style: GoogleFonts.kameron(
-                          fontSize: Responsive.font(context,mobile: 16, tablet: 18, desktop: 20),
+                          fontSize: isLandscape 
+                            ? Responsive.font(context,mobile: 14, tablet: 16, desktop: 18)
+                            : Responsive.font(context,mobile: 16, tablet: 18, desktop: 20), 
                           color: Colors.black),
                         decoration: InputDecoration(
                           border: OutlineInputBorder(
@@ -1131,8 +1148,8 @@ Widget productCard(Product product) {
         ),
         floatingActionButton: (_userRole != 'admin') ? SizedBox.shrink()  :  
         Container(
-          width: isDesktop ? 70 : isTablet ? 65: 50,
-          height: isDesktop ? 70  : isTablet  ? 65 : 50,
+          width: isLandscape ? (isDesktop ? 55  : isTablet  ? 50 : 45) : (isDesktop ? 70 : isTablet ? 65: 50),
+          height: isLandscape ? (isDesktop ? 55  : isTablet  ? 50 : 45) : (isDesktop ? 70  : isTablet  ? 65 : 50),
           child: FloatingActionButton(
             onPressed:(){
               Navigator.pushNamed(context, '/addproduct').then((_) {
@@ -1143,7 +1160,7 @@ Widget productCard(Product product) {
           
             },
             backgroundColor: isDark? Color(0xFF30DD04) : Color(0xFF25FFA0), 
-            child: Icon(Icons.add, color: Colors.black, size: isDesktop ? 40 : isTablet ? 35 : 25), 
+            child: Icon(Icons.add, color: Colors.black, size: isLandscape ? (isDesktop ? 25 : isTablet ? 20 : 18) : (isDesktop ? 40 : isTablet ? 35 : 25)), 
             ),
         ),
       bottomNavigationBar: AppFooter(

@@ -170,6 +170,7 @@ class _InventoryState extends State<Inventory> {
     _stockController.text = product.stock.toString();
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isLandscape = Responsive.isLandscape(context);
 
     showModalBottomSheet(
       context: context,
@@ -207,7 +208,7 @@ class _InventoryState extends State<Inventory> {
                     Text(
                       "Update Product",
                       style: GoogleFonts.kameron(
-                        fontSize: Responsive.font(context, mobile: 16, tablet: 20, desktop: 22),
+                        fontSize: isLandscape ? Responsive.font(context, mobile: 15, tablet: 16, desktop: 18) : Responsive.font(context, mobile: 16, tablet: 20, desktop: 22),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -215,7 +216,7 @@ class _InventoryState extends State<Inventory> {
                     TextFormField(
                       controller: _stockController,
                       style: GoogleFonts.kameron(
-                        fontSize: Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
+                        fontSize: isLandscape ? Responsive.font(context, mobile: 15, tablet: 16, desktop: 18) : Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
                       ),
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -231,7 +232,7 @@ class _InventoryState extends State<Inventory> {
                            fontSize: isDesktop ? 19 : isTablet ? 18 : 17,
                         ),
                         border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
-                        contentPadding:  EdgeInsets.symmetric(vertical: isMobile ? 12 : 18, horizontal: 20),
+                        contentPadding:  EdgeInsets.symmetric(vertical: isMobile ? 12 : isLandscape ? 16 : 18, horizontal: 20),
                       ),
                       onChanged: (value) {
                         if (_errorText != null) {
@@ -242,7 +243,7 @@ class _InventoryState extends State<Inventory> {
                     const SizedBox(height: 20),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        minimumSize: Size(isDesktop ? 200 : isTablet ? 180 : 150 ,isDesktop ? 55 : isTablet ? 50 : 40),
+                        minimumSize: isLandscape ? Size(isDesktop ? 170 : isTablet ? 160 : 150 ,isDesktop ? 45 : isTablet ? 40 : 35) :  Size(isDesktop ? 200 : isTablet ? 180 : 150 ,isDesktop ? 55 : isTablet ? 50 : 40),
                         backgroundColor: const Color(0xFF00C853),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -269,7 +270,7 @@ class _InventoryState extends State<Inventory> {
                       child: Text(
                         'Save',
                         style: GoogleFonts.kameron(
-                          fontSize: Responsive.font(context, mobile: 15, tablet: 19, desktop: 21),
+                          fontSize: isLandscape ? Responsive.font(context, mobile: 14, tablet: 16, desktop: 18) : Responsive.font(context, mobile: 15, tablet: 19, desktop: 21),
                           fontWeight: FontWeight.w500,
                           color: Colors.black,
                         ),
@@ -336,14 +337,15 @@ class _InventoryState extends State<Inventory> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        shadowColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
         elevation: 5,
-        toolbarHeight: isDesktop ? 70 : isTablet ? 60 : 50,
+        toolbarHeight:  isLandscape ? (isDesktop ? 50 : isTablet ? 40 : 35) : (isDesktop ? 70 : isTablet ? 60 : 50),
         title: Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
           child: Text(
             "Inventory",
             style: GoogleFonts.kameron(
-              fontSize: isDesktop ? 24 : isTablet ? 22 : 20,
+              fontSize: isLandscape ? (isDesktop ? 20 :isTablet ? 18 : 16) : (isDesktop ? 24 :isTablet ? 22 : 20),
               fontWeight: FontWeight.bold,
               color: Theme.of(context).colorScheme.onSurface
             ),
@@ -409,8 +411,9 @@ class _InventoryState extends State<Inventory> {
                         Expanded(
                           flex: 2,
                           child: SizedBox(
-                            height: isLandscape ? Responsive.spacing(context, mobile: 45, tablet: 50, desktop: 55)
-                                                : Responsive.spacing(context, mobile: 50, tablet: 55, desktop: 63),
+                            height: isLandscape 
+                              ? Responsive.spacing(context, mobile: 45, tablet: 50, desktop: 55)
+                              : Responsive.spacing(context, mobile: 50, tablet: 55, desktop: 63),
                             child: DropdownButtonFormField<String>(
                               iconEnabledColor: Colors.black87,
                               dropdownColor: Colors.white,
@@ -537,46 +540,46 @@ class _InventoryState extends State<Inventory> {
                                         headingRowColor: MaterialStateProperty.all(const Color.fromARGB(228, 255, 255, 255)),
                                         columns: [
                                           DataColumn(label: Text('Product', style: tableTextStyle(
-                                            fontSize: isLandscape ? (isDesktop ? 20 : isTablet ? 18 : 16) : (isDesktop ? 21 : isTablet ? 18 : 14.5), 
+                                            fontSize: isLandscape ? (isDesktop ? 19 : isTablet ? 18 : 16) : (isDesktop ? 21 : isTablet ? 18 : 14.5), 
                                             fontWeight: FontWeight.w500))
                                             ),
                                           DataColumn(label: Text('Category', style: tableTextStyle(
-                                            fontSize: isLandscape ? (isDesktop ? 20 : isTablet ? 18 : 16) : (isDesktop ? 21 : isTablet ? 18 : 14.5),  
+                                            fontSize: isLandscape ? (isDesktop ? 19 : isTablet ? 18 : 16) : (isDesktop ? 21 : isTablet ? 18 : 14.5),  
                                             fontWeight: FontWeight.w500))
                                           ),
                                           DataColumn(label: Text('Stock', style: tableTextStyle(
-                                            fontSize: isLandscape ? (isDesktop ? 20 : isTablet ? 18 : 16) : (isDesktop ? 21 : isTablet ? 18 : 14.5),  
+                                            fontSize: isLandscape ? (isDesktop ? 19 : isTablet ? 18 : 16) : (isDesktop ? 21 : isTablet ? 18 : 14.5),  
                                             fontWeight: FontWeight.w500))
                                           ),
                                           DataColumn(label: Text('Status', style: tableTextStyle(
-                                            fontSize: isLandscape ? (isDesktop ? 20 : isTablet ? 18 : 16) : (isDesktop ? 21 : isTablet ? 18 : 14.5),  
+                                            fontSize: isLandscape ? (isDesktop ? 19 : isTablet ? 18 : 16) : (isDesktop ? 21 : isTablet ? 18 : 14.5),  
                                             fontWeight: FontWeight.w500))
                                           ),
                                           DataColumn(label: Text('Update', style: tableTextStyle(
-                                            fontSize: isLandscape ? (isDesktop ? 20 : isTablet ? 18 : 16) : (isDesktop ? 21 : isTablet ? 18 : 14.5),  
+                                            fontSize: isLandscape ? (isDesktop ? 19 : isTablet ? 18 : 16) : (isDesktop ? 21 : isTablet ? 18 : 14.5),  
                                             fontWeight: FontWeight.w500))
                                           ),
                                         ],
                                         rows: products.map((product) {
                                           return DataRow(cells: [
                                             DataCell(Text(capitalizeEachWord(product.name), style: tableTextStyle(
-                                              fontSize: isLandscape ? (isDesktop ? 19 : isTablet ? 17 : 15) : (isDesktop ? 21 : isTablet ? 18 : 14) 
+                                              fontSize: isLandscape ? (isDesktop ? 18 : isTablet ? 17 : 15) : (isDesktop ? 21 : isTablet ? 18 : 14) 
 
                                               ))
                                             ),
                                             DataCell(Text(capitalizeEachWord(product.category ?? 'Uncategorized'), style: tableTextStyle(
-                                              fontSize: isLandscape ? (isDesktop ? 19 : isTablet ? 17 : 15) : (isDesktop ? 21 : isTablet ? 18 : 14)
+                                              fontSize: isLandscape ? (isDesktop ? 17 : isTablet ? 17 : 15) : (isDesktop ? 21 : isTablet ? 18 : 14)
                                               ))
                                               ),
                                             DataCell(Text(product.stock.toString(), style: tableTextStyle(
-                                              fontSize: isLandscape ? (isDesktop ? 19 : isTablet ? 17 : 15) : (isDesktop ? 21 : isTablet ? 18 : 14)
+                                              fontSize: isLandscape ? (isDesktop ? 17 : isTablet ? 17 : 15) : (isDesktop ? 21 : isTablet ? 18 : 14)
                                               ))
                                               ),
                                             DataCell(
                                               Text(
                                                 product.stock == 0 ? 'Out of Stock' : product.stock <= product.low_stock_alert! ? 'Low Stock' : 'In Stock',
                                                 style: tableTextStyle(
-                                                  fontSize: isLandscape ? (isDesktop ? 19 : isTablet ? 17 : 15) : (isDesktop ? 21 : isTablet ? 18 : 14),
+                                                  fontSize: isLandscape ? (isDesktop ? 17 : isTablet ? 17 : 15) : (isDesktop ? 21 : isTablet ? 18 : 14),
                                                   fontWeight: FontWeight.w500,
                                                   color: product.stock == 0 ? Colors.red : product.stock <= product.low_stock_alert! ? const Color.fromARGB(255, 255, 165, 0) : Color.fromARGB(255, 21, 105, 0),
                                                 ),
@@ -609,7 +612,7 @@ class _InventoryState extends State<Inventory> {
                                                     Text(
                                                       "Update",
                                                       style: tableTextStyle(
-                                                        fontSize: isLandscape ? (isDesktop ? 19 : isTablet ? 17 : 15) : (isDesktop ? 21 : isTablet ? 18 : 14),
+                                                        fontSize: isLandscape ? (isDesktop ? 17 : isTablet ? 17 : 15) : (isDesktop ? 21 : isTablet ? 18 : 14),
                                                         color: _userRole == 'admin'
                                                             ? const Color.fromARGB(255, 1, 68, 122)
                                                             : Colors.grey,
