@@ -23,6 +23,7 @@ class _TopProductWidgetState extends State<TopProductWidget> {
 
     final isDesktop = Responsive.isDesktop(context);
     final isTablet = Responsive.isTablet(context);
+    final isLandscape = Responsive.isLandscape(context);
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -33,21 +34,38 @@ class _TopProductWidgetState extends State<TopProductWidget> {
       child: DataTable(
               dividerThickness: 1, 
               headingRowColor: isDark ? MaterialStateProperty.all(const Color.fromARGB(255, 80, 152, 211)) : MaterialStateProperty.all(Colors.blue.shade100),
-              headingRowHeight:isDesktop ? 57 : isTablet ? 52 : 47,
-              dataRowHeight:  isDesktop ? 55 : isTablet ? 50 : 45, 
+              headingRowHeight: isLandscape ? (isDesktop ? 50 : isTablet ? 45 : 35) : (isDesktop ? 57 : isTablet ? 52 : 47),
+              dataRowHeight: isLandscape ? (isDesktop ? 45 : isTablet ? 40 : 30) : (isDesktop ? 55 : isTablet ? 50 : 45), 
               columnSpacing: 50,
               columns: [
-                DataColumn(label: Center(child:Text('Product ID', style: GoogleFonts.kameron(fontSize: Responsive.font(context, mobile: 15, tablet: 18, desktop: 21), fontWeight: FontWeight.w500,color: Colors.black)))),
-                DataColumn(label: Center(child:Text('Product Name', style: GoogleFonts.kameron(fontSize: Responsive.font(context, mobile: 15, tablet: 18, desktop: 21), fontWeight: FontWeight.w500,color: Colors.black)))),
-                DataColumn(label: Center(child:Text('Quantity Sold', style: GoogleFonts.kameron(fontSize: Responsive.font(context, mobile: 15, tablet: 18, desktop: 21), fontWeight: FontWeight.w500,color: Colors.black)))),
-                DataColumn(label: Center(child:Text('Revenue', style: GoogleFonts.kameron(fontSize: Responsive.font(context, mobile: 15, tablet: 18, desktop: 21), fontWeight: FontWeight.w500,color: Colors.black)))),
+                DataColumn(label: Text('Product ID', style: GoogleFonts.kameron(
+                  fontSize: isLandscape ? Responsive.font(context, mobile: 15, tablet: 18, desktop: 20) : Responsive.font(context, mobile: 15, tablet: 18, desktop: 21), 
+                  fontWeight: FontWeight.w500,color: Colors.black))),
+                DataColumn(label: Text('Product Name', style: GoogleFonts.kameron(
+                  fontSize:isLandscape ? Responsive.font(context, mobile: 15, tablet: 18, desktop: 20) : Responsive.font(context, mobile: 15, tablet: 18, desktop: 21), 
+                  fontWeight: FontWeight.w500,color: Colors.black))),
+                DataColumn(label: Text('Quantity Sold', style: GoogleFonts.kameron(
+                  fontSize: isLandscape ? Responsive.font(context, mobile: 15, tablet: 18, desktop: 20) : Responsive.font(context, mobile: 15, tablet: 18, desktop: 21),
+                  fontWeight: FontWeight.w500,color: Colors.black))),
+                DataColumn(label: Text('Revenue', style: GoogleFonts.kameron(
+                  fontSize: isLandscape ? Responsive.font(context, mobile: 15, tablet: 18, desktop: 20) : Responsive.font(context, mobile: 15, tablet: 18, desktop: 21),
+                  fontWeight: FontWeight.w500,color: Colors.black))),
                ],
               rows: widget.products.map((product) {
+                print(product['revenue']);
                 return DataRow(cells: [
-                  DataCell(Center(child:Text(product['product_id'].toString(),style: GoogleFonts.kameron(fontSize: Responsive.font(context, mobile: 14, tablet: 18, desktop: 21), fontWeight: FontWeight.w500,color: Colors.black)))),
-                  DataCell(Center(child:Text(capitalizeEachWord(product['product_name']),style: GoogleFonts.kameron(fontSize: Responsive.font(context, mobile: 14, tablet: 18, desktop: 21), fontWeight: FontWeight.w500,color: Colors.black)))),
-                  DataCell(Center(child:Text(product['total_sold'].toString(),style: GoogleFonts.kameron(fontSize: Responsive.font(context, mobile: 14, tablet: 18, desktop: 21), fontWeight: FontWeight.w500,color: Colors.black)))),
-                  DataCell(Center(child:Text('₱${(product['revenue'] as double).toStringAsFixed(2)}',style: GoogleFonts.kameron(fontSize: Responsive.font(context, mobile: 14, tablet: 18, desktop: 21), fontWeight: FontWeight.w500,color: Colors.black)))),
+                  DataCell(Text(product['product_id'].toString(),style: GoogleFonts.kameron(
+                    fontSize:  isLandscape ? Responsive.font(context, mobile: 14.5, tablet: 17, desktop: 19) : Responsive.font(context, mobile: 14, tablet: 17, desktop: 20), 
+                    fontWeight: FontWeight.w500,color: Colors.black))),
+                  DataCell(Text(capitalizeEachWord(product['product_name']),style: GoogleFonts.kameron(
+                    fontSize: isLandscape ? Responsive.font(context, mobile: 14.5, tablet: 17, desktop: 19) : Responsive.font(context, mobile: 14, tablet: 17, desktop: 20),
+                    fontWeight: FontWeight.w500,color: Colors.black))),
+                  DataCell(Text(product['total_sold'].toString(),style: GoogleFonts.kameron(
+                    fontSize: isLandscape ? Responsive.font(context, mobile: 14.5, tablet: 17, desktop: 19) : Responsive.font(context, mobile: 14, tablet: 17, desktop: 20),
+                    fontWeight: FontWeight.w500,color: Colors.black))),
+                  DataCell(Text('₱${(product['revenue'] as double).toStringAsFixed(2)}',style: GoogleFonts.kameron(
+                    fontSize: isLandscape ? Responsive.font(context, mobile: 14.5, tablet: 17, desktop: 19) : Responsive.font(context, mobile: 14, tablet: 17, desktop: 20),
+                    fontWeight: FontWeight.w500,color: Colors.black))),
                 ]);
               }).toList(),
             ),

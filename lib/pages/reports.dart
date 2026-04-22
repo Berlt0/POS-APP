@@ -309,6 +309,7 @@ Future<void> _exportReport() async {
 
     final isTablet = Responsive.isTablet(context);
     final isDesktop = Responsive.isDesktop(context);
+    final isLandscape = Responsive.isLandscape(context);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -317,7 +318,7 @@ Future<void> _exportReport() async {
         shadowColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
         automaticallyImplyLeading: false,
         elevation: 5,
-        toolbarHeight: isDesktop ? 70 : isTablet ? 70 : 60,
+        toolbarHeight: isLandscape ? (isDesktop ? 50 : isTablet ? 40 : 35) : (isDesktop ? 70 : isTablet ? 60 : 50),
         title:Padding(
           padding: const EdgeInsets.fromLTRB(10,0,0,0),
           child: Row(
@@ -326,7 +327,7 @@ Future<void> _exportReport() async {
               Text(
                 "Reports",
                 style: GoogleFonts.kameron(
-                  fontSize: isDesktop ? 24 :isTablet ? 22 : 20,
+                  fontSize: isLandscape ? (isDesktop ? 20 :isTablet ? 18 : 16) : (isDesktop ? 24 :isTablet ? 22 : 20),
                   fontWeight: FontWeight.bold,
                 ),
                 ),
@@ -335,7 +336,9 @@ Future<void> _exportReport() async {
                   children: [
                     
                     SizedBox(
-                      height: Responsive.spacing(context, mobile: 40, tablet: 45, desktop: 50),
+                      height: isLandscape
+                      ? Responsive.spacing(context, mobile: 30, tablet: 35, desktop: 40)
+                      : Responsive.spacing(context, mobile: 40, tablet: 45, desktop: 50),
                       child: Material(
                         color: Color(0xFF3CE7FA), 
                         borderRadius: BorderRadius.circular(8),
@@ -343,7 +346,7 @@ Future<void> _exportReport() async {
                         child: InkWell(
                           borderRadius: BorderRadius.circular(8),
                           onTap: () {
-                            print("Transaction Records tapped");
+                
                             Navigator.pushNamed(context, '/transaction');
                           },
                           child: Padding(
@@ -352,7 +355,7 @@ Future<void> _exportReport() async {
                               child: Text(
                                 'Transaction Records',
                                 style: GoogleFonts.kameron(
-                                  fontSize: isDesktop ? 15 : isTablet ? 14 : 13,
+                                  fontSize: isLandscape ? (isDesktop ? 13 : isTablet ? 11 : 10) : (isDesktop ? 15 : isTablet ? 14 : 13),
                                   fontWeight: FontWeight.w500,
                                   color: Colors.black,
                                 ),
@@ -367,8 +370,9 @@ Future<void> _exportReport() async {
 
 
                     SizedBox(
-                      height: Responsive.spacing(context,
-                          mobile: 40, tablet: 45, desktop: 50),
+                      height: isLandscape
+                      ? Responsive.spacing(context, mobile: 30, tablet: 35, desktop: 40)
+                      : Responsive.spacing(context,mobile: 40, tablet: 45, desktop: 50),
                       child: Material(
                         color: Colors.green,
                         borderRadius: BorderRadius.circular(8),
@@ -385,7 +389,7 @@ Future<void> _exportReport() async {
                                 Text(isExporting ?
                                   'Exporting' : 'Export',
                                   style: GoogleFonts.kameron(
-                                    fontSize: isDesktop ? 15 : isTablet ? 14 : 13,
+                                    fontSize: isLandscape ? (isDesktop ? 13 : isTablet ? 11 : 10) : (isDesktop ? 15 : isTablet ? 14 : 13),
                                     fontWeight: FontWeight.w500,
                                     color: Colors.white,
                                   ),
@@ -414,7 +418,9 @@ Future<void> _exportReport() async {
               Text(
                 'Date Range',
                 style: GoogleFonts.kameron(
-                  fontSize: Responsive.font(context, mobile: 15,tablet: 21, desktop: 24 ),
+                  fontSize: isLandscape 
+                  ? Responsive.font(context, mobile: 16,tablet: 17, desktop: 19 )
+                  : Responsive.font(context, mobile: 15,tablet: 21, desktop: 24 ),
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).colorScheme.onSurface
                 )
@@ -428,7 +434,11 @@ Future<void> _exportReport() async {
                       onTap: () => _pickDateRange(context),
                       child: Container(
                         width: double.infinity,
-                        padding:  EdgeInsets.symmetric(horizontal: 16, vertical: Responsive.font(context,mobile: 12, tablet: 12, desktop: 14)),
+                        padding:  EdgeInsets.symmetric(
+                          horizontal: 16, 
+                          vertical: isLandscape 
+                            ? Responsive.font(context,mobile: 9.5, tablet: 10, desktop: 10) 
+                            : Responsive.font(context,mobile: 12, tablet: 12, desktop: 14)),
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey.shade300),
                           borderRadius: BorderRadius.circular(12),
@@ -444,7 +454,9 @@ Future<void> _exportReport() async {
                                     ' - '
                                     '${DateFormat('MM/dd/yyyy').format(selectedRange!.end)}',
                               style: GoogleFonts.kameron(
-                                fontSize: Responsive.font(context, mobile: 14, tablet: 17, desktop: 19),
+                                fontSize: isLandscape 
+                                ? Responsive.font(context, mobile: 13, tablet: 14, desktop: 16)
+                                :  Responsive.font(context, mobile: 14, tablet: 17, desktop: 19),
                                 color: Colors.black87,
                                 fontWeight: FontWeight.w500
                               ),
@@ -465,7 +477,11 @@ Future<void> _exportReport() async {
                       iconEnabledColor: Colors.black87,
                      value: selectedFilter,
                      items: ['Today', 'Weekly', 'Custom']
-                    .map((e) => DropdownMenuItem(value: e, child: Text(e, style: GoogleFonts.kameron(fontSize:  Responsive.font(context,mobile: 14, tablet: 17, desktop: 19), color:Colors.black),)))
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e, style: GoogleFonts.kameron(
+                      fontSize: isLandscape 
+                        ? Responsive.font(context,mobile: 13, tablet: 14, desktop: 16)
+                        : Responsive.font(context,mobile: 14, tablet: 17, desktop: 19),
+                      color:Colors.black),)))
                     .toList(),
                       onChanged: (value) async {
                         setState(() {
@@ -482,7 +498,11 @@ Future<void> _exportReport() async {
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Colors.grey[100],
-                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: Responsive.font(context,mobile: 12, tablet: 12, desktop: 14)),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12, 
+                          vertical: isLandscape 
+                            ? Responsive.font(context,mobile: 9.5, tablet: 10, desktop: 10) 
+                            : Responsive.font(context,mobile: 12, tablet: 12, desktop: 14)),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -495,13 +515,9 @@ Future<void> _exportReport() async {
                   LayoutBuilder(
                   builder: (context, constraints) {
                     int crossAxisCount = constraints.maxWidth < 600 ? 2 : 4;
-                    double cardHeight = Responsive.spacing(
-                      context,
-                      mobile: 80,
-                      tablet: 100,
-                      desktop: 120,
-                    );
-          
+                    double cardHeight = isLandscape 
+                    ? Responsive.spacing(context, mobile: 60, tablet: 70, desktop: 90)
+                    : Responsive.spacing(context, mobile: 80, tablet: 100, desktop: 120);
                     return GridView.builder(
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: crossAxisCount,
@@ -554,91 +570,199 @@ Future<void> _exportReport() async {
                   },
                 ),
 
-                SizedBox(height: 20,),
+                SizedBox(height: 30,),
 
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                isLandscape ? Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text("Sales Trend",style: GoogleFonts.kameron(
-                        fontSize: Responsive.font(context, mobile: 16,tablet: 21, desktop: 24 ),
-                        fontWeight: FontWeight.bold
-                      ),),
-                    ),
-
-                    SizedBox(height: 15,),
-                    
-                    Container(
-                      height: Responsive.spacing(
-                        context,
-                        mobile: 300,
-                        tablet: 350,
-                        desktop: 400,),
-                      margin: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: ShadowHelper.getShadow(context)
-                        ),
-                       child: isSaleTrendLoading
-                        ? Center(child: CircularProgressIndicator.adaptive(
-                          backgroundColor: Colors.blue
-                        ),)
-                        :salesTrend.isEmpty
-                        ? Center(child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.area_chart_rounded, size: 40, color: Colors.grey[400]),
-                            const SizedBox(height: 8),
-                            Text("No data", style: GoogleFonts.kameron(fontSize: 14, fontWeight: FontWeight.w500, color:Colors.grey[700])),
-                          ],
-                        ))
-                        : SaleChartWidget(salesTrend: salesTrend, isLoading: isSaleTrendLoading, selectedFilter: selectedFilter )
-                    ),
-                    
-                  ],
-                ),
-                SizedBox(height: 25,),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text("Revenue vs COGS vs Profit",style: GoogleFonts.kameron(
-                        fontSize: Responsive.font(context, mobile: 16,tablet: 21, desktop: 24 ),
-                        fontWeight: FontWeight.bold
-                      ),),
-                    ),
-                    SizedBox(height: 15,),
-                    Container(
-                      height: Responsive.spacing(
-                        context,
-                        mobile: 300,
-                        tablet: 350,
-                        desktop: 400,
+                    Expanded(
+                      flex: 1,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text("Sales Trend",style: GoogleFonts.kameron(
+                              fontSize: isLandscape 
+                                ? Responsive.font(context, mobile: 16,tablet: 17, desktop: 19 ) 
+                                : Responsive.font(context, mobile: 16,tablet: 21, desktop: 24 ),
+                              fontWeight: FontWeight.bold
+                            ),),
+                          ),
+                      
+                          SizedBox(height: 15,),
+                          
+                          Container(
+                            height: Responsive.spacing(
+                              context,
+                              mobile: 300,
+                              tablet: 350,
+                              desktop: 400,),
+                            margin: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: ShadowHelper.getShadow(context)
+                              ),
+                             child: isSaleTrendLoading
+                              ? Center(child: CircularProgressIndicator.adaptive(
+                                backgroundColor: Colors.blue
+                              ),)
+                              :salesTrend.isEmpty
+                              ? Center(child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.area_chart_rounded, size: 40, color: Colors.grey[400]),
+                                  const SizedBox(height: 8),
+                                  Text("No data", style: GoogleFonts.kameron(fontSize: 14, fontWeight: FontWeight.w500, color:Colors.grey[700])),
+                                ],
+                              ))
+                              : SaleChartWidget(salesTrend: salesTrend, isLoading: isSaleTrendLoading, selectedFilter: selectedFilter )
+                          ),
+                          
+                        ],
                       ),
-                      margin: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: ShadowHelper.getShadow(context)
-                        ),
-                       child: isRCOGSPLoading
-                        ? Center(child: CircularProgressIndicator.adaptive(
-                          backgroundColor: Colors.blue
-                        ),)
-                        :rcogsp.isEmpty
-                        ? Center(child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.bar_chart_outlined, size: 40, color: Colors.grey[400]),
-                            Text("No data", style: GoogleFonts.kameron(fontSize: 14,fontWeight: FontWeight.w500, color:Colors.grey[700])),
-                          ],
-                        ))
-                        : RcogspChartWidget(rcogsp: rcogsp, isLoading: isRCOGSPLoading )
                     ),
+                    SizedBox(width: 10,),
+                    Expanded(
+                      flex: 1,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text("Revenue vs COGS vs Profit",style: GoogleFonts.kameron(
+                              fontSize:  isLandscape 
+                                ? Responsive.font(context, mobile: 16,tablet: 17, desktop: 19 ) 
+                                : Responsive.font(context, mobile: 16,tablet: 21, desktop: 24 ),
+                              fontWeight: FontWeight.bold
+                            ),),
+                          ),
+                          SizedBox(height: 15,),
+                          Container(
+                            height: Responsive.spacing(
+                              context,
+                              mobile: 300,
+                              tablet: 350,
+                              desktop: 400,
+                            ),
+                            margin: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: ShadowHelper.getShadow(context)
+                              ),
+                             child: isRCOGSPLoading
+                              ? Center(child: CircularProgressIndicator.adaptive(
+                                backgroundColor: Colors.blue
+                              ),)
+                              :rcogsp.isEmpty
+                              ? Center(child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.bar_chart_outlined, size: 40, color: Colors.grey[400]),
+                                  Text("No data", style: GoogleFonts.kameron(fontSize: 14,fontWeight: FontWeight.w500, color:Colors.grey[700])),
+                                ],
+                              ))
+                              : RcogspChartWidget(rcogsp: rcogsp, isLoading: isRCOGSPLoading )
+                          ),
+                          
+                        ],
+                      ),
+                    ),
+                  ],
+                ):Column(
+                  children: [
+                     Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text("Sales Trend",style: GoogleFonts.kameron(
+                              fontSize: isLandscape 
+                                ? Responsive.font(context, mobile: 16,tablet: 17, desktop: 19 ) 
+                                : Responsive.font(context, mobile: 16,tablet: 21, desktop: 24 ),
+                              fontWeight: FontWeight.bold
+                            ),),
+                          ),
+                      
+                          SizedBox(height: 15,),
+                          
+                          Container(
+                            height: Responsive.spacing(
+                              context,
+                              mobile: 300,
+                              tablet: 350,
+                              desktop: 400,),
+                            margin: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: ShadowHelper.getShadow(context)
+                              ),
+                             child: isSaleTrendLoading
+                              ? Center(child: CircularProgressIndicator.adaptive(
+                                backgroundColor: Colors.blue
+                              ),)
+                              :salesTrend.isEmpty
+                              ? Center(child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.area_chart_rounded, size: 40, color: Colors.grey[400]),
+                                  const SizedBox(height: 8),
+                                  Text("No data", style: GoogleFonts.kameron(fontSize: 14, fontWeight: FontWeight.w500, color:Colors.grey[700])),
+                                ],
+                              ))
+                              : SaleChartWidget(salesTrend: salesTrend, isLoading: isSaleTrendLoading, selectedFilter: selectedFilter )
+                          ),
+                          
+                        ],
+                      ),
                     
+                    SizedBox(height: 25,),
+                     Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text("Revenue vs COGS vs Profit",style: GoogleFonts.kameron(
+                              fontSize:  isLandscape 
+                                ? Responsive.font(context, mobile: 16,tablet: 17, desktop: 19 ) 
+                                : Responsive.font(context, mobile: 16,tablet: 21, desktop: 24 ),
+                              fontWeight: FontWeight.bold
+                            ),),
+                          ),
+                          SizedBox(height: 15,),
+                          Container(
+                            height: Responsive.spacing(
+                              context,
+                              mobile: 300,
+                              tablet: 350,
+                              desktop: 400,
+                            ),
+                            margin: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: ShadowHelper.getShadow(context)
+                              ),
+                             child: isRCOGSPLoading
+                              ? Center(child: CircularProgressIndicator.adaptive(
+                                backgroundColor: Colors.blue
+                              ),)
+                              :rcogsp.isEmpty
+                              ? Center(child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.bar_chart_outlined, size: 40, color: Colors.grey[400]),
+                                  Text("No data", style: GoogleFonts.kameron(fontSize: 14,fontWeight: FontWeight.w500, color:Colors.grey[700])),
+                                ],
+                              ))
+                              : RcogspChartWidget(rcogsp: rcogsp, isLoading: isRCOGSPLoading )
+                          ),
+                          
+                        ],
+                      ),
                   ],
                 ),
                 SizedBox(height: 25,),
@@ -648,7 +772,9 @@ Future<void> _exportReport() async {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text("Top Selling Products",style: GoogleFonts.kameron(
-                        fontSize: Responsive.font(context, mobile: 16,tablet: 21, desktop: 24 ),
+                        fontSize:  isLandscape 
+                          ? Responsive.font(context, mobile: 15,tablet: 16, desktop: 18 ) 
+                          : Responsive.font(context, mobile: 16,tablet: 21, desktop: 24 ),
                         fontWeight: FontWeight.bold
                       ),),
                     ),
@@ -761,13 +887,12 @@ Future<void> _exportReport() async {
     required String value,
   }) {
     bool loading = value == 'Loading...';
+
+    final isLandscape = Responsive.isLandscape(context);
     
-    double iconContainerSize = Responsive.spacing(
-      context,
-      mobile: 45,
-      tablet: 48,
-      desktop: 65,
-    );
+    double iconContainerSize = isLandscape 
+      ? Responsive.spacing(context,mobile: 27,tablet: 30,desktop: 45)
+      : Responsive.spacing(context,mobile: 45,tablet: 48,desktop: 65);
 
     return Container(
       padding: const EdgeInsets.all(12),
@@ -789,12 +914,9 @@ Future<void> _exportReport() async {
               child: Icon(
                 icon,
                 color: iconColor,
-                size: Responsive.font(
-                  context,
-                  mobile: 21,
-                  tablet: 25,
-                  desktop: 32,
-                ),
+                size: isLandscape
+                 ? Responsive.font(context,mobile: 18,tablet: 20,desktop: 25)
+                 : Responsive.font(context,mobile: 21,tablet: 25,desktop: 28)
               ),
             ),
           ),
@@ -807,12 +929,9 @@ Future<void> _exportReport() async {
                 Text(
                   title,
                   style: GoogleFonts.kameron(
-                    fontSize: Responsive.font(
-                      context,
-                      mobile: 13,
-                      tablet: 15,
-                      desktop: 20,
-                    ),
+                    fontSize: isLandscape 
+                    ? Responsive.font(context,mobile: 13,tablet: 15,desktop: 17)
+                    : Responsive.font(context,mobile: 13,tablet: 15,desktop: 20),
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
@@ -821,8 +940,8 @@ Future<void> _exportReport() async {
                   value,
                   style: GoogleFonts.kameron(
                     fontSize: loading 
-                      ? Responsive.font(context , mobile: 12, tablet: 14, desktop: 18,)
-                      : Responsive.font(context , mobile: 15, tablet: 17, desktop: 23,),
+                      ? isLandscape ?  Responsive.font(context , mobile: 12.5, tablet: 13, desktop: 15,) : Responsive.font(context , mobile: 12, tablet: 14, desktop: 18,)
+                      : isLandscape ? Responsive.font(context , mobile: 15, tablet: 16, desktop: 18,) : Responsive.font(context , mobile: 15, tablet: 17, desktop: 23,),
                     fontWeight: loading ? FontWeight.w500 :  FontWeight.bold,
                     color: loading ? Colors.grey[500] : Theme.of(context).colorScheme.onSurface,
                   ),
