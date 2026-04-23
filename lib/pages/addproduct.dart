@@ -36,7 +36,22 @@ class ProductFormState {
 
     File? selectedImage;
     String stockUnit = 'pcs';
+
+
+  void dispose() {
+    productName.dispose();
+    productCategory.dispose();
+    barcode.dispose();
+    price.dispose();
+    cost.dispose();
+    quantity.dispose();
+    stockAlert.dispose();
+    description.dispose();
+  }
+
 }
+
+
 
 
 
@@ -181,7 +196,8 @@ Future<void> _saveProducts() async {
         SnackBar(content: Text("Please fill all required fields"))
         
       );
-      _isLoading = false;
+      if (!mounted) return;
+      setState(() => _isLoading = false);
       return;
     }
 
@@ -737,7 +753,7 @@ Widget productFormWidget(int index) {
                           ), 
                           controller: form.quantity,
                           inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                            FilteringTextInputFormatter.allow(RegExp(r'[0-9]+')),
                           ],
                           decoration: InputDecoration(
                             hintText: '(ex. 12)',
@@ -818,7 +834,7 @@ Widget productFormWidget(int index) {
                           ), 
                           controller: form.stockAlert,
                           inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                            FilteringTextInputFormatter.allow(RegExp(r'[0-9]+')),
                           ],
                           decoration: InputDecoration(
                             hintText: '(ex. 5)',
@@ -989,8 +1005,12 @@ Widget productFormWidget(int index) {
               
                     try{
                       await _saveProducts();
+                      if (!mounted) return;
                       await syncProducts();
+                      if (!mounted) return;
+                      setState(() { _isLoading = false; });
                     }catch(error){
+                      if (!mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text("Error saving products."),
                         backgroundColor: Colors.red,

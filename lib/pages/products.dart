@@ -497,8 +497,8 @@ final isDark = Theme.of(context).brightness == Brightness.dark;
                           child: _editedImage != null
                               ? Image.file(
                                   _editedImage!,
-                                  width: isDesktop ? 250 : isTablet ? 230 : 150,
-                                  height:isDesktop ? 230 : isTablet ? 200 :120,
+                                  width: isLandscape ? (isDesktop ? 180 : isTablet ? 150 : 130) : (isDesktop ? 250 : isTablet ? 230 : 150),
+                                  height: isLandscape ? (isDesktop ? 150 : isTablet ? 130 :100) : (isDesktop ? 230 : isTablet ? 200 :130),
                                   fit: BoxFit.cover,
                                 )
                               : Image.asset(
@@ -1089,8 +1089,11 @@ Widget productCard(Product product) {
                   
 
                   final filtered = products.where((product) {
+
+                  final productCategory = product.category ?? 'Others';
+                  
                   final matchesCategory = _selectedCategory == 'All' ||
-                      product.category == _selectedCategory;
+                      productCategory == _selectedCategory;
                   final matchesSearch = product.name.toLowerCase().contains(_searchText);
                   return matchesCategory && matchesSearch;
                 }).toList();
@@ -1100,10 +1103,12 @@ Widget productCard(Product product) {
                     // No search: group by category
                     final Map<String, List<Product>> grouped = {};
                     for (var product in products) {
-                      if (_selectedCategory != 'All' &&
-                          product.category != _selectedCategory) continue;
 
                       final category = product.category ?? 'Others';
+                      
+                      if (_selectedCategory != 'All' &&
+                          category != _selectedCategory) continue;
+
                       grouped.putIfAbsent(category, () => []);
                       grouped[category]!.add(product);
                     }

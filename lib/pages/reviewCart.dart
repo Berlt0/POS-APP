@@ -92,6 +92,7 @@ void dispose() {
     final isDesktop = Responsive.isDesktop(context);
     final isTablet = Responsive.isTablet(context);
     final isMobile = Responsive.isMobile(context);
+    final isLandscape = Responsive.isLandscape(context);
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -128,7 +129,7 @@ void dispose() {
                       Text(
                         "Enter Amount Received",
                         style: GoogleFonts.kameron(
-                            fontSize: isDesktop ? 21 : isTablet ? 20 : 17,
+                            fontSize: isLandscape ?  (isDesktop ? 18 : isTablet ? 16 : 15) : (isDesktop ? 22 : isTablet ? 21 : 17),
                             fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -136,7 +137,7 @@ void dispose() {
                       TextField(
                         controller: _controller,
                         style: GoogleFonts.kameron( 
-                          fontSize: isDesktop ? 22 : isTablet ? 20 : 18,
+                          fontSize: isLandscape ? Responsive.font(context, mobile: 15, tablet: 16, desktop: 18) : Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
                           color: Colors.black
                         ),
                         onChanged: (value){
@@ -174,7 +175,7 @@ void dispose() {
                               ],
                             ),
                           contentPadding: EdgeInsets.symmetric(
-                            vertical: isMobile ? 12 : 18,
+                            vertical: isMobile ? 12 : isLandscape ? 16 : 18,
                             horizontal: 20
                           ),
                         fillColor: Colors.white,
@@ -187,7 +188,10 @@ void dispose() {
                         children: [
                           TextButton(
                             onPressed: () => Navigator.pop(context, null),
-                            child: Text("Cancel", style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 15, color: isDark ? Colors.white : Colors.black,fontWeight: FontWeight.w500),),
+                            child: Text("Cancel", style: GoogleFonts.kameron(
+                              fontSize:  isLandscape ? (isDesktop ? 16 : isTablet ? 14 : 13) : (isDesktop ? 21 : isTablet ? 18 : 15),
+                              color: isDark ? Colors.white : Colors.black,
+                              fontWeight: FontWeight.w500),),
                           ),
                           const SizedBox(width: 10),
                           ElevatedButton(
@@ -215,7 +219,10 @@ void dispose() {
             
                               Navigator.pop(context, _controller.text);
                             },
-                            child: Text("Confirm", style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 19 : 15, color: Colors.black, fontWeight: FontWeight.w500),),
+                            child: Text("Confirm", style: GoogleFonts.kameron(
+                              fontSize: isLandscape ? (isDesktop ? 16 : isTablet ? 14 : 13) : (isDesktop ? 21 : isTablet ? 18 : 15),
+                              color: Colors.black, 
+                              fontWeight: FontWeight.w500),),
                           ),
                         ],
                       ),
@@ -255,7 +262,8 @@ void dispose() {
 
         final isDesktop = Responsive.isDesktop(context);
         final isTablet = Responsive.isTablet(context);
-        final isMobile = Responsive.isMobile(context);
+        final isLandscape = Responsive.isLandscape(context);
+      
 
         return Padding(
           padding: const EdgeInsets.all(20),
@@ -265,24 +273,30 @@ void dispose() {
               Text(
                 "Select Payment Method",
                 style: GoogleFonts.kameron(
-                  fontSize: isDesktop ? 25 : isTablet ? 22 : 16,
+                  fontSize: isLandscape ? (isDesktop ? 20 : isTablet ? 18 : 16) : (isDesktop ? 25 : isTablet ? 22 : 16),
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 20),
               ListTile(
-                leading: Icon(Icons.credit_card, size: isDesktop ? 35 : isTablet ? 30 : 25, ),
-                title: Text("Credit / Debit Card", style: GoogleFonts.kameron(fontSize: isDesktop ? 20 : isTablet ? 18 : 15, fontWeight: FontWeight.w500),),
+                leading: Icon(Icons.credit_card, size: isLandscape ? (isDesktop ? 30 : isTablet ? 25 : 20) : (isDesktop ? 35 : isTablet ? 30 : 25), ),
+                title: Text("Credit / Debit Card", style: GoogleFonts.kameron(
+                  fontSize: isLandscape ? (isDesktop ? 18 : isTablet ? 16 : 14) : (isDesktop ? 20 : isTablet ? 18 : 15), 
+                  fontWeight: FontWeight.w500),),
                 onTap: () => Navigator.pop(context,PaymentResult(method: 'card',amountReceived: null)),
               ),
               ListTile(
-                leading: Icon(Icons.account_balance_wallet,  size: isDesktop ? 35 : isTablet ? 30 : 25,),
-                title:  Text("GCash", style: GoogleFonts.kameron(fontSize: isDesktop ? 20 : isTablet ? 18 : 15, fontWeight: FontWeight.w500)),
+                leading: Icon(Icons.account_balance_wallet,  size:  isLandscape ? (isDesktop ? 30 : isTablet ? 25 : 20) : (isDesktop ? 35 : isTablet ? 30 : 25),),
+                title:  Text("GCash", style: GoogleFonts.kameron(
+                  fontSize: isLandscape ? (isDesktop ? 18 : isTablet ? 16 : 14) : (isDesktop ? 20 : isTablet ? 18 : 15),
+                  fontWeight: FontWeight.w500)),
                 onTap: () => Navigator.pop(context,PaymentResult(method: 'gcash',amountReceived: null)),
               ),
               ListTile(
-                leading: Icon(Icons.money,  size: isDesktop ? 35 : isTablet ? 30 : 25,),
-                title:  Text("Cash", style: GoogleFonts.kameron(fontSize: isDesktop ? 20 : isTablet ? 18 : 15, fontWeight: FontWeight.w500)),
+                leading: Icon(Icons.money,  size:  isLandscape ? (isDesktop ? 30 : isTablet ? 25 : 20) : (isDesktop ? 35 : isTablet ? 30 : 25),),
+                title:  Text("Cash", style: GoogleFonts.kameron(
+                  fontSize: isLandscape ? (isDesktop ? 18 : isTablet ? 16 : 14) : (isDesktop ? 20 : isTablet ? 18 : 15), 
+                  fontWeight: FontWeight.w500)),
                 onTap: () async {
 
                 final amountString = await _cashPaymentModal();
@@ -414,6 +428,7 @@ void dispose() {
     final isDesktop = Responsive.isDesktop(context);
     final isTablet = Responsive.isTablet(context);
     final isMobile = Responsive.isMobile(context);
+    final isLandscape = Responsive.isLandscape(context);
 
       final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -423,10 +438,10 @@ void dispose() {
       appBar: AppBar(
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         shadowColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
-        elevation: 5,
-        toolbarHeight: isDesktop ? 80 : isTablet ? 70 : 60,
+        elevation: 3,
+        toolbarHeight:  isLandscape ? (isDesktop ? 50 : isTablet ? 40 : 35) : (isDesktop ? 70 : isTablet ? 60 : 50),
         leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios_new_sharp,size: isDesktop ? 35 : isTablet ? 30 :25),   // or Icons.arrow_back
+            icon: Icon(Icons.arrow_back_ios_new_sharp,size: isLandscape ? (isDesktop ? 23 : isTablet ? 20 :15) : (isDesktop ? 35 : isTablet ? 30 :25)),   // or Icons.arrow_back
             iconSize: Responsive.spacing(context, mobile: 25, tablet: 30, desktop: 35), 
             onPressed: () => Navigator.pop(context),
             tooltip: 'Back',
@@ -436,7 +451,7 @@ void dispose() {
         title: Text(
             "Review Cart",
             style: GoogleFonts.kameron(
-              fontSize: isDesktop ? 22 : isTablet ? 20 :18,
+              fontSize:  isLandscape ? (isDesktop ? 20 :isTablet ? 18 : 16) : (isDesktop ? 24 :isTablet ? 22 : 20),
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -451,13 +466,13 @@ void dispose() {
                 Icon(
                   Icons.shopping_cart,
                   color: isDark ? Colors.white :  Color.fromARGB(255, 16, 19, 187),
-                  size: isDesktop ? 35 : isTablet ? 30 : 23,
+                  size: isLandscape ? (isDesktop ? 30 : isTablet ? 25 : 23) : (isDesktop ? 35 : isTablet ? 30 : 23),
                 ),
                 const SizedBox(width: 6),
                 Text(
                   'Cart Summary',
                   style: GoogleFonts.kameron(
-                    fontSize: isDesktop ? 24 : isTablet ? 22 : 16,
+                    fontSize: isLandscape ? (isDesktop ? 20 : isTablet ? 18 : 16) : (isDesktop ? 24 : isTablet ? 22 : 16),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -485,14 +500,14 @@ void dispose() {
                           child: item.imagePath.isNotEmpty
                               ? Image.file(
                                   File(item.imagePath),
-                                  width: isDesktop ? 80 : isTablet ? 80 : 50,
-                                  height: isDesktop ? 80 : isTablet ? 70 : 50,
+                                  width: isLandscape ? (isDesktop ? 70 : isTablet ? 80 : 50) : (isDesktop ? 80 : isTablet ? 70 : 50),
+                                  height: isLandscape ? (isDesktop ? 60 : isTablet ? 70 : 50) : (isDesktop ? 80 : isTablet ? 70 : 50),
                                   fit: BoxFit.cover,
                                 )
                               : Image.asset(
                                   'assets/Legendaries.png',
-                                  width: isDesktop ? 80 : isTablet ? 80 : 50,
-                                  height: isDesktop ? 80 : isTablet ? 70 : 50,
+                                  width: isLandscape ? (isDesktop ? 70 : isTablet ? 80 : 50) : (isDesktop ? 80 : isTablet ? 70 : 50),
+                                  height: isLandscape ? (isDesktop ? 60 : isTablet ? 70 : 50) : (isDesktop ? 80 : isTablet ? 70 : 50),
                                   fit: BoxFit.cover,
                                 ),
                         ),
@@ -505,13 +520,13 @@ void dispose() {
                                 capitalizeEachWord(item.name),
                                 style: GoogleFonts.kameron(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: isDesktop ? 24 : isTablet ? 20 : 15,
+                                  fontSize: isLandscape ? (isDesktop ? 18 : isTablet ? 16 : 14.5) : (isDesktop ? 24 : isTablet ? 20 : 15),
                                 ),
                               ),
                               Text(
                                 '₱${item.price.toStringAsFixed(2)}',
                                 style: GoogleFonts.kameron(
-                                  fontSize: isDesktop ? 20 : isTablet ? 16 : 13,
+                                  fontSize: isLandscape ? (isDesktop ? 17 : isTablet ? 15 : 14) : (isDesktop ? 20 : isTablet ? 16 : 13),
                                   color: isDark ? Color.fromARGB(255, 43, 161, 47) : const Color.fromARGB(255, 55, 134, 58),
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -526,12 +541,12 @@ void dispose() {
                               'x${item.quantity}',
                               style: GoogleFonts.kameron(
                                 fontWeight: FontWeight.bold,
-                                fontSize: isDesktop ? 22 : isTablet ? 18 : 15,
+                                fontSize: isLandscape ? (isDesktop ? 19 : isTablet ? 17 : 15) : (isDesktop ? 22 : isTablet ? 18 : 15),
                               ),
                             ),
                             Text(
                               '₱${(item.price * item.quantity).toStringAsFixed(2)}',
-                              style: GoogleFonts.kameron(fontSize: isDesktop ? 20 : isTablet ? 17 : 14, fontWeight: FontWeight.w500),
+                              style: GoogleFonts.kameron(fontSize: isLandscape ? (isDesktop ? 20 : isTablet ? 19 : 17) : (isDesktop ? 20 : isTablet ? 17 : 14), fontWeight: FontWeight.w500),
                             ),
                           ],
                         ),
@@ -561,14 +576,14 @@ void dispose() {
               child: Column(
                 children: [
                   _rowText("Total Items", totalQty.toString(),
-                      fontSize: isDesktop ? 19 : isTablet ? 17 : 14,
+                      fontSize: isLandscape ? (isDesktop ? 18 : isTablet ? 16 : 14) : (isDesktop ? 19 : isTablet ? 17 : 14),
                     weight: FontWeight.w500),
                    SizedBox(height: 3),
                   _rowText("Subtotal", '₱${subtotal.toStringAsFixed(2)}',
-                      fontSize:  isDesktop ? 20 : isTablet ? 18 : 15, weight: FontWeight.w500,),
+                      fontSize: isLandscape ? (isDesktop ? 20 : isTablet ? 18 : 15) : (isDesktop ? 20 : isTablet ? 18 : 15), weight: FontWeight.w500,),
                    SizedBox(height: 3),
                   _rowText("Total", '₱${total.toStringAsFixed(2)}',
-                      fontSize:  isDesktop ? 22 : isTablet ? 20 : 16, weight: FontWeight.bold, color: Colors.red),
+                      fontSize: isLandscape ? (isDesktop ? 21 : isTablet ? 19 : 16) : (isDesktop ? 22 : isTablet ? 20 : 16), weight: FontWeight.bold, color: Colors.red),
                 ],
               ),
             ),
@@ -616,7 +631,7 @@ void dispose() {
               child: Text(
                 "Proceed to Payment",
                 style: GoogleFonts.kameron(
-                  fontSize: isDesktop ? 20 : isTablet ? 18 : 15,
+                  fontSize: isLandscape ? (isDesktop ? 18 : isTablet ? 16 : 14) : (isDesktop ? 20 : isTablet ? 18 : 15),
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
                 ),

@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import 'package:pos_app/pages/receipt.dart';
 import 'package:pos_app/utils/boxShadow.dart';
 import 'package:pos_app/utils/responsive.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/services/exports/pdf/transactionReports.dart';
 
 class TransactionPage extends StatefulWidget {
@@ -246,6 +245,7 @@ Future<void> _exportTransactions() async {
 
     final isDesktop = Responsive.isDesktop(context);
     final isTablet = Responsive.isTablet(context);
+    final isLandscape = Responsive.isLandscape(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -253,10 +253,10 @@ Future<void> _exportTransactions() async {
         shadowColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
         automaticallyImplyLeading: false,
         elevation: 3,
-        toolbarHeight: isDesktop ? 80 : isTablet ? 70 : 60,
+        toolbarHeight: isLandscape ? (isDesktop ? 50 : isTablet ? 40 : 35) : (isDesktop ? 70 : isTablet ? 60 : 50),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_sharp, size: isDesktop ? 35 : isTablet ? 30 : 25),
-          iconSize: Responsive.spacing(context, mobile: 25, tablet: 30, desktop: 35),
+          icon: Icon(Icons.arrow_back_ios_new_sharp, size: isLandscape ? (isDesktop ? 23 : isTablet ? 20 :15) : (isDesktop ? 35 : isTablet ? 30 :25)),
+          iconSize: Responsive.spacing(context, mobile: 28, tablet: 32, desktop: 36),
           onPressed: () => Navigator.pop(context),
           tooltip: 'Back',
         ),
@@ -267,14 +267,15 @@ Future<void> _exportTransactions() async {
             Text(
               "Transactions Records",
               style: GoogleFonts.kameron(
-                fontSize: isDesktop ? 22 : isTablet ? 20 : 18,
+                fontSize: isLandscape ? (isDesktop ? 20 :isTablet ? 18 : 16) : (isDesktop ? 24 :isTablet ? 22 : 20),
                 fontWeight: FontWeight.bold,
               ),
             ),
 
             SizedBox(
-                      height: Responsive.spacing(context,
-                      mobile: 40, tablet: 45, desktop: 50),
+                      height: isLandscape
+                        ? Responsive.spacing(context, mobile: 30, tablet: 35, desktop: 40)
+                        : Responsive.spacing(context,mobile: 40, tablet: 45, desktop: 50),
                       child: Material(
                         color: Colors.green,
                         borderRadius: BorderRadius.circular(8),
@@ -291,7 +292,7 @@ Future<void> _exportTransactions() async {
                                 Text(isLoading ? "Exporting" :
                                   'Export',
                                   style: GoogleFonts.kameron(
-                                    fontSize: isDesktop ? 15 : isTablet ? 14 : 13,
+                                    fontSize:  isLandscape ? (isDesktop ? 13 : isTablet ? 11 : 10) : (isDesktop ? 15 : isTablet ? 14 : 13),
                                     fontWeight: FontWeight.w500,
                                     color: Colors.white,
                                   ),
@@ -321,7 +322,9 @@ Future<void> _exportTransactions() async {
                     Text(
                       'Date Range',
                       style: GoogleFonts.kameron(
-                        fontSize: Responsive.font(context, mobile: 15, tablet: 21, desktop: 24),
+                        fontSize: isLandscape 
+                            ? Responsive.font(context, mobile: 16,tablet: 17, desktop: 19 )
+                            : Responsive.font(context, mobile: 15,tablet: 21, desktop: 24 ),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -336,7 +339,9 @@ Future<void> _exportTransactions() async {
                               width: double.infinity,
                               padding: EdgeInsets.symmetric(
                                 horizontal: 16,
-                                vertical: Responsive.font(context, mobile: 12, tablet: 12, desktop: 14),
+                                vertical:isLandscape 
+                                  ? Responsive.font(context,mobile: 9.5, tablet: 10, desktop: 10) 
+                                  : Responsive.font(context,mobile: 12, tablet: 12, desktop: 14),
                               ),
                               decoration: BoxDecoration(
                                 border: Border.all(color: Colors.grey.shade300),
@@ -351,7 +356,9 @@ Future<void> _exportTransactions() async {
                                         ? 'Select date range'
                                         : '${DateFormat('MM/dd/yyyy').format(selectedRange!.start)} - ${DateFormat('MM/dd/yyyy').format(selectedRange!.end)}',
                                     style: GoogleFonts.kameron(
-                                      fontSize: Responsive.font(context, mobile: 14, tablet: 17, desktop: 19),
+                                      fontSize: isLandscape 
+                                        ? Responsive.font(context, mobile: 13, tablet: 14, desktop: 16)
+                                        :  Responsive.font(context, mobile: 14, tablet: 17, desktop: 19),
                                       color: Colors.black87,
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -372,7 +379,11 @@ Future<void> _exportTransactions() async {
                             items: ['Today', 'Weekly', 'Custom']
                                 .map((e) => DropdownMenuItem(
                                       value: e,
-                                      child: Text(e, style: GoogleFonts.kameron(fontSize: 16, color: Colors.black)),
+                                      child: Text(e, style: GoogleFonts.kameron(
+                                        fontSize:  isLandscape 
+                                          ? Responsive.font(context,mobile: 13, tablet: 14, desktop: 16)
+                                          : Responsive.font(context,mobile: 14, tablet: 17, desktop: 19), 
+                                        color: Colors.black)),
                                     ))
                                 .toList(),
                             onChanged: (value) async {
@@ -390,7 +401,9 @@ Future<void> _exportTransactions() async {
                             decoration: InputDecoration(
                               filled: true,
                               fillColor: Colors.grey[100],
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                              contentPadding:  EdgeInsets.symmetric(horizontal: 12, vertical: isLandscape 
+                                ? Responsive.font(context,mobile: 9.5, tablet: 10, desktop: 10) 
+                                : Responsive.font(context,mobile: 12, tablet: 12, desktop: 14)),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -474,14 +487,29 @@ Future<void> _exportTransactions() async {
                                           showCheckboxColumn: false,
                                           columnSpacing: isDesktop ? 38 : isTablet ? 35 : 30,
                                           headingRowColor:  MaterialStateProperty.all(const Color.fromARGB(228, 255, 255, 255)),
-                                          dataRowHeight: isDesktop ? 60 : isTablet ? 55 : 45,
-                                          headingRowHeight: isDesktop ? 58 : isTablet ? 55 : 50,
+                                          dataRowHeight: isLandscape ? (isDesktop ? 45 : isTablet ? 40 : 36) : (isDesktop ? 60 : isTablet ? 55 : 45),
+                                          headingRowHeight: isLandscape ? (isDesktop ? 40 : isTablet ? 35 : 30) :  (isDesktop ? 58 : isTablet ? 55 : 50),
                                           columns: [
-                                            DataColumn(label: Text('ID', style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14.5, fontWeight: FontWeight.w500,color: Colors.black))),
-                                            DataColumn(label: Text('Processed By', style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14.5, fontWeight: FontWeight.w500,color: Colors.black))),
-                                            DataColumn(label: Text('Date', style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14.5, fontWeight: FontWeight.w500,color: Colors.black))),
-                                            DataColumn(label: Text('Action', style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14.5, fontWeight: FontWeight.w500,color: Colors.black))),
-                                            DataColumn(label: Text('Payment Method', style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14.5, fontWeight: FontWeight.w500,color: Colors.black))),
+                                            DataColumn(label: Text('ID', style: GoogleFonts.kameron(
+                                              fontSize: isLandscape ? (isDesktop ? 19 : isTablet ? 18 : 16) : (isDesktop ? 21 : isTablet ? 18 : 14.5), 
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.black))),
+                                            DataColumn(label: Text('Processed By', style: GoogleFonts.kameron(
+                                              fontSize: isLandscape ? (isDesktop ? 19 : isTablet ? 18 : 16) : (isDesktop ? 21 : isTablet ? 18 : 14.5), 
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.black))),
+                                            DataColumn(label: Text('Date', style: GoogleFonts.kameron(
+                                              fontSize: isLandscape ? (isDesktop ? 19 : isTablet ? 18 : 16) : (isDesktop ? 21 : isTablet ? 18 : 14.5), 
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.black))),
+                                            DataColumn(label: Text('Action', style: GoogleFonts.kameron(
+                                              fontSize: isLandscape ? (isDesktop ? 19 : isTablet ? 18 : 16) : (isDesktop ? 21 : isTablet ? 18 : 14.5), 
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.black))),
+                                            DataColumn(label: Text('Payment Method', style: GoogleFonts.kameron(
+                                              fontSize: isLandscape ? (isDesktop ? 19 : isTablet ? 18 : 16) : (isDesktop ? 21 : isTablet ? 18 : 14.5), 
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.black))),
                                           ],
                                           rows: groupedTransactions.map((transaction) {
                                             return DataRow(
@@ -494,12 +522,16 @@ Future<void> _exportTransactions() async {
                                               cells: [
                                                 DataCell(Text(
                                                   (transaction['id'] ?? '').toString(),
-                                                  style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14,color: Colors.black),
+                                                  style: GoogleFonts.kameron(
+                                                    fontSize:isLandscape ? (isDesktop ? 18 : isTablet ? 17 : 15) : (isDesktop ? 21 : isTablet ? 18 : 14), 
+                                                  color: Colors.black),
                                                 )),
 
                                                 DataCell(Text(
                                                   capitalizeEachWord(transaction['processed_by']?.toString()),
-                                                  style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14,color: Colors.black),
+                                                  style: GoogleFonts.kameron(
+                                                    fontSize: isLandscape ? (isDesktop ? 18 : isTablet ? 17 : 15) : (isDesktop ? 21 : isTablet ? 18 : 14), 
+                                                    color: Colors.black),
                                                 )),
 
                                                 DataCell(Text(
@@ -508,17 +540,23 @@ Future<void> _exportTransactions() async {
                                                           DateTime.parse(transaction['created_at'].toString()),
                                                         )
                                                       : 'N/A',
-                                                  style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14,color: Colors.black),
+                                                  style: GoogleFonts.kameron(
+                                                    fontSize: isLandscape ? (isDesktop ? 18 : isTablet ? 17 : 15) : (isDesktop ? 21 : isTablet ? 18 : 14), 
+                                                    color: Colors.black),
                                                 )),
 
                                                 DataCell(Text(
                                                   transaction['action']?.toString() ?? 'N/A',
-                                                  style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14,color: Colors.black),
+                                                  style: GoogleFonts.kameron(
+                                                    fontSize: isLandscape ? (isDesktop ? 18 : isTablet ? 17 : 15) : (isDesktop ? 21 : isTablet ? 18 : 14), 
+                                                    color: Colors.black),
                                                 )),
 
                                                 DataCell(Text(
                                                   capitalizeEachWord(transaction['payment_type']?.toString()),
-                                                  style: GoogleFonts.kameron(fontSize: isDesktop ? 21 : isTablet ? 18 : 14,color: Colors.black),
+                                                  style: GoogleFonts.kameron(
+                                                    fontSize: isLandscape ? (isDesktop ? 18 : isTablet ? 17 : 15) : (isDesktop ? 21 : isTablet ? 18 : 14), 
+                                                    color: Colors.black),
                                                 )),
                                               ],
                                             );

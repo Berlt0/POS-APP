@@ -878,6 +878,7 @@ Future<void> _showAddCashierModal() async {
         ],
       );
     }
+    
 
   return Column(
     children: allCashiersSummary.map((cashier) {

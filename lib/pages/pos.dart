@@ -57,6 +57,7 @@ class ProductCard extends StatelessWidget {
 
     final isDesktop = Responsive.isDesktop(context);
     final isTablet = Responsive.isTablet(context);
+    final isLandscape = Responsive.isLandscape(context);
     
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -85,13 +86,13 @@ class ProductCard extends StatelessWidget {
                     name: 'remove',
                     icon: Icons.remove,
                     onTap: quantity > 0 ? onRemove : null,
-                    size: isDesktop ? 35 : isTablet ? 30 : 20,
+                    size: isLandscape ? (isDesktop ? 22 : isTablet ? 19 : 16) : (isDesktop ? 20 : isTablet ? 30 : 20),
                     
                   ),
                   Text(
                     quantity.toString(),
                     style: GoogleFonts.kameron(fontWeight: FontWeight.bold, 
-                    fontSize: isDesktop ? 22 : isTablet ? 20 : 15,
+                    fontSize: isLandscape ? (isDesktop ? 17 : isTablet ? 15 : 13) : (isDesktop ? 22 : isTablet ? 20 : 15),
                     color: quantity > 0 ? Colors.black : Theme.of(context).colorScheme.onSurface,)
                   ),
                   _circleButton(
@@ -99,7 +100,7 @@ class ProductCard extends StatelessWidget {
                     name: 'add',
                     icon: Icons.add,
                     onTap: stock > quantity ? onAdd : null,
-                    size: isDesktop ? 35 : isTablet ? 30 : 20,
+                    size:  isLandscape ? (isDesktop ? 22 : isTablet ? 19 : 16) : (isDesktop ? 20 : isTablet ? 30 : 20),
                   ),
                 ],
               ),
@@ -158,14 +159,14 @@ class ProductCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.kameron(
                   fontWeight: FontWeight.bold,
-                  fontSize: isDesktop ? 22 : isTablet ? 19 : 14,
+                  fontSize: isLandscape ? (isDesktop ? 17 : isTablet ? 15 : 14) : (isDesktop ? 22 : isTablet ? 19 : 14),
                   color: quantity > 0 ? Colors.black : Theme.of(context).colorScheme.onSurface
                 ),
               ),
               Text(
                 '₱${price.toStringAsFixed(2)}',
                 style: GoogleFonts.kameron(
-                  fontSize: isDesktop ? 21 : isTablet ? 18 : 13,
+                  fontSize: isLandscape ? (isDesktop ? 16 : isTablet ? 14 : 13) : (isDesktop ? 21 : isTablet ? 18 : 13),
                   color: quantity > 0 ? const Color.fromARGB(255, 1, 54, 3) : const Color.fromARGB(255, 43, 155, 47)   ,
                   fontWeight: FontWeight.w700,
                 ),
@@ -173,7 +174,7 @@ class ProductCard extends StatelessWidget {
               Text(
                 'Stock: $stock',
                 style: GoogleFonts.kameron(
-                  fontSize: isDesktop ? 20.5 : isTablet ? 17.5 : 12.5,
+                  fontSize: isLandscape ? (isDesktop ? 15 : isTablet ? 13 : 12) : (isDesktop ? 20.5 : isTablet ? 17.5 : 12.5),
                   color:  quantity > 0 ? Colors.black : Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.w500
                 ),
@@ -285,9 +286,15 @@ class _POSState extends State<POS> {
       final dbProducts = await POSDB.getProducts();
 
       final catSet = <String>{};
+
       for (var product in dbProducts) {
-        if ((product.category ?? '').isNotEmpty) {
-          catSet.add(product.category!);
+
+         final category = product.category;
+
+        if (category == null || category.trim().isEmpty) {
+          catSet.add('Others');
+        }else{
+          catSet.add(category);
         }
       }
 
@@ -342,19 +349,24 @@ class _POSState extends State<POS> {
     final isDesktop = Responsive.isDesktop(context);
     final isTablet = Responsive.isTablet(context);
     final isMobile = Responsive.isMobile(context);
+     final isLandscape = Responsive.isLandscape(context);
 
     final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
 
 
-    final crossAxisCount = isDesktop ? 4 : isTablet ? 3 : 2;
+    final crossAxisCount = isLandscape
+        ? (isDesktop ? 6 : isTablet ? 4 : 3)
+        : (isDesktop ? 4 : isTablet ? 3 : 2);
+
     final cardWidth = (screenWidth - 16 * (crossAxisCount + 1)) / crossAxisCount;
-    final cardHeight = cardWidth * 1.35; // adjust as needed
+    final cardHeight = isLandscape ?  (cardWidth * 1.20).clamp(120, 250).toDouble() : (cardWidth * 1.35); 
 
 
     final filteredProducts = products.where((p) {
 
-      final matchesCategory = _selectedCategory == 'All' || (p.product.category ?? '') == _selectedCategory;
+      final productCategory = p.product.category ?? 'Others';
+
+      final matchesCategory = _selectedCategory == 'All' || productCategory == _selectedCategory;
       final matchesSearch = _searchText.trim().isEmpty || p.product.name.toLowerCase().contains(_searchText.toLowerCase());
       return matchesCategory && matchesSearch;
     }).toList();
@@ -376,9 +388,9 @@ class _POSState extends State<POS> {
          backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         shadowColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
         elevation: 3,
-       toolbarHeight: isDesktop ? 80 : isTablet ? 70 : 60,
+        toolbarHeight: isLandscape ? (isDesktop ? 50 : isTablet ? 40 : 35) : (isDesktop ? 70 : isTablet ? 60 : 50),
         leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios_new_sharp,size: isDesktop ? 35 : isTablet ? 30 :25),   // or Icons.arrow_back
+            icon: Icon(Icons.arrow_back_ios_new_sharp,size: isLandscape ? (isDesktop ? 23 : isTablet ? 20 :15) : (isDesktop ? 35 : isTablet ? 30 :25)),   // or Icons.arrow_back
             iconSize: Responsive.spacing(context, mobile: 28, tablet: 32, desktop: 36), 
             onPressed: () => Navigator.pop(context),
             tooltip: 'Back',
@@ -388,7 +400,7 @@ class _POSState extends State<POS> {
         title: Text(
             "POS",
             style: GoogleFonts.kameron(
-              fontSize: isDesktop ? 22 : isTablet ? 20 :18,
+              fontSize:  isLandscape ? (isDesktop ? 20 :isTablet ? 18 : 16) : (isDesktop ? 24 :isTablet ? 22 : 20),
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -406,7 +418,7 @@ class _POSState extends State<POS> {
                     flex: 2,
                     child: TextField(
                       style: GoogleFonts.kameron(
-                          fontSize:  Responsive.font(context,mobile: 17, tablet: 20, desktop: 30),
+                          fontSize:  Responsive.font(context,mobile: 17, tablet: 19, desktop: 20),
                           color: Colors.black
                         ),
                       controller: _searchController,
@@ -421,11 +433,20 @@ class _POSState extends State<POS> {
                       },
                       decoration: InputDecoration(
                         hintText: 'Search for...',
-                        hintStyle: GoogleFonts.kameron(fontSize: Responsive.font(context,mobile: 15, tablet: 18, desktop: 20), fontWeight: FontWeight.w500,color: Colors.black87),
-                        prefixIcon: Icon(Icons.search, size: Responsive.font(context,mobile: 25, tablet: 28, desktop: 30),color: Colors.black87,),
+                        hintStyle: GoogleFonts.kameron(
+                          fontSize: isLandscape 
+                              ? Responsive.font(context,mobile: 14, tablet: 16, desktop: 18)
+                              : Responsive.font(context,mobile: 15, tablet: 18, desktop: 20), 
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87),
+                        prefixIcon: Icon(Icons.search, size: 
+                         isLandscape ? Responsive.font(context,mobile: 20, tablet: 24, desktop: 27) : Responsive.font(context,mobile: 20, tablet: 25, desktop: 30),
+                        color: Colors.black87,),
                          suffixIcon: _searchText.isNotEmpty
                           ? IconButton(
-                              icon:  Icon(Icons.clear, size: Responsive.font(context,mobile: 20, tablet: 25, desktop: 30),color: Colors.black87,),
+                              icon:  Icon(Icons.clear, size: 
+                              isLandscape ? Responsive.font(context,mobile: 20, tablet: 24, desktop: 27) : Responsive.font(context,mobile: 20, tablet: 25, desktop: 30),
+                              color: Colors.black87,),
                               onPressed: () {
                                 if (!mounted) return;
                                 setState(() {
@@ -442,7 +463,9 @@ class _POSState extends State<POS> {
                         fillColor: Colors.white,
                         filled: true,
                         contentPadding:
-                            const EdgeInsets.symmetric(vertical: 1, horizontal: 10),
+                            const EdgeInsets.symmetric(
+                              vertical: 1, 
+                              horizontal: 10),
                       ),
                     ),
                   ),
@@ -512,7 +535,7 @@ class _POSState extends State<POS> {
               /// CATEGORIES
               if(products.isNotEmpty)
               SizedBox(
-                height: isDesktop ? 55 : isTablet ? 50 : 40,
+                height: isLandscape ? (isDesktop ? 40 : isTablet ? 35 : 30) : (isDesktop ? 55 : isTablet ? 50 : 40),
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: categories.length,
@@ -540,7 +563,7 @@ class _POSState extends State<POS> {
                       child: Text(
                         category,
                         style: GoogleFonts.kameron(
-                          fontSize: isDesktop ? 20 : isTablet ? 18 : 14,
+                          fontSize: isLandscape ? (isDesktop ? 15 : isTablet ? 13 : 13.5) : (isDesktop ? 20 : isTablet ? 18 : 14),
                           color: Colors.black,
                           fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                         ),
@@ -619,8 +642,8 @@ class _POSState extends State<POS> {
               
               Center(
                 child: Container(
-                  width: isDesktop ? 580 : isTablet ? 530 : double.infinity,
-                  height: isDesktop ? 150 : isTablet ? 140 : 130,
+                  width: isLandscape ? (isDesktop ? 500 : isTablet ? 470 : double.infinity) : (isDesktop ? 580 : isTablet ? 530 : double.infinity),
+                  height: isLandscape ? (isDesktop ? 130 : isTablet ? 120 : 110) : (isDesktop ? 150 : isTablet ? 140 : 130),
                   padding: const EdgeInsets.all(3),
                   decoration: BoxDecoration(
                       color: const Color(0xFF00E6FF),
@@ -642,14 +665,17 @@ class _POSState extends State<POS> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 _rowText(
-                                    "Total Quantity", getTotalQuantity().toString(), fontSize: isDesktop ? 20 : isTablet ? 18 : 14),
-                                _rowText("Subtotal", "₱${getSubTotal().toStringAsFixed(2)}",fontSize: isDesktop ? 20 : isTablet ? 18 : 14),
+                                    "Total Quantity", getTotalQuantity().toString(), 
+                                    fontSize: isLandscape ? (isDesktop ? 18 : isTablet ? 16 : 14) : (isDesktop ? 20 : isTablet ? 18 : 14)
+                                    ),
+                                _rowText("Subtotal", "₱${getSubTotal().toStringAsFixed(2)}",
+                                fontSize: isLandscape ? (isDesktop ? 18 : isTablet ? 16 : 14) : (isDesktop ? 20 : isTablet ? 18 : 14)),
                                 const SizedBox(height: 2),
                                 _rowText(
                                   "Total",
                                   "₱${getTotal().toStringAsFixed(2)}",
                                   isBold: true,
-                                  fontSize: isDesktop ? 22 : isTablet ? 20 : 15,
+                                  fontSize: isLandscape ? (isDesktop ? 19 : isTablet ? 17 : 15) :  (isDesktop ? 22 : isTablet ? 20 : 15),
                                 ),
                               ],
                             ),
@@ -745,13 +771,13 @@ class _POSState extends State<POS> {
                                         children: [
                                            Icon(Icons.shopping_cart_checkout_outlined,
                                               color: Colors.black,
-                                              size: isDesktop ? 26 : isTablet ? 23 : 18),
+                                              size: isLandscape ? (isDesktop ? 23 : isTablet ? 20 : 18) : (isDesktop ? 26 : isTablet ? 23 : 18)),
                                           SizedBox(width: 5,),
                                           Text(
                                             "Checkout",
                                             style: GoogleFonts.kameron(
                                                 color: Colors.black,
-                                                fontSize: isDesktop ? 20 : isTablet ? 18 : 15,
+                                                fontSize: isLandscape ? (isDesktop ? 18 : isTablet ? 15 : 13.5) : (isDesktop ? 20 : isTablet ? 18 : 15),
                                                 fontWeight: FontWeight.w500),
                                           ),
                                         ],
@@ -777,13 +803,13 @@ class _POSState extends State<POS> {
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Icon(Icons.remove_shopping_cart_outlined, color: Colors.black,size: isDesktop ? 26 : isTablet ? 23 : 18,),
+                                        Icon(Icons.remove_shopping_cart_outlined, color: Colors.black,size:isLandscape ? (isDesktop ? 23 : isTablet ? 20 : 18) : (isDesktop ? 26 : isTablet ? 23 : 18)),
                                         SizedBox(width: 5,),
                                         Text(
                                           "Clear Cart",
                                           style: GoogleFonts.kameron(
                                               color: Colors.black,
-                                              fontSize: isDesktop ? 20 : isTablet ? 18 : 15,
+                                              fontSize:  isLandscape ? (isDesktop ? 18 : isTablet ? 15 : 13.5) : (isDesktop ? 20 : isTablet ? 18 : 15),
                                               fontWeight: FontWeight.w500),
                                         ),
                                       ],
