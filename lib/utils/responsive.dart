@@ -107,14 +107,14 @@ class Responsive {
 
   static double cardHeight(BuildContext context) {
     if (isDesktop(context)) {
-      return isLandscape(context) ? 100 : 120;
+      return isLandscape(context) ? 80 : 100;
     }
 
     if (isTablet(context)) {
-      return isLandscape(context) ? 95 : 110;
+      return isLandscape(context) ? 75 : 90;
     }
 
-    return isLandscape(context) ? 70 : 75;
+    return isLandscape(context) ? 70 : 65;
   }
 
 

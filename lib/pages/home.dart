@@ -257,9 +257,9 @@ int _currentIndex = 0;
                           fontSize: isLandscape ? 
                           Responsive.font(
                             context,
-                            mobile: 21,
-                            tablet: 23,
-                            desktop: 25,
+                            mobile: 18,
+                            tablet: 20,
+                            desktop: 23,
                           )
                           : Responsive.font(
                             context,
@@ -289,7 +289,7 @@ int _currentIndex = 0;
                             context,
                             mobile: 18,
                             tablet: 21,
-                            desktop: 23,
+                            desktop: 22,
                           ),
                           backgroundColor: Colors.white,
                           backgroundImage: const AssetImage('assets/Legendaries.png'), // inner color
@@ -309,9 +309,9 @@ int _currentIndex = 0;
                         fontSize: isLandscape
                         ? Responsive.font(
                           context,
-                          mobile: 20,
-                          tablet: 25,
-                          desktop: 30,
+                          mobile: 18,
+                          tablet: 20,
+                          desktop: 25,
                         ):
                         Responsive.font(
                           context,
@@ -330,7 +330,7 @@ int _currentIndex = 0;
                           context,
                           mobile: 13,
                           tablet: 15,
-                          desktop: 17,
+                          desktop: 16,
                         ),
                         fontWeight: FontWeight.w500,
                         color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
@@ -394,24 +394,19 @@ int _currentIndex = 0;
                   },
                 ),
           
-                const SizedBox(height: 25),
+                const SizedBox(height: 40),
                 Row(
                   children: [
                      Icon(
                       Icons.stacked_line_chart_rounded, 
                       color: Colors.blue, 
-                      size: Responsive.font(context, mobile: 25, tablet: 28, desktop: 31),
+                      size: Responsive.font(context, mobile: 25, tablet: 28, desktop: 30),
                     ),
                     const SizedBox(width: 8),
                     Text(
                       "Weekly Sales",
                       style: GoogleFonts.kameron(
-                        fontSize: Responsive.font(
-                          context,
-                          mobile: 14.5,
-                          tablet: 18,
-                          desktop: 20,
-                        ),
+                        fontSize:  Responsive.font(context,mobile: 14.5,tablet: 18,desktop: 20),
                         fontWeight: FontWeight.bold,
 
                       ),
@@ -586,7 +581,7 @@ int _currentIndex = 0;
                     const double breakpoint = 800.0;
                     final bool isNarrow = !Responsive.isDesktop(context);
 
-                     double containerHeight = isLandscape ? 320 : 450;
+                     double containerHeight = isLandscape ? 410 : 450;
                     
                     final isDesktop = Responsive.isDesktop(context);
                     final isTablet = Responsive.isTablet(context);
@@ -866,7 +861,7 @@ int _currentIndex = 0;
                                       ),
                                       SizedBox(width: 8),                               
                                       Text(
-                                      "Recent Sale",
+                                      "Recent Sold Products",
                                       style: GoogleFonts.kameron(
                                       fontSize: Responsive.font(
                                         context,
@@ -1041,6 +1036,7 @@ int _currentIndex = 0;
     if(index >= recentSales.length) return SizedBox();
 
     final sale = recentSales[index];
+    final isLandscape = Responsive.isLandscape(context);
 
     final date = DateTime.parse(sale.createdAt);
     final formattedDate = DateFormat('MMMM d, yy').format(date);
@@ -1054,7 +1050,7 @@ int _currentIndex = 0;
           borderRadius: BorderRadius.circular(12),
         ),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+          padding:  isLandscape ? EdgeInsets.fromLTRB(12, 10, 12, 10) : EdgeInsets.fromLTRB(14, 12, 14, 12),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -1064,12 +1060,7 @@ int _currentIndex = 0;
                   Text(
                     '${capitalizeEachWord(sale.product_name)} (${sale.quantity})',
                     style: GoogleFonts.kameron(
-                      fontSize: Responsive.font(
-                        context,
-                        mobile: 14,
-                        tablet: 16,
-                        desktop: 18,
-                      ),
+                      fontSize: isLandscape ? Responsive.font(context,mobile: 13.5,tablet: 15,desktop: 17) : Responsive.font(context,mobile: 14,tablet: 16,desktop: 18),
                       fontWeight: FontWeight.w500,
                       color: Colors.black,
                     ),
@@ -1078,12 +1069,7 @@ int _currentIndex = 0;
                   Text(
                     formattedDate,
                     style: GoogleFonts.kameron(
-                      fontSize: Responsive.font(
-                        context,
-                        mobile: 13,
-                        tablet: 14,
-                        desktop: 15,
-                      ),
+                      fontSize: Responsive.font(context,mobile: 13,tablet: 14,desktop: 15),
                       color: Color.fromARGB(255, 43, 42, 42),
                       fontWeight: FontWeight.w500
                     ),
@@ -1097,7 +1083,7 @@ int _currentIndex = 0;
                     context,
                     mobile: 14,
                     tablet: 16,
-                    desktop: 18,
+                    desktop: 17,
                   ),
                   fontWeight: FontWeight.w500,
                   color: Colors.black,
@@ -1116,9 +1102,11 @@ int _currentIndex = 0;
 
     final product = lowStockProducts[index];
 
+    final isLandscape = Responsive.isLandscape(context);
+
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
+      padding: const EdgeInsets.symmetric(vertical: 1),
       child: Card(
         color: Colors.white,
         elevation: 1,
@@ -1126,7 +1114,7 @@ int _currentIndex = 0;
           borderRadius: BorderRadius.circular(12),
         ),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 15, 16, 15),
+          padding:  isLandscape ? EdgeInsets.fromLTRB(12, 10, 12, 10) : EdgeInsets.fromLTRB(14, 12, 14, 12),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -1196,12 +1184,8 @@ int _currentIndex = 0;
     required String title,
     required String value,
   }) {
-    double iconContainerSize = Responsive.spacing(
-      context,
-      mobile: 43,
-      tablet: 46,
-      desktop: 49,
-    );
+    final isLandscape = Responsive.isLandscape(context);
+    double iconContainerSize = isLandscape ? Responsive.spacing(context,mobile: 39,tablet: 42,desktop: 45) : Responsive.spacing(context,mobile: 43,tablet: 46,desktop: 49,);
 
     return Container(
       padding: const EdgeInsets.all(12),
@@ -1223,12 +1207,7 @@ int _currentIndex = 0;
               child: Icon(
                 icon,
                 color: iconColor,
-                size: Responsive.font(
-                  context,
-                  mobile: 22,
-                  tablet: 25,
-                  desktop: 28,
-                ),
+                size: isLandscape ? Responsive.font(context,mobile: 21,tablet: 23,desktop: 25) : Responsive.font(context,mobile: 22,tablet: 25,desktop: 28),
               ),
             ),
           ),
@@ -1241,12 +1220,7 @@ int _currentIndex = 0;
                 Text(
                   title,
                   style: GoogleFonts.kameron(
-                    fontSize: Responsive.font(
-                      context,
-                      mobile: 13,
-                      tablet: 15,
-                      desktop: 18,
-                    ),
+                    fontSize: isLandscape ? Responsive.font(context,mobile: 12,tablet: 14,desktop: 16) : Responsive.font(context,mobile: 13,tablet: 15,desktop: 18),
                     fontWeight: FontWeight.w300,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
@@ -1254,12 +1228,7 @@ int _currentIndex = 0;
                 Text(
                   value,
                   style: GoogleFonts.kameron(
-                    fontSize: Responsive.font(
-                      context,
-                      mobile: 15,
-                      tablet: 17,
-                      desktop: 23,
-                    ),
+                    fontSize: isLandscape ? Responsive.font(context,mobile: 14,tablet: 16,desktop: 18) : Responsive.font(context,mobile: 15,tablet: 17,desktop: 20),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
