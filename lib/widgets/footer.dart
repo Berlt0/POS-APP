@@ -29,8 +29,8 @@ class AppFooter extends StatelessWidget {
         children: [
           Positioned(
             bottom:20,
-            left: isLandscape ? 250 : 20,
-            right: isLandscape ? 250 : 20,
+            left: (isLandscape && isDesktop ) ? 300 : isTablet ? 90 : 20,
+            right: (isLandscape && isDesktop ) ? 300 : isTablet ? 90 : 20,
             child: Container(
               height: isLandscape ? 58 : 62,
               decoration: BoxDecoration(
