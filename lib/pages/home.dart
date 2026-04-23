@@ -611,12 +611,10 @@ int _currentIndex = 0;
                                 style: GoogleFonts.kameron(
                                   fontSize: isLandscape ? (isDesktop ? 16 : isTablet ? 14 : 12) : (isDesktop ? 19 : isTablet ? 17 : 14),
                                   fontWeight: FontWeight.w500,
-                                  color: Colors.black,
                                 ),
                               ),
                               Icon( 
                                 Icons.keyboard_arrow_right,
-                                color: Colors.black,
                                 size:  isLandscape ? (isDesktop ? 22 : isTablet ? 20 : 18) : (isDesktop ? 24 : isTablet ? 22 : 20),
                               )
                             ],
@@ -652,12 +650,11 @@ int _currentIndex = 0;
                                 style: GoogleFonts.kameron(
                                   fontSize: isLandscape ? (isDesktop ? 16 : isTablet ? 14 : 12) : (isDesktop ? 19 : isTablet ? 17 : 14),
                                   fontWeight: FontWeight.w500,
-                                  color: Colors.black,
+   
                                 ),
                               ),
                               Icon( 
                                 Icons.keyboard_arrow_right,
-                                color: Colors.black,
                                 size: isLandscape ? (isDesktop ? 22 : isTablet ? 20 : 18) : (isDesktop ? 24 : isTablet ? 22 : 20),
                               )
                             ],
@@ -712,7 +709,7 @@ int _currentIndex = 0;
                                 height: containerHeight,
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: Color(0xFF6FE5F2),
+                                  color: Theme.of(context).colorScheme.surface,
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(
@@ -734,14 +731,13 @@ int _currentIndex = 0;
                                                   child: Column(
                                                     mainAxisAlignment: MainAxisAlignment.center,
                                                     children: [
-                                                      Icon(Icons.receipt_long, size: 35, color: Color.fromARGB(214, 0, 0, 0)),
+                                                      Icon(Icons.receipt_long, size: 35, ),
                                                       SizedBox(height: 10),
                                                       Text(
                                                         "No sales today",
                                                         style: GoogleFonts.kameron(
                                                           fontSize: isDesktop ? 18 : isTablet ? 16 : 14,
                                                           fontWeight: FontWeight.w500,
-                                                          color: Colors.black,
                                                         ),
                                                       ),
                                                     ],
@@ -801,7 +797,7 @@ int _currentIndex = 0;
                                 height: containerHeight,
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: Color(0xFF6FE5F2),
+                                  color: Theme.of(context).colorScheme.surface,
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(
@@ -820,14 +816,13 @@ int _currentIndex = 0;
                                                 child: Column(
                                                   mainAxisAlignment: MainAxisAlignment.center,
                                                   children: [
-                                                    Icon(Icons.inventory_2_outlined, size: 35, color: const Color.fromARGB(214, 0, 0, 0)),
+                                                    Icon(Icons.inventory_2_outlined, size: 35, ),
                                                     SizedBox(height: 10),
                                                     Text(
                                                       "No low stock items",
                                                       style: GoogleFonts.kameron(
                                                         fontSize: 14,
                                                         fontWeight: FontWeight.w500,
-                                                        color: Colors.black,
                                                       ),
                                                     ),
                                                   ],

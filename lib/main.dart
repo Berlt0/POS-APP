@@ -104,19 +104,19 @@ class MyApp extends StatelessWidget {
       darkTheme: ThemeData(
       brightness: Brightness.dark,
       useMaterial3: true,
-      scaffoldBackgroundColor: const Color(0xFF121212),
+      scaffoldBackgroundColor: Color(0xFF222831),
       dividerColor: Colors.black87, 
 
       colorScheme: const ColorScheme.dark(
         primary: Colors.blue,
         secondary: Colors.blueAccent,
-        surface: Color.fromARGB(209, 49, 49, 49),
+        surface: Color(0xFF393E46),
         background: Color(0xFF121212),
         
       ),
 
       appBarTheme:  AppBarTheme(
-        backgroundColor:Color.fromARGB(209, 49, 49, 49),
+        backgroundColor:Color(0xFF222831),
         foregroundColor: Colors.grey[100],
         elevation: 0,
         scrolledUnderElevation: 0, 

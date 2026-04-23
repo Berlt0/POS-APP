@@ -81,6 +81,7 @@ class _ViewReceiptState extends State<ViewReceipt> {
 
       final isDesktop = Responsive.isDesktop(context);
       final isTablet = Responsive.isTablet(context);
+      final isLandscape = Responsive.isLandscape(context);
 
       return Container(
         width: width,
@@ -110,7 +111,7 @@ class _ViewReceiptState extends State<ViewReceipt> {
             style: GoogleFonts.kameron(
               color: Colors.white,
               fontWeight: FontWeight.bold,
-              fontSize: isDesktop ? 19 : isTablet ? 17 : 15,
+              fontSize: isLandscape ? (isDesktop ? 16 : isTablet ? 15 : 14) : (isDesktop ? 19 : isTablet ? 17 : 15),
               
             ),
           ),
@@ -194,6 +195,10 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
 
   @override
   Widget build(BuildContext context) {
+
+    final isTablet = Responsive.isTablet(context);
+    final isDesktop = Responsive.isDesktop(context);
+    final isLandscape = Responsive.isLandscape(context);
     
   if (transaction == null) {
     return const Scaffold(
@@ -322,9 +327,14 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
     return Scaffold(
        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text('Receipt',style: GoogleFonts.kameron(fontWeight: FontWeight.bold,fontSize: Responsive.font(context, mobile: 18, tablet: 20, desktop: 22))),
+        title: Text('Receipt',
+        style: GoogleFonts.kameron(
+          fontWeight: FontWeight.bold,
+          fontSize: isLandscape ? (isDesktop ? 20 :isTablet ? 18 : 16) : (isDesktop ? 24 :isTablet ? 22 : 20),)),
+        shadowColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+        elevation: 3,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_sharp,size: Responsive.spacing(context, mobile: 25, tablet: 30, desktop: 35)),   // or Icons.arrow_back
+          icon: Icon(Icons.arrow_back_ios_new_sharp,size: isLandscape ? (isDesktop ? 23 : isTablet ? 20 :15) : (isDesktop ? 35 : isTablet ? 30 :25)),   // or Icons.arrow_back
           iconSize: Responsive.spacing(context, mobile: 25, tablet: 30, desktop: 35), 
           onPressed: () => Navigator.pop(context),
           tooltip: 'Back',
@@ -340,254 +350,262 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
           padding: const EdgeInsets.all(20.0),
           child: Column(
             children: [
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 30,),
-                    Center(
-                      child: Text(
-                        'CASH RECEIPT',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.kameron(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Store name:',style: GoogleFonts.kameron(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black
-                        ),),
-                        Text('Gilbert Convenience Store',style: GoogleFonts.kameron(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black
-                        ),),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Address: ',style: GoogleFonts.kameron(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black
-                        ),),
-                        Text('Brgy. Balangasan, Pagadian City',style: GoogleFonts.kameron(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black
-                        ),),
-                      ],
-                    ),      
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Date: ',style: GoogleFonts.kameron(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black
-                        ),),
-                        Text(
-                          transaction!['created_at'] != null
-                              ? DateFormat('MM/dd/yyyy').format(DateTime.parse(transaction!['created_at']))
-                              : 'N/A',
-                          style: GoogleFonts.kameron(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black
-                          ),
+              SizedBox(height: 50,),
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: 450, 
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 5,
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Payment Method: ',style: GoogleFonts.kameron(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black
-                        ),),
-                        Text(capitalizeEachWord(transaction!['payment_type'] ?? ''),style: GoogleFonts.kameron(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black
-                        ),),
-                      ],
-                    ),
-                    Divider(thickness: 2),
-                    SizedBox(height: 5),
-                    
-                    Column(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          padding: EdgeInsets.symmetric(vertical: 8),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                flex: 5,
-                                child: Text(
-                                  'Product',
-                                  style: GoogleFonts.kameron(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black
-                                  ),
-                                ),
+                        SizedBox(height: 30,),
+                        Center(
+                          child: Text(
+                            'CASH RECEIPT',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.kameron(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Store name:',style: GoogleFonts.kameron(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black
+                            ),),
+                            Text('Gilbert Convenience Store',style: GoogleFonts.kameron(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black
+                            ),),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Address: ',style: GoogleFonts.kameron(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black
+                            ),),
+                            Text('Brgy. Balangasan, Pagadian City',style: GoogleFonts.kameron(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black
+                            ),),
+                          ],
+                        ),      
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Date: ',style: GoogleFonts.kameron(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black
+                            ),),
+                            Text(
+                              transaction!['created_at'] != null
+                                  ? DateFormat('MM/dd/yyyy').format(DateTime.parse(transaction!['created_at']))
+                                  : 'N/A',
+                              style: GoogleFonts.kameron(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black
                               ),
-                              Expanded(
-                                flex: 3,
-                                child: Text(
-                                  'QTY',
-                                  style: GoogleFonts.kameron(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Payment Method: ',style: GoogleFonts.kameron(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black
+                            ),),
+                            Text(capitalizeEachWord(transaction!['payment_type'] ?? ''),style: GoogleFonts.kameron(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black
+                            ),),
+                          ],
+                        ),
+                        Divider(thickness: 2),
+                        SizedBox(height: 5),
+                        
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.symmetric(vertical: 8),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    flex: 5,
+                                    child: Text(
+                                      'Product',
+                                      style: GoogleFonts.kameron(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black
+                                      ),
+                                    ),
                                   ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 2,
-                                child: Text(
-                                  'Price',
-                                  style: GoogleFonts.kameron(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black
+                                  Expanded(
+                                    flex: 3,
+                                    child: Text(
+                                      'QTY',
+                                      style: GoogleFonts.kameron(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
                                   ),
-                                  textAlign: TextAlign.right,
-                                ),
-                              ),
-                            ],
-                          )
+                                  Expanded(
+                                    flex: 2,
+                                    child: Text(
+                                      'Price',
+                                      style: GoogleFonts.kameron(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black
+                                      ),
+                                      textAlign: TextAlign.right,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            ),
+                            
+                            ...products.map<Widget>((item) => 
+                            Container(
+                              padding: EdgeInsets.symmetric(vertical: 2),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    flex: 5,
+                                    child: Text(capitalizeEachWord(safeString(item['product_name'], 'Unknown Product')), style: GoogleFonts.kameron(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black
+                                    ),),
+                                  ),
+                                  Expanded(
+                                    flex: 3,
+                                    child: Text(
+                                      safeInt(item['quantity']).toString(),
+                                      textAlign: TextAlign.center,
+                                    style: GoogleFonts.kameron(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black
+                                    ),),
+                                  ),
+                                  Expanded(
+                                    flex: 2,
+                                    child: Text(
+                                      '₱${safeDouble(item['price']).toStringAsFixed(2)}',
+                                      textAlign: TextAlign.right,
+                                      style: GoogleFonts.kameron(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            )).toList(),
+                          ],
+                        ),
+                  
+                        SizedBox(height: 5),
+                        Divider(thickness: 2),
+                        SizedBox(height: 10),
+                       Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('TOTAL AMOUNT:', style: GoogleFonts.kameron(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black
+                            )),
+                            Text('₱${safeDouble(transaction!['total_amount']).toStringAsFixed(2)}', style: GoogleFonts.kameron(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black
+                            ),),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('AMOUNT RECEIVED:', style: GoogleFonts.kameron(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black
+                            )),
+                            Text('₱${safeDouble(transaction!['amount_received']).toStringAsFixed(2)}',style: GoogleFonts.kameron(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black
+                            ),),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('CHANGE:', style: GoogleFonts.kameron(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black
+                            )),
+                            Text('₱${safeDouble(transaction!['change_amount']).toStringAsFixed(2)}',style: GoogleFonts.kameron(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black
+                            ),),
+                          ],
                         ),
                         
-                        ...products.map<Widget>((item) => 
-                        Container(
-                          padding: EdgeInsets.symmetric(vertical: 2),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                flex: 5,
-                                child: Text(capitalizeEachWord(safeString(item['product_name'], 'Unknown Product')), style: GoogleFonts.kameron(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black
-                                ),),
-                              ),
-                              Expanded(
-                                flex: 3,
-                                child: Text(
-                                  safeInt(item['quantity']).toString(),
-                                  textAlign: TextAlign.center,
-                                style: GoogleFonts.kameron(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black
-                                ),),
-                              ),
-                              Expanded(
-                                flex: 2,
-                                child: Text(
-                                  '₱${safeDouble(item['price']).toStringAsFixed(2)}',
-                                  textAlign: TextAlign.right,
-                                  style: GoogleFonts.kameron(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
-                        )).toList(),
-                      ],
-                    ),
-              
-                    SizedBox(height: 5),
-                    Divider(thickness: 2),
-                    SizedBox(height: 10),
-                   Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('TOTAL AMOUNT:', style: GoogleFonts.kameron(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black
-                        )),
-                        Text('₱${safeDouble(transaction!['total_amount']).toStringAsFixed(2)}', style: GoogleFonts.kameron(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black
-                        ),),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('AMOUNT RECEIVED:', style: GoogleFonts.kameron(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black
-                        )),
-                        Text('₱${safeDouble(transaction!['amount_received']).toStringAsFixed(2)}',style: GoogleFonts.kameron(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black
-                        ),),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('CHANGE:', style: GoogleFonts.kameron(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black
-                        )),
-                        Text('₱${safeDouble(transaction!['change_amount']).toStringAsFixed(2)}',style: GoogleFonts.kameron(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black
-                        ),),
-                      ],
-                    ),
-                    
-                    SizedBox(height: 40),
-                    Center(
-                      child: Text(
-                        'Thank you for your purchase!',
-                        style: GoogleFonts.kameron(
-                          fontSize: 16,
-                          fontStyle: FontStyle.italic,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.black
+                        SizedBox(height: 40),
+                        Center(
+                          child: Text(
+                            'Thank you for your purchase!',
+                            style: GoogleFonts.kameron(
+                              fontSize: 16,
+                              fontStyle: FontStyle.italic,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black
+                            ),
+                          ),
                         ),
-                      ),
+                        SizedBox(height: 30),
+                      ],
                     ),
-                    SizedBox(height: 30),
-                  ],
+                  ),
                 ),
               ),
               SizedBox(height: 80,),
@@ -625,16 +643,16 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
                         value: 'Print',
                         color: const Color.fromARGB(255, 38, 116, 41),
                         onPressed: () {},
-                        width: Responsive.spacing(context, mobile: 120, tablet: 140, desktop: 160),
-                        height: Responsive.spacing(context, mobile: 45, tablet: 50, desktop: 55),
+                        width: isLandscape ? Responsive.spacing(context, mobile: 100, tablet: 120, desktop: 140) : Responsive.spacing(context, mobile: 120, tablet: 140, desktop: 160),
+                        height: isLandscape ? Responsive.spacing(context, mobile: 40, tablet: 45, desktop: 50) : Responsive.spacing(context, mobile: 45, tablet: 50, desktop: 55),
                       ),
                       SizedBox(width: 20),
                       actionButton(
                         value: 'Void',
                         color: const Color.fromARGB(255, 180, 37, 27),
                         onPressed: () => _showVoidConfirmation(context),
-                        width: Responsive.spacing(context, mobile: 120, tablet: 140, desktop: 160),
-                        height: Responsive.spacing(context, mobile: 45, tablet: 50, desktop: 55),
+                        width: isLandscape ? Responsive.spacing(context, mobile: 100, tablet: 120, desktop: 140) : Responsive.spacing(context, mobile: 120, tablet: 140, desktop: 160),
+                        height: isLandscape ? Responsive.spacing(context, mobile: 40, tablet: 45, desktop: 50) : Responsive.spacing(context, mobile: 45, tablet: 50, desktop: 55),
                       ),
                     ],
                   );
