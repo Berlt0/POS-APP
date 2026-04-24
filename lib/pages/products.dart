@@ -233,6 +233,8 @@ Future<void> _saveEditedProduct(Product originalProduct) async {
         )
     );
 
+    if (!mounted) return;
+
     setState(() {
       _loadProducts();
     });
@@ -249,7 +251,6 @@ Future<void> _saveEditedProduct(Product originalProduct) async {
 
   }
 }
-
 
 
 Future<bool?> showConfirmationDialog(BuildContext context) {
