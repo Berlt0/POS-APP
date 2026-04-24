@@ -555,6 +555,7 @@ class _InventoryState extends State<Inventory> {
                                             fontSize: isLandscape ? (isDesktop ? 19 : isTablet ? 18 : 16) : (isDesktop ? 21 : isTablet ? 18 : 14.5),  
                                             fontWeight: FontWeight.w500))
                                           ),
+                                          if(_userRole == 'admin')
                                           DataColumn(label: Text('Update', style: tableTextStyle(
                                             fontSize: isLandscape ? (isDesktop ? 19 : isTablet ? 18 : 16) : (isDesktop ? 21 : isTablet ? 18 : 14.5),  
                                             fontWeight: FontWeight.w500))
@@ -585,18 +586,10 @@ class _InventoryState extends State<Inventory> {
                                                 ),
                                               ),
                                             ),
+                                            if(_userRole == 'admin')
                                             DataCell(
                                               InkWell(
-                                                onTap: (_isLoadingRole || _userRole == 'admin')
-                                                    ? () => _openUpdateModal(product)
-                                                    : () {
-                                                        ScaffoldMessenger.of(context).showSnackBar(
-                                                          const SnackBar(
-                                                            content: Text('Only admin can update stock'),
-                                                            backgroundColor: Colors.red,
-                                                          ),
-                                                        );
-                                                      },
+                                                onTap:  () => _openUpdateModal(product),
                                                 borderRadius: BorderRadius.circular(6),
                                                 child: Row(
                                                   mainAxisSize: MainAxisSize.min,

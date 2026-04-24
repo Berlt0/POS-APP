@@ -282,102 +282,144 @@ Widget productFormWidget(int index) {
                   icon:  Icon(Icons.close, color: Colors.red , size: isLandscape ? (isDesktop ? 25 : isTablet ? 22 : 20) :  (isDesktop ? 34 : isTablet ? 32 : 30) ),
                   onPressed: () {
                     showGeneralDialog(
-                      context: context,
-                      barrierLabel: "Remove Product",
-                      barrierDismissible: false,
-                      barrierColor: isDark ? Colors.black.withOpacity(0.9) : Colors.black.withOpacity(0.6),
-                      transitionDuration: const Duration(milliseconds: 300),
-                      pageBuilder: (context, anim1, anim2) {
-                        return Center(
-                          child: Material(
-                            type: MaterialType.transparency,
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(
-                                maxWidth: isLandscape ? (isDesktop ? 300 : isTablet ? 250 : 220) :(isDesktop ? 380 : isTablet ? 350 : 270),
+                    context: context,
+                    barrierLabel: "Remove Product",
+                    barrierDismissible: false,
+                    barrierColor: isDark
+                        ? Colors.black.withOpacity(0.9)
+                        : Colors.black.withOpacity(0.6),
+                    transitionDuration: const Duration(milliseconds: 300),
+
+                    pageBuilder: (context, anim1, anim2) {
+                      return Center(
+                        child: Material(
+                          color: Theme.of(context).colorScheme.surface,
+                          borderRadius: BorderRadius.circular(16),
+                          type: MaterialType.transparency,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxWidth: isLandscape
+                                  ? (isDesktop ? 300 : isTablet ? 250 : 220)
+                                  : (isDesktop ? 380 : isTablet ? 350 : 270),
+                            ),
+                            child: Container(
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.surface,
+                                borderRadius: BorderRadius.circular(16),
                               ),
-                              child: Container(
-                                padding: const EdgeInsets.all(20),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.surface,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      "Remove Product?",
-                                      style: GoogleFonts.kameron(
-                                        fontSize: isLandscape ? (isDesktop ? 17 : isTablet ? 15 : 14) : (isDesktop ? 21 : isTablet ? 20 : 17),
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // Title
+                                  Text(
+                                    "Remove Product?",
+                                    style: GoogleFonts.kameron(
+                                      fontSize: isLandscape
+                                          ? (isDesktop ? 17 : isTablet ? 15 : 14)
+                                          : (isDesktop ? 22 : isTablet ? 20 : 17),
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                    const SizedBox(height: 7),
-                                    Text(
-                                      "Are you sure you want to remove this product?",
-                                      textAlign: TextAlign.center,
-                                      style: GoogleFonts.kameron(
-                                        fontSize:  isLandscape ?  (isDesktop ? 15 : isTablet ? 13 : 12.5) : (isDesktop ? 20 : isTablet ? 18 : 14.5),
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                  ),
+
+                                  const SizedBox(height: 12),
+
+                                  // Message
+                                  Text(
+                                    "Are you sure you want to remove this product?",
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.kameron(
+                                      fontSize: isLandscape
+                                          ? (isDesktop ? 15 : isTablet ? 13 : 12.5)
+                                          : (isDesktop ? 16 : isTablet ? 15.5 : 14.5),
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.4,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withOpacity(1),
                                     ),
-                                    const SizedBox(height: 45),
+                                  ),
 
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        GestureDetector(
-                                          onTap: () => Navigator.pop(context),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text(
-                                              "Cancel",
-                                              style: GoogleFonts.kameron(
-                                                fontSize:  isLandscape ? (isDesktop ? 16 : isTablet ? 14 : 13) : (isDesktop ? 21 : isTablet ? 18 : 15),
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
+                                  const SizedBox(height: 40),
 
-                                        ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-                                            backgroundColor: Colors.red,
+                                  // Buttons
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      // Cancel
+                                      GestureDetector(
+                                        onTap: () => Navigator.pop(context),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 8,
+                                            horizontal: 16,
                                           ),
-                                          onPressed: () {
-                                            setState(() {
-                                              forms.removeAt(index);
-                                            });
-                                            Navigator.pop(context);
-                                          },
                                           child: Text(
-                                            "Remove",
+                                            "Cancel",
                                             style: GoogleFonts.kameron(
-                                              fontSize: isLandscape ? (isDesktop ? 16 : isTablet ? 14 : 13) : (isDesktop ? 21 : isTablet ? 18 : 15),
-                                              color: Colors.white,
+                                              fontSize: isLandscape
+                                                  ? (isDesktop ? 16 : isTablet ? 14 : 13)
+                                                  : (isDesktop ? 18 : isTablet ? 17 : 15.5),
                                               fontWeight: FontWeight.w500,
+                                              color: Colors.red
                                             ),
                                           ),
                                         ),
-                                      ],
-                                    )
-                                  ],
-                                ),
+                                      ),
+
+                                      // Remove
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 28,
+                                            vertical: 12,
+                                          ),
+                                          backgroundColor: Colors.red,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                          elevation: 2,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            forms.removeAt(index);
+                                          });
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text(
+                                          "Remove",
+                                          style: GoogleFonts.kameron(
+                                            fontSize: isLandscape
+                                                ? (isDesktop ? 16 : isTablet ? 14 : 13)
+                                                : (isDesktop ? 18 : isTablet ? 17 : 15.5),
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                        );
-                      },
+                        ),
+                      );
+                    },
 
-                      transitionBuilder: (context, anim1, anim2, child) {
-                        return ScaleTransition(
-                          scale: CurvedAnimation(parent: anim1, curve: Curves.easeOutBack),
-                          child: child,
-                        );
-                      },
-                    );
+                    transitionBuilder: (context, anim1, anim2, child) {
+                      return ScaleTransition(
+                        scale: CurvedAnimation(
+                          parent: anim1,
+                          curve: Curves.easeOutBack,
+                        ),
+                        child: child,
+                      );
+                    },
+                  );
                   },
-                )
+              )
               : SizedBox(),
 
             ],
@@ -547,7 +589,7 @@ Widget productFormWidget(int index) {
                               vertical: isLandscape ? (isDesktop ? 12 : isTablet ? 10 : 9) : (isDesktop ? 18 : isTablet ? 16 : 10),
                               horizontal: 13),
                             suffixIcon: Container(
-                              padding: EdgeInsetsDirectional.symmetric(vertical: isDesktop ? 4 : isTablet ? 3 : 2,horizontal:  isDesktop ? 10 : isTablet ? 7 : 5), 
+                              padding: EdgeInsetsDirectional.symmetric(vertical: isDesktop ? 4 : isTablet ? 4.3 : 2,horizontal:  isDesktop ? 10 : isTablet ? 7 : 5), 
                               decoration: BoxDecoration(
                                 
                                 color: Color(0xFF00E6FF),

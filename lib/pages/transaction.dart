@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/db/transaction.dart';
+import 'package:pos_app/db/user.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_app/pages/receipt.dart';
 import 'package:pos_app/utils/boxShadow.dart';
@@ -25,7 +26,10 @@ class _TransactionPageState extends State<TransactionPage> {
   final int _rowsPerPage = 15;
   int _totalRows = 0;
   int _totalPages = 0;
+  String? _userRole;
 
+
+ 
   Future<void> _pickDateRange(BuildContext context) async {
     final DateTimeRange? picked = await showDateRangePicker(
       context: context,
@@ -99,7 +103,22 @@ class _TransactionPageState extends State<TransactionPage> {
   void initState() {
     super.initState();
     _refreshTransactions();
+    _getLoggedInUserRole();
   }
+
+
+  Future<void> _getLoggedInUserRole() async {
+
+    final role = await UserDB().getLoggedInUserRole();
+
+    if(!mounted) return;
+
+    setState(() {
+      _userRole = role;
+    }); 
+
+}
+
 
   Widget _buildPageNumbers() {
     return Row(
@@ -272,7 +291,9 @@ Future<void> _exportTransactions() async {
               ),
             ),
 
-            SizedBox(
+
+                  if(_userRole == 'admin')  
+                    SizedBox(
                       height: isLandscape
                         ? Responsive.spacing(context, mobile: 30, tablet: 35, desktop: 40)
                         : Responsive.spacing(context,mobile: 40, tablet: 45, desktop: 50),

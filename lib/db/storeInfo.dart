@@ -35,23 +35,19 @@ class StoreInfoDB {
   }
 
 
+static Future<Map<String, dynamic>?> getStoreInfo() async {
+  final db = await AppDatabase.database;
 
-  static Future<Map<String, dynamic>> getStoreInfo() async {
-    final db = await AppDatabase.database;
+  final result = await db.query(
+    'store_info',
+    limit: 1,
+  );
 
-    final result = await db.query(
-      'store_info',
-      limit: 1,
-    );
-
-    if (result.isNotEmpty) {
-      return result.first;
-    }
-    return {
-      'message': 'Something went wrong.'
-    };
+  if (result.isNotEmpty) {
+    return result.first;
   }
-    
+  return null;
+}
 
   static Future<void> updateStoreInfo({
     int? id,

@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:pos_app/utils/responsive.dart';
 
 class BarcodeScannerPage extends StatefulWidget {
   final Function(String) onDetect;
@@ -64,9 +66,21 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    final isDesktop = Responsive.isDesktop(context);
+    final isTablet = Responsive.isTablet(context);
+    final isLandscape = Responsive.isLandscape(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Scan Barcode"),
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        shadowColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+        elevation: 3,
+        toolbarHeight: isLandscape ? (isDesktop ? 50 : isTablet ? 40 : 35) : (isDesktop ? 70 : isTablet ? 60 : 50),
+        title: Text("Scan Barcode",
+         style: GoogleFonts.kameron(
+              fontSize:  isLandscape ? (isDesktop ? 20 :isTablet ? 18 : 16) : (isDesktop ? 24 :isTablet ? 22 : 20),
+              fontWeight: FontWeight.bold,)),
         actions: [
           IconButton(
             icon: const Icon(Icons.flash_on),
@@ -104,20 +118,43 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
           right: 20,
           child:
                 SizedBox(
-                  height: 50, 
+                  height: 100, 
                   child: Row(
                     children: [
                       Expanded(
                         child: ElevatedButton(
                           onPressed: _cancel, 
-                          style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                          child: Text("Cancel")),
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: isLandscape 
+                              ? (isDesktop ? Size(double.infinity, 48) : isTablet ? Size(double.infinity, 45) : Size(double.infinity, 40)) 
+                              : (isDesktop ?  Size(double.infinity, 53) : isTablet ? Size(double.infinity, 50) : Size(double.infinity, 40)),
+                            backgroundColor: Colors.red
+                            ),
+                          child: Text(
+                            "Cancel",
+                            style: GoogleFonts.kameron(
+                              fontSize: Responsive.font(context,mobile: 16, tablet: 18, desktop: 20),
+                              color: Colors.black,
+                              fontWeight: FontWeight.w500
+                            )
+                            )),
                       ),
                       SizedBox(width: 10,),
                       Expanded(
                         child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            minimumSize: isLandscape 
+                              ? (isDesktop ? Size(double.infinity, 48) : isTablet ? Size(double.infinity, 45) : Size(double.infinity, 40)) 
+                              : (isDesktop ?  Size(double.infinity, 53) : isTablet ? Size(double.infinity, 50) : Size(double.infinity, 40)),
+                          ),
                           onPressed: _save, 
-                          child: Text("Save"),
+                          child: Text("Save",
+                          style: GoogleFonts.kameron(
+                            fontSize: Responsive.font(context,mobile: 16, tablet: 18, desktop: 20),
+                            color: Colors.black,
+                            fontWeight: FontWeight.w500
+                          ),),
                         ),
                       ),
                     ],

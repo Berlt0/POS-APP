@@ -207,7 +207,6 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
   }    
 
   final List products  = transaction?['products'] ?? [];
-  print('^^^^^^^^^^^^^^^^^^$products');
 
 
   Future<void> _showVoidConfirmation(BuildContext context) async {
@@ -224,87 +223,176 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
       pageBuilder: (context, anim1, anim2) {
         print(transaction!['status']);
         return Center(
-          child: Material(
-            shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 300),
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      "Void Sale?",
-                      style: GoogleFonts.kameron(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+        child: Material(
+          color: Colors.transparent,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: isDesktop ? 420 : isTablet ? 400 : 350),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  /// TITLE
+                  Text(
+                    "Void Sale?",
+                    style: GoogleFonts.kameron(
+                      fontSize: isLandscape
+                          ? (isDesktop ? 18 : isTablet ? 16 : 14.5)
+                          : (isDesktop ? 20 : isTablet ? 18 : 16),
+                      fontWeight: FontWeight.bold,
                     ),
-                    const SizedBox(height: 10),
-                    Text(
-                      "Please provide a reason to void this transaction.",
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.kameron(fontSize: 14),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  /// MESSAGE
+                  Text(
+                    "Please provide a reason to void this transaction.",
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.kameron(
+                      fontSize: isLandscape
+                          ? (isDesktop ? 16 : isTablet ? 14 : 13.5)
+                          : (isDesktop ? 18 : isTablet ? 16 : 14),
+                      fontWeight: FontWeight.w500,
+                      height: 1.4,
                     ),
-                    const SizedBox(height: 20),
-                    TextField(
-                      controller: reasonController,
-                      autofocus: true,
-                      style: GoogleFonts.kameron(
-                        fontSize: Responsive.font(context, mobile: 16,tablet: 20,desktop: 22),
-                        color: Colors.black
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  /// INPUT
+                  TextField(
+                    controller: reasonController,
+                    autofocus: true,
+                    style: GoogleFonts.kameron(
+                      fontSize: Responsive.font(
+                        context,
+                        mobile: 16,
+                        tablet: 20,
+                        desktop: 22,
                       ),
-                      decoration: InputDecoration(
-                        hintText: 'Enter reason...',
-                        hintStyle: GoogleFonts.kameron(color: Colors.grey),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                      color: Colors.black,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Enter reason...',
+                      hintStyle: GoogleFonts.kameron(
+                        color: Colors.grey,
+                        fontSize: isLandscape
+                            ? (isDesktop ? 17 : isTablet ? 15 : 13.5)
+                            : (isDesktop ? 18 : isTablet ? 16 : 14),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey.shade100,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: Colors.grey.withOpacity(0.25),
+                          width: 1,
                         ),
-                        filled: true,
-                        fillColor: Colors.white
+                      ),
+
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: Colors.red, // your accent color
+                          width: 1.2,
+                        ),
+                      ),
+
+                    
+
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: isLandscape
+                            ? (isDesktop ? 12 : isTablet ? 10 : 9)
+                            : (isDesktop ? 18 : isTablet ? 13 : 10),
+                        horizontal: 13,
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text("Cancel", style: GoogleFonts.kameron(fontWeight: FontWeight.w500,color: Theme.of(context).colorScheme.onSurface)),
-                        ),
-                        const SizedBox(width: 10),
-                        ElevatedButton(
-                          onPressed: () {
-                            if (reasonController.text.trim().isEmpty) return;
-                            Navigator.pop(context, reasonController.text.trim());
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color.fromARGB(255, 180, 37, 27),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  /// BUTTONS
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+              
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 16,
                           ),
-                          child: Text("Confirm Void", style: GoogleFonts.kameron(color: Colors.white, fontWeight: FontWeight.w500)),
+                          child: Text(
+                            "Cancel",
+                            style: GoogleFonts.kameron(
+                              fontSize: isLandscape
+                                  ? (isDesktop ? 16 : isTablet ? 14 : 13)
+                                  : (isDesktop ? 18 : isTablet ? 16 : 14),
+                              fontWeight: FontWeight.w500,
+                              color: Colors.red
+                            ),
+                          ),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+
+                      /// CONFIRM
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(255, 180, 37, 27),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 26,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          elevation: 2,
+                        ),
+                        onPressed: () {
+                          if (reasonController.text.trim().isEmpty) return;
+                          Navigator.pop(context, reasonController.text.trim());
+                        },
+                        child: Text(
+                          "Confirm Void",
+                          style: GoogleFonts.kameron(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: isLandscape
+                                ? (isDesktop ? 16 : isTablet ? 14 : 13)
+                                : (isDesktop ? 18 : isTablet ? 16 : 14),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
-        );
-      },
-      transitionBuilder: (context, anim1, anim2, child) {
-        return ScaleTransition(
-          scale: CurvedAnimation(parent: anim1, curve: Curves.easeOutBack),
-          child: child,
-        );
-      },
+        ),
+      );
+    },
+
+    transitionBuilder: (context, anim1, anim2, child) {
+      return ScaleTransition(
+        scale: CurvedAnimation(
+          parent: anim1,
+          curve: Curves.easeOutBack,
+        ),
+        child: child,
+      );
+    },
   );
 
  

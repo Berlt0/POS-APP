@@ -197,6 +197,136 @@ class _ManageCashierAccessState extends State<ManageCashierAccess> {
 }
 
 
+Future<bool?> showDisableCashierModal(
+  BuildContext context,
+  String name,
+) {
+  return showGeneralDialog<bool>(
+    context: context,
+    barrierLabel: "Disable Cashier",
+    barrierDismissible: true,
+    barrierColor: Colors.black.withOpacity(0.3),
+    transitionDuration: const Duration(milliseconds: 300),
+
+    pageBuilder: (context, anim1, anim2) {
+      final isTablet = Responsive.isTablet(context);
+      final isDesktop = Responsive.isDesktop(context);
+
+      return Center(
+        child: Material(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(16),
+          type: MaterialType.transparency,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: isDesktop ? 390 : isTablet ? 400 : 290,
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Title
+                  Text(
+                    "Disable Cashier?",
+                    style: GoogleFonts.kameron(
+                      fontSize: isDesktop ? 22 : isTablet ? 20 : 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // Message
+                  Text(
+                    "Are you sure you want to disable $name?\nThey will no longer be able to access the system.",
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.kameron(
+                      fontSize: isDesktop ? 16 : isTablet ? 15.5 : 14.5,
+                      fontWeight: FontWeight.w500,
+                      height: 1.4,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(1),
+                    ),
+                  ),
+
+                  const SizedBox(height: 40),
+
+                  // Action Buttons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // Cancel
+                      GestureDetector(
+                        onTap: () => Navigator.of(context).pop(false),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 16,
+                          ),
+                          child: Text(
+                            "Cancel",
+                            style: GoogleFonts.kameron(
+                              fontSize: isDesktop ? 18 : isTablet ? 17 : 15.5,
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // Disable Button
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 28,
+                            vertical: 12,
+                          ),
+                          backgroundColor: Colors.red,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          elevation: 2,
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop(true);
+                        },
+                        child: Text(
+                          "Disable",
+                          style: GoogleFonts.kameron(
+                            fontSize: isDesktop ? 18 : isTablet ? 17 : 15.5,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    },
+
+    transitionBuilder: (context, anim1, anim2, child) {
+      return ScaleTransition(
+        scale: CurvedAnimation(
+          parent: anim1,
+          curve: Curves.easeOutBack,
+        ),
+        child: child,
+      );
+    },
+  );
+}
 
 
   Widget buildUserCard(int index) {
@@ -292,7 +422,25 @@ class _ManageCashierAccessState extends State<ManageCashierAccess> {
             Switch(
               value: !isDisabled,
               activeColor: Colors.green,
-              onChanged: (value) => toggleStatus(index),
+              onChanged: (value) async {
+                final user = cashiers[index];
+
+                final isDisabled = (user["is_disabled"] as int) == 1;
+
+                if (isDisabled) {
+                  toggleStatus(index);
+                  return;
+                }
+
+                final confirm = await showDisableCashierModal(
+                  context,
+                  user["name"],
+                );
+
+                if (confirm != true) return;
+
+                toggleStatus(index);
+              },
             ),
 
             const SizedBox(width: 8),
