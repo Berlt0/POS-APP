@@ -473,8 +473,14 @@ class _POSState extends State<POS> {
                   Expanded(
                     flex: 1,
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
+                      onPressed: () async {
+
+                         final Map<int, int> qtyBefore = {
+                            for (final item in products)
+                              if (item.product.id != null) item.product.id!: item.qty
+                          };
+
+                        final result = await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => BarcodeScannerPage(
@@ -483,26 +489,57 @@ class _POSState extends State<POS> {
 
                               final productMap = await Barcode.getProductByBarcode(barcode);
 
-                              if (productMap != null) {
-                                
+                              if (productMap != null) {                      
                           
                                 final product = POSModel.fromMap(productMap);
 
-                                addToCart(product); 
+                                if (!mounted) return;
 
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("Added: ${product.name}")),
+                                setState(() {
+                                  addToCart(product);
+                                });
+
+
+                                 ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("Added: ${product.name}"),
+                                    duration: const Duration(milliseconds: 800),
+                                  ),
                                 );
-                                
+                                                    
                               } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text("Product not found")),
-                                );
+                              
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("Product not found"),
+                                      duration: Duration(milliseconds: 800),
+                                    ),
+                                  );
                               }
                             },
                             ),
-                          )
+                          ),
                         );
+
+                        if (!mounted) return;
+
+                        if (result == null) {
+                          setState(() {
+                            for (final item in products) {
+                              if (item.product.id != null) {
+                                final before = qtyBefore[item.product.id!];
+                                if (before != null) {
+                                  item.qty = before; // restore previous qty
+                                } else {
+                                  item.qty = 0; // was added fresh this session → remove
+                                }
+                              }
+                            }
+                          });
+                        }
+
+
                       },
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(

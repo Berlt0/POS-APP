@@ -64,7 +64,9 @@ class _MyWidgetState extends State<Home>  {
   _todaysRevenue();
   _fetchRecentSales();
   _fetchLowStockProducts();
-  _fetchChartData();
+  setState(() {
+  _chartFuture = _fetchChartData();
+});
 }
 
 
@@ -91,6 +93,9 @@ Future<void> _loadSession() async {
 Future<void> _countTotalProducts() async {
   
   int count = await ProductDB.countProducts();
+
+  if (!mounted) return;
+
   setState(() {
     totalProducts = count;
   });
@@ -99,6 +104,9 @@ Future<void> _countTotalProducts() async {
 Future<void> _countTodaySales() async {
   
   int count = await Sales.countTodaySales();
+  
+  if (!mounted) return;
+
   setState(() {
     todaySalesCount = count;
   });
@@ -108,6 +116,8 @@ Future<void> _countTodaySales() async {
 Future <void> _countLowStockProducts() async {
 
   final products = await ProductDB.getAllActiveProducts();
+
+  if (!mounted) return;
 
   setState(() {
     lowStockProductsCount = products.where((product) => product.stock <= product.lowStockAlert! ).length;
@@ -120,6 +130,8 @@ Future <void> _countLowStockProducts() async {
 Future <void> _todaysRevenue() async {
 
   final revenue = await Sales.todaysRevenue();
+
+  if (!mounted) return;
 
   setState(() {
    todaysRevenue = revenue;
@@ -145,6 +157,9 @@ Future<void> _fetchRecentSales() async {
 
   }catch(error){
     print("Error fetching recent sales: $error");
+
+    if(!mounted) return;
+
     setState(() => isLoading = false);
   }
 
