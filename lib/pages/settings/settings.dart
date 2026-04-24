@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pos_app/pages/settings/aboutApp.dart';
 import 'package:pos_app/pages/settings/managaAccess.dart';
+import 'package:pos_app/db/user.dart';
 import 'package:pos_app/pages/settings/resetPass.settings.dart';
 import 'package:pos_app/pages/settings/settings.profile.dart';
 import 'package:pos_app/pages/settings/settings.storeInfo.dart';
@@ -16,6 +17,27 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
+
+  String? _userRole;
+
+  @override
+    void initState() {
+      super.initState();
+      _getLoggedInUserRole();
+  }
+
+
+Future<void> _getLoggedInUserRole() async {
+
+  final role = await UserDB().getLoggedInUserRole();
+
+  if(!mounted) return;
+
+  setState(() {
+    _userRole = role;
+  }); 
+
+}
 
   Widget buildTile(IconData icon, String title, VoidCallback onTap) {
     return ListTile(
@@ -94,23 +116,24 @@ class _SettingsState extends State<Settings> {
             buildTile(Icons.person, "Profile", () => Navigator.push(context,MaterialPageRoute(builder: (context) => const ProfileSettings()))),
           ]),
 
-
+          if(_userRole == 'admin')
           buildSection("Store Info", [
             buildTile(Icons.store, "Store Details", () => Navigator.push(context,MaterialPageRoute(builder: (context) => const StoreInfo()))),
           ]),
 
-       
+          if(_userRole == 'admin')
           buildSection("Payments", [
             buildTile(Icons.payment, "Payment Methods(Coming soon)", () {}),
 
           ]),
 
+          if(_userRole == 'admin')
           buildSection("Backup", [
             buildTile(Icons.cloud, "Backup & Restore", () {}),
           ]),
 
 
-          
+          if(_userRole == 'admin')
           buildSection("Security", [
             buildTile(Icons.lock, "Reset Password", () => Navigator.push(context,MaterialPageRoute(builder: (context) => const ResetPass()))),
             buildTile(Icons.security, "Manage Cashier Access",  () => Navigator.push(context,MaterialPageRoute(builder: (context) => const ManageCashierAccess()))),

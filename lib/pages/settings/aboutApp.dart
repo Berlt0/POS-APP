@@ -38,44 +38,53 @@ class AboutApp extends StatelessWidget {
 
             SizedBox(height: 30),
 
-            Icon(
-              Icons.point_of_sale,
-              size: 80,
-              color: Colors.black87,
+            Center(
+              child: Icon(
+                Icons.point_of_sale,
+                size: 80,
+              ),
             ),
 
             SizedBox(height: 10),
 
-            Text(
-              "POS System",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+            Center(
+              child: Text(
+                "POS System",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
 
             SizedBox(height: 5),
 
-            Text(
-              "Version 1.0.0",
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+            Center(
+              child: Text(
+                "Version 1.0.0",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                ),
               ),
             ),
 
             SizedBox(height: 20),
 
-            Text(
-              "A simple Point of Sale system for managing sales, inventory, and reports.",
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14),
+            Center(
+              child: Text(
+                "A simple Point of Sale system for managing sales, inventory, and reports.",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14),
+              ),
             ),
 
             SizedBox(height: 20),
 
-            Text(
-              "Developed by: Berlt0",
-              style: TextStyle(fontSize: 14),
+            Center(
+              child: Text(
+                "Developed by: Berlt0",
+                style: TextStyle(fontSize: 14),
+              ),
             ),
           ],
         ),

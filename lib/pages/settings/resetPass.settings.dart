@@ -175,16 +175,26 @@ class _ResetPassState extends State<ResetPass> {
   }
 
   void _submit() async {
-    setState(() {
-      newError = newPassController.text.length < 6 ? "Min 6 characters" : null;
-      confirmError = confirmPassController.text != newPassController.text
-          ? "Password not match"
-          : null;
-    });
 
-    if (newError != null || confirmError != null || selectedCashier == null) {
-      return;
-    }
+   setState(() {
+    newError = newPassController.text.length < 6
+        ? "Min 6 characters"
+        : null;
+
+    confirmError = confirmPassController.text != newPassController.text
+        ? "Password not match"
+        : null;
+  });
+
+  if (newError != null ||
+      confirmError != null ||
+      selectedCashier == null) {
+    return;
+  }
+
+  final confirm = await showResetPasswordConfirmModal(context);
+  if (confirm != true) return;
+
 
     final hashedPassword = PasswordHelper.hashPassword(newPassController.text.trim());
 
@@ -228,6 +238,150 @@ class _ResetPassState extends State<ResetPass> {
     });
   }
 
+
+Future<bool?> showResetPasswordConfirmModal(BuildContext context) async {
+  final isTablet = Responsive.isTablet(context);
+  final isDesktop = Responsive.isDesktop(context);
+  final isLandscape = Responsive.isLandscape(context);
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+
+  return showGeneralDialog<bool>(
+    context: context,
+    barrierLabel: "Reset Password",
+    barrierDismissible: false,
+    barrierColor: isDark
+        ? Colors.black.withOpacity(0.9)
+        : Colors.black.withOpacity(0.6),
+    transitionDuration: const Duration(milliseconds: 300),
+
+    pageBuilder: (context, anim1, anim2) {
+      return Center(
+        child: Material(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(16),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: isLandscape
+                  ? (isDesktop ? 320 : isTablet ? 280 : 240)
+                  : (isDesktop ? 400 : isTablet ? 360 : 290),
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+
+                  // Title
+                  Text(
+                    "Reset Password?",
+                    style: GoogleFonts.kameron(
+                      fontSize: isLandscape
+                          ? (isDesktop ? 18 : isTablet ? 16 : 14.5)
+                          : (isDesktop ? 22 : isTablet ? 20 : 17),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // Message
+                  Text(
+                    "This will update the selected user's password.",
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.kameron(
+                      fontSize: isLandscape
+                          ? (isDesktop ? 15 : isTablet ? 13 : 12.5)
+                          : (isDesktop ? 16 : isTablet ? 15 : 14),
+                      fontWeight: FontWeight.w500,
+                      height: 1.4,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.75),
+                    ),
+                  ),
+
+                  const SizedBox(height: 40),
+
+                  // Buttons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+
+                      // Cancel
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context, false),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 16,
+                          ),
+                          child: Text(
+                            "Cancel",
+                            style: GoogleFonts.kameron(
+                              fontSize: isLandscape
+                                  ? (isDesktop ? 16 : isTablet ? 14 : 13)
+                                  : (isDesktop ? 18 : isTablet ? 17 : 15),
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // Confirm
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF30DD04),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 26,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          elevation: 2,
+                        ),
+                        onPressed: () => Navigator.pop(context, true),
+                        child: Text(
+                          "Confirm",
+                          style: GoogleFonts.kameron(
+                            fontSize: isLandscape
+                                ? (isDesktop ? 16 : isTablet ? 14 : 13)
+                                : (isDesktop ? 18 : isTablet ? 17 : 15),
+                            color: Colors.black,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    },
+
+    transitionBuilder: (context, anim1, anim2, child) {
+      return ScaleTransition(
+        scale: CurvedAnimation(
+          parent: anim1,
+          curve: Curves.easeOutBack,
+        ),
+        child: child,
+      );
+    },
+  );
+}
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -263,6 +417,26 @@ class _ResetPassState extends State<ResetPass> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+
+            Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Reset cashier password.",style: GoogleFonts.kameron(
+                  fontSize: Responsive.font(context, mobile: 18, tablet: 20, desktop: 22),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text("Update account credentials to maintain secure login access.",style: GoogleFonts.kameron(
+                fontSize: Responsive.font(context, mobile: 14, tablet: 15, desktop: 17),
+                fontWeight: FontWeight.w400,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)
+              ),
+            ),
+            ],
+          ),
+
+          const SizedBox(height: 30),
+
             Text(
               "Select User",
               style: GoogleFonts.kameron(
@@ -322,7 +496,21 @@ class _ResetPassState extends State<ResetPass> {
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: _submit,
+                onPressed: () {
+                
+                setState(() {
+                  newError = newPassController.text.trim().isEmpty
+                      ? "Field is empty"
+                      : null;
+
+                  confirmError = confirmPassController.text.trim().isEmpty
+                      ? "Field is empty"
+                      : null;
+                });
+
+                _submit();
+
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF30DD04),
                   shape: RoundedRectangleBorder(

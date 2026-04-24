@@ -1,5 +1,6 @@
 
 import 'package:intl/intl.dart';
+import 'package:pos_app/db/user.dart';
 import 'package:flutter/material.dart';
 import 'package:pos_app/db/reports.dart';
 import 'package:pos_app/utils/boxShadow.dart';
@@ -10,6 +11,7 @@ import 'package:pos_app/utils/responsive.dart';
 import 'package:pos_app/widgets/sale_chart.dart';
 import 'package:pos_app/widgets/topSellingProduct.dart';
 import 'package:pos_app/services/exports/pdf/salesReport.dart';
+
 
 
 class Reports extends StatefulWidget {
@@ -30,6 +32,8 @@ bool isSaleTrendLoading = false;
 bool isRCOGSPLoading = false;
 bool isTopProductsLoading = false;
 
+String? _userRole;
+
 DateTimeRange? selectedRange;
 
 List<Map<String, dynamic>> salesTrend = [];
@@ -48,6 +52,7 @@ void initState() {
   loadSalesTrend();
   loadRCOGSP();
   loadTopSellingProducts();
+  _getLoggedInUserRole();
 }
 
 @override
@@ -86,6 +91,19 @@ DateTimeRange getEffectiveDateRange() {
     end: DateTime(now.year, now.month, now.day),
   );
 }
+
+Future<void> _getLoggedInUserRole() async {
+
+  final role = await UserDB().getLoggedInUserRole();
+
+  if(!mounted) return;
+
+  setState(() {
+    _userRole = role;
+  }); 
+
+}
+
 
 
 Future<void> _pickDateRange(BuildContext context) async {
@@ -368,7 +386,7 @@ Future<void> _exportReport() async {
 
                      SizedBox(width: 10),
 
-
+                    if(_userRole == 'admin') 
                     SizedBox(
                       height: isLandscape
                       ? Responsive.spacing(context, mobile: 30, tablet: 35, desktop: 40)
@@ -400,6 +418,7 @@ Future<void> _exportReport() async {
                         ),
                       ),
                     ),
+                    
 
 
                   ],

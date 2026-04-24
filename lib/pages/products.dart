@@ -302,88 +302,127 @@ Future<bool?> showConfirmationDialog(BuildContext context) {
 
 
 Future<bool?> showDeleteConfirmationModal(BuildContext context) {
-
-    final isTablet = Responsive.isTablet(context);
-    final isDesktop = Responsive.isDesktop(context);
-    final isLandscape = Responsive.isLandscape(context);
-
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
+  final isTablet = Responsive.isTablet(context);
+  final isDesktop = Responsive.isDesktop(context);
+  final isLandscape = Responsive.isLandscape(context);
+  final isDark = Theme.of(context).brightness == Brightness.dark;
 
   return showGeneralDialog<bool>(
     context: context,
     barrierLabel: "Delete Product",
     barrierDismissible: false,
-    barrierColor:   isDark ? Colors.black.withOpacity(0.9) : Colors.black.withOpacity(0.6),
+    barrierColor: isDark
+        ? Colors.black.withOpacity(0.9)
+        : Colors.black.withOpacity(0.6),
     transitionDuration: const Duration(milliseconds: 300),
+
     pageBuilder: (context, anim1, anim2) {
       return Center(
         child: Material(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(16),
           type: MaterialType.transparency,
           child: ConstrainedBox(
-            constraints:  BoxConstraints(maxWidth: isLandscape ? (isDesktop ? 300 : isTablet ? 250 : 220) :(isDesktop ? 380 : isTablet ? 350 : 270)),
+            constraints: BoxConstraints(
+              maxWidth: isLandscape
+                  ? (isDesktop ? 300 : isTablet ? 250 : 220)
+                  : (isDesktop ? 380 : isTablet ? 350 : 270),
+            ),
             child: Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                   Text(
+                  // Title
+                  Text(
                     "Delete Product?",
                     style: GoogleFonts.kameron(
-                      fontSize: isLandscape ? (isDesktop ? 17 : isTablet ? 15 : 14) : (isDesktop ? 21 : isTablet ? 20 : 17),
+                      fontSize: isLandscape
+                          ? (isDesktop ? 17 : isTablet ? 15 : 14)
+                          : (isDesktop ? 22 : isTablet ? 20 : 17),
                       fontWeight: FontWeight.bold,
-
                     ),
                   ),
-                  const SizedBox(height: 6),
-                       Text(
-                        "Are you sure you want to delete this product?",
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.kameron(
-                          fontSize: isLandscape ?  (isDesktop ? 15 : isTablet ? 13 : 12.5) : (isDesktop ? 20 : isTablet ? 18 : 14.5),
-                          fontWeight: FontWeight.w500
-                      
-                        ),
-                      ),
-                  
+
+                  const SizedBox(height: 12),
+
+                  // Message
+                  Text(
+                    "Are you sure you want to delete this product?",
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.kameron(
+                      fontSize: isLandscape
+                          ? (isDesktop ? 15 : isTablet ? 13 : 12.5)
+                          : (isDesktop ? 16 : isTablet ? 15.5 : 14.5),
+                      fontWeight: FontWeight.w500,
+                      height: 1.4,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(1),
+                    ),
+                  ),
+
                   const SizedBox(height: 40),
+
+                  // Buttons
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                     
-                        GestureDetector(
-                          onTap: () { 
-                            Navigator.of(context).pop(false); 
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text("Cancel", style: GoogleFonts.kameron(
-                              fontSize: isLandscape ? (isDesktop ? 16 : isTablet ? 14 : 13) : (isDesktop ? 21 : isTablet ? 18 : 15),
-                              fontWeight: FontWeight.w500
-                            )),
+                      // Cancel
+                      GestureDetector(
+                        onTap: () => Navigator.of(context).pop(false),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 16,
+                          ),
+                          child: Text(
+                            "Cancel",
+                            style: GoogleFonts.kameron(
+                              fontSize: isLandscape
+                                  ? (isDesktop ? 16 : isTablet ? 14 : 13)
+                                  : (isDesktop ? 18 : isTablet ? 17 : 15.5),
+                              fontWeight: FontWeight.w500,
+                              color: Colors.red
+                            ),
                           ),
                         ),
+                      ),
 
+                      // Delete
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.fromLTRB(20, 8, 20, 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 28,
+                            vertical: 12,
+                          ),
                           backgroundColor: Colors.red,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          elevation: 2,
                         ),
                         onPressed: () {
-                          Navigator.of(context).pop(true); 
+                          Navigator.of(context).pop(true);
                         },
-                        child:  Text("Delete", style: GoogleFonts.kameron(
-                          fontSize:  isLandscape ? (isDesktop ? 16 : isTablet ? 14 : 13) : (isDesktop ? 21 : isTablet ? 18 : 15),
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500
-                        ),),
+                        child: Text(
+                          "Delete",
+                          style: GoogleFonts.kameron(
+                            fontSize: isLandscape
+                                ? (isDesktop ? 16 : isTablet ? 14 : 13)
+                                : (isDesktop ? 18 : isTablet ? 17 : 15.5),
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),
@@ -391,9 +430,13 @@ Future<bool?> showDeleteConfirmationModal(BuildContext context) {
         ),
       );
     },
+
     transitionBuilder: (context, anim1, anim2, child) {
       return ScaleTransition(
-        scale: CurvedAnimation(parent: anim1, curve: Curves.easeOutBack),
+        scale: CurvedAnimation(
+          parent: anim1,
+          curve: Curves.easeOutBack,
+        ),
         child: child,
       );
     },
