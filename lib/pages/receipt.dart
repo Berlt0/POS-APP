@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:pos_app/db/transaction.dart';
 import 'package:pos_app/db/database.dart';
 import 'package:pos_app/utils/responsive.dart';
+import 'package:pos_app/services/thermal_printer.dart';
 
 
 class ViewReceipt extends StatefulWidget {
@@ -730,7 +731,10 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
                       actionButton(
                         value: 'Print',
                         color: const Color.fromARGB(255, 38, 116, 41),
-                        onPressed: () {},
+                        onPressed: () async {
+                            final thermal = ThermalService();
+                            await thermal.printReceipt(context, transaction!);
+                          },
                         width: isLandscape ? Responsive.spacing(context, mobile: 100, tablet: 120, desktop: 140) : Responsive.spacing(context, mobile: 120, tablet: 140, desktop: 160),
                         height: isLandscape ? Responsive.spacing(context, mobile: 40, tablet: 45, desktop: 50) : Responsive.spacing(context, mobile: 45, tablet: 50, desktop: 55),
                       ),
