@@ -732,7 +732,7 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
                         value: 'Print',
                         color: const Color.fromARGB(255, 38, 116, 41),
                         onPressed: () async {
-                            final thermal = ThermalService();
+                            final ThermalService thermal = ThermalService();
                             await thermal.printReceipt(context, transaction!);
                           },
                         width: isLandscape ? Responsive.spacing(context, mobile: 100, tablet: 120, desktop: 140) : Responsive.spacing(context, mobile: 120, tablet: 140, desktop: 160),
@@ -753,7 +753,10 @@ String safeString(dynamic value, [String fallback = 'N/A']) {
                     child: actionButton(
                       value: 'Print',
                       color: const Color.fromARGB(255, 38, 116, 41),
-                      onPressed: () {},
+                      onPressed: () async {
+                        final ThermalService thermal = ThermalService();
+                        await thermal.printReceipt(context, transaction!);
+                      },
                       width: Responsive.spacing(context, mobile: 120, tablet: 140, desktop: 160),
                       height: Responsive.spacing(context, mobile: 45, tablet: 50, desktop: 55),
                     ),

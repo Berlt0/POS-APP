@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:intl/intl.dart';
 
 class ThermalService {
@@ -35,24 +36,24 @@ class ThermalService {
       String qty = _safeInt(item['quantity']).toString();
 
       receipt += '$name\n';
-      receipt += formatLine('x$qty', '₱$price') + '\n';
+      receipt += formatLine('x$qty', 'PHP$price') + '\n';
     }
 
     receipt += '------------------------------\n';
 
     receipt += formatLine(
             'TOTAL',
-            '₱${_safeDouble(transaction['total_amount']).toStringAsFixed(2)}') +
+            'PHP${_safeDouble(transaction['total_amount']).toStringAsFixed(2)}') +
         '\n';
 
     receipt += formatLine(
             'CASH',
-            '₱${_safeDouble(transaction['amount_received']).toStringAsFixed(2)}') +
+            'PHP${_safeDouble(transaction['amount_received']).toStringAsFixed(2)}') +
         '\n';
 
     receipt += formatLine(
             'CHANGE',
-            '₱${_safeDouble(transaction['change_amount']).toStringAsFixed(2)}') +
+            'PHP${_safeDouble(transaction['change_amount']).toStringAsFixed(2)}') +
         '\n';
 
     receipt += '\n   Thank you!\n';
@@ -120,25 +121,25 @@ class ThermalService {
       String qty = _safeInt(item['quantity']).toString();
 
       bytes += generator.text(name);
-      bytes += generator.text(formatLine('x$qty', '₱$price'));
+      bytes += generator.text(formatLine('x$qty', 'PHP$price'));
     }
 
     bytes += generator.hr();
 
     bytes += generator.text(
       formatLine('TOTAL',
-          '₱${_safeDouble(transaction['total_amount']).toStringAsFixed(2)}'),
+          'PHP${_safeDouble(transaction['total_amount']).toStringAsFixed(2)}'),
       styles: PosStyles(bold: true),
     );
 
     bytes += generator.text(
       formatLine('CASH',
-          '₱${_safeDouble(transaction['amount_received']).toStringAsFixed(2)}'),
+          'PHP${_safeDouble(transaction['amount_received']).toStringAsFixed(2)}'),
     );
 
     bytes += generator.text(
       formatLine('CHANGE',
-          '₱${_safeDouble(transaction['change_amount']).toStringAsFixed(2)}'),
+          'PHP${_safeDouble(transaction['change_amount']).toStringAsFixed(2)}'),
     );
 
     bytes += generator.feed(2);
@@ -157,6 +158,19 @@ class ThermalService {
   Future<void> printReceipt(
       BuildContext context, Map<String, dynamic> transaction) async {
     try {
+
+    bool granted = await requestBluetoothPermission();
+
+   if (!granted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enable Bluetooth permission in settings')),
+      );
+
+      await openAppSettings();
+      return;
+    }
+
+
       final bytes = await generateReceiptBytes(transaction);
 
       bool isConnected = await PrintBluetoothThermal.connectionStatus;
@@ -202,4 +216,18 @@ class ThermalService {
                 : '')
         .join(' ');
   }
+
+
+
+Future<bool> requestBluetoothPermission() async {
+  final bluetooth = await Permission.bluetooth.request();
+  final connect = await Permission.bluetoothConnect.request();
+  final scan = await Permission.bluetoothScan.request();
+
+  // location is optional, don't block printing because of it
+  await Permission.location.request();
+
+  return bluetooth.isGranted && connect.isGranted && scan.isGranted;
+}
+
 }
